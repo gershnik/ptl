@@ -1,0 +1,6 @@
+{
+    "cmake.buildDirectory": "${workspaceFolder}/out/vscode/${buildKit}",
+    "C_Cpp.autoAddFileAssociations": false,
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "cmake.configureArgs": [],
+}

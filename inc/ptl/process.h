@@ -30,7 +30,7 @@ namespace ptl::inline v0 {
             if (m_pid) {
                 int stat;
                 for ( ; ; ) {
-                    int res = waitpid(m_pid, &stat, 0);
+                    pid_t res = ::waitpid(m_pid, &stat, 0);
                     if (res < 0 && errno == EINTR) 
                         continue;
                     assert(res == m_pid);
@@ -56,8 +56,8 @@ namespace ptl::inline v0 {
             return m_pid;
         }
         
-        auto detach() noexcept -> int {
-            int ret = m_pid;
+        auto detach() noexcept -> pid_t {
+            pid_t ret = m_pid;
             m_pid = 0;
             return ret;
         }
@@ -73,7 +73,7 @@ namespace ptl::inline v0 {
                 throwErrorCode(EINVAL, "ChildProcess not started or has already been waited for");
             }
             int stat;
-            pid_t res = waitpid(m_pid, &stat, flags);
+            pid_t res = ::waitpid(m_pid, &stat, flags);
             if (res < 0) {
                 stat = -1;
                 handleError(PTL_ERROR_REF(err), errno, "waitpid for {} failed", m_pid);

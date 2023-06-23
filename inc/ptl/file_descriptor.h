@@ -58,6 +58,7 @@ namespace ptl::inline v0 {
             return open(std::forward<decltype(path)>(path), oflag, 0, PTL_ERROR_REF(err));
         }
         
+        #if PTL_HAVE_MKOSTEMPS
         static auto openTemp(char * nameTemplate, size_t suffixLen, int oflags, PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> FileDescriptor 
         requires(PTL_ERROR_REQ(err)) {
             clearError(PTL_ERROR_REF(err));
@@ -76,6 +77,7 @@ namespace ptl::inline v0 {
         requires(PTL_ERROR_REQ(err)) {
             return openTemp(nameTemplate, 0, 0, PTL_ERROR_REF(err));
         }
+        #endif
         
         static auto pipe(PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> std::pair<FileDescriptor, FileDescriptor> 
         requires(PTL_ERROR_REQ(err)) {
@@ -135,7 +137,7 @@ namespace ptl::inline v0 {
     };
     template<> struct FileDescriptorTraits<FILE *> {
         [[gnu::always_inline]] static int c_fd(FILE * fp)
-            { return fileno(fp);}
+            { return ::fileno(fp);}
     };
 
     

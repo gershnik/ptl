@@ -3,6 +3,7 @@ include(CheckCXXSymbolExists)
 include(CheckCXXSourceCompiles)
 include(CheckCXXSourceRuns)
 
+check_cxx_symbol_exists(mkostemps unistd.h PTL_HAVE_MKOSTEMPS)
 check_cxx_symbol_exists(execvpe unistd.h PTL_HAVE_EXECVPE)
 check_cxx_symbol_exists(posix_spawn_file_actions_addinherit_np spawn.h PTL_HAVE_POSIX_SPAWN_FILE_ACTIONS_ADDINHERIT_NP)
 check_cxx_symbol_exists(posix_spawn_file_actions_addchdir_np spawn.h PTL_HAVE_POSIX_SPAWN_FILE_ACTIONS_ADDCHDIR_NP)

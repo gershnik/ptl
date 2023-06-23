@@ -198,7 +198,7 @@ namespace ptl::inline v0 {
         auto attr(SpawnAttr && val) = delete;
 
         auto usePath() noexcept -> SpawnSettings & {
-            m_func = &posix_spawnp;
+            m_func = &::posix_spawnp;
             return *this;
         }
 
@@ -221,7 +221,7 @@ namespace ptl::inline v0 {
         }
         
     private:
-        decltype(posix_spawn) * m_func = &posix_spawn;
+        decltype(::posix_spawn) * m_func = &::posix_spawn;
         const posix_spawn_file_actions_t * m_fileActions = nullptr;
         const posix_spawnattr_t * m_attr = nullptr;
     };

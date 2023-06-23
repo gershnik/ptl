@@ -3,6 +3,9 @@
 
 #include <ptl/core.h>
 
+#include <optional>
+#include <cassert>
+
 #include <sys/types.h>
 #include <sys/wait.h>
 

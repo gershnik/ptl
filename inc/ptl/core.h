@@ -15,7 +15,7 @@
     #include <fmt/format.h>
 #endif
 
-#include <sys/errno.h>
+#include <errno.h>
 
 #include <ptl/config.h>
 
@@ -25,13 +25,10 @@ namespace ptl::inline v0 {
 
         #if PTL_USE_STD_FORMAT
             using ::std::vformat;
-            using ::std::make_format_arguments;
+            using ::std::make_format_args;
         #else
             using ::fmt::vformat;
-            template<class Context = fmt::format_context, class ...T>
-            constexpr decltype(auto) make_format_arguments(T&&... args)  {
-                return ::fmt::make_format_args<Context>(std::forward<T>(args)...);
-            }
+            using ::fmt::make_format_args;
         #endif
     }
 

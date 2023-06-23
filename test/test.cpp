@@ -1,5 +1,9 @@
 #include <catch2/catch_session.hpp>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 
 int main(int argc, char ** argv)
 {

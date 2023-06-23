@@ -61,7 +61,7 @@ namespace ptl::inline v0 {
         if (code == ENOMEM) //do not attempt to allocate on ENOMEM
             throw std::system_error(makeErrorCode(code));
         throw std::system_error(makeErrorCode(code),
-                                impl::vformat(format, impl::make_format_arguments(std::forward<T>(args)...)));
+                                impl::vformat(format, impl::make_format_args(std::forward<T>(args)...)));
     }
 
     template<> struct ErrorTraits<std::error_code> {

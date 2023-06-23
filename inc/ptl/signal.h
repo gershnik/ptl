@@ -12,7 +12,7 @@
     }
 #endif
 
-namespace ptl {
+namespace ptl::inline v0 {
 
     class SignalSet {
     enum Init { Emtpy, All };

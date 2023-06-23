@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-namespace ptl {
+namespace ptl::inline v0 {
 
     template<class T> struct FileDescriptorTraits;
 

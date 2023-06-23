@@ -13,7 +13,7 @@
 #include <spawn.h>
 
 
-namespace ptl {
+namespace ptl::inline v0 {
 
     inline auto forkProcess(PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> ChildProcess {
         auto ret = ::fork();

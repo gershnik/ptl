@@ -6,7 +6,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-namespace ptl {
+namespace ptl::inline v0 {
 
     template<class T> struct ProcessTraits;
 

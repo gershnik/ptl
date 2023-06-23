@@ -19,7 +19,7 @@
 
 #include <ptl/config.h>
 
-namespace ptl {
+namespace ptl::inline v0 {
 
     namespace impl {
 

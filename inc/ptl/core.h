@@ -146,7 +146,7 @@ namespace ptl::inline v0 {
             if constexpr (std::is_same_v<FSChar, char>) {
                 return CPathTraits::dependent_c_str(path); 
             } else {
-                return Proxy(path.string());
+                return Proxy{path.string()};
             }
         }
     private:

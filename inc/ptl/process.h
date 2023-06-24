@@ -28,7 +28,7 @@ namespace ptl::inline v0 {
         }
     #else
         namespace impl {
-            uisng ::waitpid;
+            using ::waitpid;
         }
     #endif
 

@@ -17,9 +17,23 @@
 
 #include <errno.h>
 
+#if __has_include(<unistd.h>)
+    #include <unistd.h>
+#endif
+
 #include <ptl/config.h>
 
 namespace ptl::inline v0 {
+
+    #ifndef _WIN32
+        using mode_t = ::mode_t;
+        using io_size_t = ::size_t;
+        using io_ssize_t = ::ssize_t;
+    #else
+        using mode_t = int;
+        using io_size_t = unsigned;
+        using io_ssize_t = int;
+    #endif
 
     namespace impl {
 
@@ -126,6 +140,8 @@ namespace ptl::inline v0 {
             { return str.c_str(); }
     };
     template<> struct CPathTraits<std::filesystem::path> {
+        template<class Char = std::filesystem::path::value_type>
+        requires(std::is_same_v<Char, char>)
         static const char * c_path(const std::filesystem::path & str)
             { return str.c_str(); }
     };

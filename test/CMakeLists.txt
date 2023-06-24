@@ -63,7 +63,9 @@ PRIVATE
     $<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra -Wpedantic
         -Wno-unknown-pragmas  #the whole point of pragmas it to be potentially unknown!
     >
-    $<$<CXX_COMPILER_ID:MSVC>:/utf-8 /Zc:preprocessor /W4 /WX /EHsc>
+    $<$<CXX_COMPILER_ID:MSVC>:/utf-8 /Zc:preprocessor /W4 /WX /EHsc
+        /wd5030 #attribute 'x' is not recognized
+    >
 )
 
 target_compile_definitions(test

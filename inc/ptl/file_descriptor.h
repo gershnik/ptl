@@ -3,10 +3,31 @@
 
 #include <ptl/core.h>
 
-#include <unistd.h>
+#ifdef _WIN32
+    #include <io.h>
+#endif
 #include <fcntl.h>
 
 namespace ptl::inline v0 {
+
+    namespace impl {
+    #ifndef _WIN32
+        using ::open;
+        using ::close;
+        using ::pipe;
+        using ::fileno;
+        using ::read;
+    #else
+        static const auto & open = ::_open;
+        static const auto & close = ::_close;
+        static const auto & fileno = ::_fileno;
+        static const auto & read = ::_read;
+
+        inline int pipe(int fildes[2]) {
+            return _pipe(fildes, 4096, 0);
+        }
+    #endif
+    }
 
     template<class T> struct FileDescriptorTraits;
 
@@ -26,7 +47,7 @@ namespace ptl::inline v0 {
         }
         ~FileDescriptor() noexcept {
             if (m_fd >= 0)
-                ::close(m_fd);
+                impl::close(m_fd);
         }
         FileDescriptor(FileDescriptor && src) noexcept : m_fd(src.m_fd) {
             src.m_fd = -1;
@@ -45,7 +66,7 @@ namespace ptl::inline v0 {
         requires(PTL_ERROR_REQ(err)) {
 
             clearError(PTL_ERROR_REF(err));
-            auto fd = ::open(c_path(std::forward<decltype(path)>(path)), oflag, mode);
+            auto fd = impl::open(c_path(std::forward<decltype(path)>(path)), oflag, mode);
             if (fd < 0) {
                 fd = -1;
                 handleError(PTL_ERROR_REF(err), errno, "cannot open {}", c_path(path));
@@ -83,7 +104,7 @@ namespace ptl::inline v0 {
         requires(PTL_ERROR_REQ(err)) {
             clearError(PTL_ERROR_REF(err));
             int fds[2];
-            if (::pipe(fds) != 0) {
+            if (impl::pipe(fds) != 0) {
                 fds[0] = -1;
                 fds[1] = -1;
                 handleError(PTL_ERROR_REF(err), errno, "pipe() call failed");
@@ -97,10 +118,10 @@ namespace ptl::inline v0 {
                 throwErrorCode(errno, "dup2({},{}) failed", m_fd, c_fd(std::forward<decltype(fdTo)>(fdTo)));
         }
 
-        auto read(void * buf, size_t nbyte, PTL_ERROR_REF_ARG(err)) const noexcept(PTL_ERROR_NOEXCEPT(err)) -> ssize_t 
+        auto read(void * buf, io_size_t nbyte, PTL_ERROR_REF_ARG(err)) const noexcept(PTL_ERROR_NOEXCEPT(err)) -> io_ssize_t 
         requires(PTL_ERROR_REQ(err)) {
             clearError(PTL_ERROR_REF(err));
-            auto ret = ::read(m_fd, buf, nbyte);
+            auto ret = impl::read(m_fd, buf, nbyte);
             if (ret < 0)
                 handleError(PTL_ERROR_REF(err), errno, "read() failed");
             return ret;
@@ -137,7 +158,7 @@ namespace ptl::inline v0 {
     };
     template<> struct FileDescriptorTraits<FILE *> {
         [[gnu::always_inline]] static int c_fd(FILE * fp)
-            { return ::fileno(fp);}
+            { return impl::fileno(fp);}
     };
 
     

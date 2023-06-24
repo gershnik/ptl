@@ -140,6 +140,14 @@ namespace ptl::inline v0 {
         }
         #endif
 
+        #if PTL_HAVE_POSIX_SPAWN_FILE_ACTIONS_ADDCLOSEFROM_NP
+        void addCloseFromNp(FileDescriptorLike auto && fd) {
+            posixCheck(posix_spawn_file_actions_addclosefrom_np(&m_wrapped, 
+                                                                c_fd(std::forward<decltype(fd)>(fd))),
+                       "posix_spawn_file_actions_addclosefrom_np failed");
+        }
+        #endif
+
         #if PTL_HAVE_POSIX_SPAWN_FILE_ACTIONS_ADDCHDIR_NP
         void addChdirNp(PathLike auto && path) {
             posixCheck(posix_spawn_file_actions_addchdir_np(&m_wrapped, 

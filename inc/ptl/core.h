@@ -105,7 +105,7 @@ namespace ptl::inline v0 {
 
     #define PTL_ERROR_REF_ARG(x) ErrorSink auto & ...x
     #define PTL_ERROR_REQ(x) (sizeof...(x) < 2)
-    #define PTL_ERROR_NOEXCEPT(x) noexcept(handleError(x..., errno, ""))
+    #define PTL_ERROR_NOEXCEPT(x) (sizeof...(x) > 0)
     #define PTL_ERROR_REF(x) x...
 
     template<class T> struct CPathTraits;

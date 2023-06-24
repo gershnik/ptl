@@ -44,6 +44,7 @@ TEST_CASE( "spawn signatures" , "[spawn]") {
 
 }
 
+#ifndef _WIN32
 TEST_CASE( "spawn" , "[spawn]") {
 
     auto launch = [](std::filesystem::path exe, auto && ...args) {
@@ -123,6 +124,48 @@ TEST_CASE( "fork_exec" , "[spawn]") {
         write.dup2(stdout);
         execp({"sh", "-c", "echo hoho"});
     }
-
-
 }
+
+#else
+
+TEST_CASE( "spawn" , "[spawn]") {
+
+    auto launch = [](std::filesystem::path exe, auto && ...args) {
+        auto proc = spawn({exe.string().c_str(), args...});
+    };
+
+    auto launchEc = [](std::error_code & ec, std::filesystem::path exe, auto && ...args) {
+        auto proc = spawn({exe.string().c_str(), args...}, ec);
+    };
+
+    CHECK_THROWS_MATCHES(launch("no_such_exe", "/c", "dir"), std::system_error, EqualsSystemError(std::errc::no_such_file_or_directory));
+    CHECK_NOTHROW(launch("C:\\Windows\\System32\\cmd.exe", "/c", "dir >nul:"));
+    std::error_code ec;
+    CHECK_NOTHROW(launchEc(ec, "no_such_exe", "/c", "dir"));
+    CHECK(ec.value() == ENOENT);
+    CHECK_NOTHROW(launchEc(ec, "no_such_exe", "/c", "dir", (const char *)nullptr));
+    CHECK(ec.value() == ENOENT);
+
+    {
+        auto [read, write] = FileDescriptor::pipe();
+
+        auto proc = spawn({"cmd", "/c", ">&4 echo %PTL_STRING%"}, {"PTL_STRING=haha"}, SpawnSettings().usePath());
+        write.close();
+
+        std::string res;
+        while(true) {
+            auto offset = res.size();
+            constexpr size_t chunk = 5;
+            res.resize(offset + chunk);
+            auto readCount = read.read(res.data() + offset, chunk);
+            res.resize(offset + readCount);
+            if (readCount == 0)
+                break;
+        }
+        auto stat = proc.wait().value();
+        CHECK(stat == 0);
+        CHECK(res == "haha\r\n");
+    }
+}
+
+#endif

@@ -7,9 +7,30 @@
 #include <cassert>
 
 #include <sys/types.h>
-#include <sys/wait.h>
+#if __has_include(<sys/wait.h>)
+    #include <sys/wait.h>
+#endif
 
 namespace ptl::inline v0 {
+
+    #if defined(_WIN32) && !defined(__MINGW32__)
+        using pid_t = intptr_t;
+    #else
+        using pid_t = ::pid_t;
+    #endif
+
+    #ifdef _WIN32
+        namespace impl {
+            inline pid_t waitpid(pid_t pid, int* stat_loc, [[maybe_unused]] int options) {
+                assert(options == 0);
+                return _cwait(stat_loc, pid, 0);
+            }
+        }
+    #else
+        namespace impl {
+            uisng ::waitpid;
+        }
+    #endif
 
     template<class T> struct ProcessTraits;
 
@@ -33,7 +54,7 @@ namespace ptl::inline v0 {
             if (m_pid) {
                 int stat;
                 for ( ; ; ) {
-                    pid_t res = ::waitpid(m_pid, &stat, 0);
+                    pid_t res = impl::waitpid(m_pid, &stat, 0);
                     if (res < 0 && errno == EINTR) 
                         continue;
                     assert(res == m_pid);
@@ -76,14 +97,18 @@ namespace ptl::inline v0 {
                 throwErrorCode(EINVAL, "ChildProcess not started or has already been waited for");
             }
             int stat;
-            pid_t res = ::waitpid(m_pid, &stat, flags);
+            pid_t res = impl::waitpid(m_pid, &stat, flags);
             if (res < 0) {
                 stat = -1;
                 handleError(PTL_ERROR_REF(err), errno, "waitpid for {} failed", m_pid);
             } else if (res > 0) {
                 assert(res == m_pid);
+                #ifndef _WIN32
                 if (WIFEXITED(stat) || WIFSIGNALED(stat))
                     m_pid = 0;
+                #else
+                    m_pid = 0;
+                #endif
                 return stat;
             }
             return std::nullopt;

@@ -2,4 +2,7 @@
 
 /out
 /.devcontainer
+/.vs
+
+CMakeSettings.json
 

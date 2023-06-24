@@ -17,9 +17,23 @@
 
 #include <errno.h>
 
+#if __has_include(<unistd.h>)
+    #include <unistd.h>
+#endif
+
 #include <ptl/config.h>
 
 namespace ptl::inline v0 {
+
+    #if defined(_WIN32) && !defined(__MINGW32__)
+        using mode_t = int;
+        using io_size_t = unsigned;
+        using io_ssize_t = int;
+    #else
+        using mode_t = ::mode_t;
+        using io_size_t = ::size_t;
+        using io_ssize_t = ::ssize_t;
+    #endif
 
     namespace impl {
 
@@ -98,11 +112,11 @@ namespace ptl::inline v0 {
 
     template<class T>
     concept PathLike = requires(T && obj) {
-        { CPathTraits<std::remove_cvref_t<T>>::c_path(std::forward<T>(obj)) } -> std::same_as<const char *>;
+        { CPathTraits<std::remove_cvref_t<T>>::c_path(std::forward<T>(obj)) } -> std::convertible_to<const char *>;
     };
 
     template<PathLike T>
-    inline const char * c_path(T && obj)
+    inline decltype(auto) c_path(T && obj)
         { return CPathTraits<std::remove_cvref_t<T>>::c_path(std::forward<T>(obj)); }
 
     template<> struct CPathTraits<const char *> {
@@ -126,8 +140,26 @@ namespace ptl::inline v0 {
             { return str.c_str(); }
     };
     template<> struct CPathTraits<std::filesystem::path> {
-        static const char * c_path(const std::filesystem::path & str)
-            { return str.c_str(); }
+        
+        template<class FSChar=std::filesystem::path::value_type>
+        static decltype(auto) c_path(const std::filesystem::path & path) { 
+            if constexpr (std::is_same_v<FSChar, char>) {
+                return CPathTraits::dependent_c_str(path); 
+            } else {
+                return Proxy(path.string());
+            }
+        }
+    private:
+        struct Proxy {
+            operator const char * () const noexcept 
+                { return path.c_str(); }
+            std::string path; 
+        };
+
+        template<class P>
+        static auto dependent_c_str(P && path) noexcept -> const char *
+            { return std::forward<P>(path).c_str(); }
+
     };
     
     template<class T>

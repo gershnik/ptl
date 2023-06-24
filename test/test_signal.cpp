@@ -1,7 +1,5 @@
 #include <ptl/signal.h>
 
-#include <unistd.h>
-
 #include <catch2/catch_test_macros.hpp>
 
 #include "common.h"
@@ -9,23 +7,38 @@
 using namespace ptl;
 
 TEST_CASE( "signal name" , "[signal]") {
-    CHECK(signalName(SIGINT) == "INT");
-    CHECK(signalName(SIGKILL) == "KILL");
+    #ifndef _WIN32
+        CHECK(signalName(SIGINT) == "INT");
+        CHECK(signalName(SIGKILL) == "KILL");
+    #else
+        CHECK(signalName(SIGINT) == std::to_string(SIGINT));
+        CHECK(signalName(SIGTERM) == std::to_string(SIGTERM));
+    #endif
 }
 
 static int handledSig = 0;
 
 TEST_CASE( "simple handler", "[signal]") {
+    #ifndef _WIN32
+        constexpr int signo = SIGUSR1;
+    #else
+        constexpr int signo = SIGINT;
+    #endif
 
-    setSignalHandler(SIGUSR1, [](int sig) {
+    setSignalHandler(signo, [](int sig) {
         handledSig = sig;
     });
     handledSig = 0;
-    sendSignal(getpid(), SIGUSR1);
-    CHECK(handledSig == SIGUSR1);
-    setSignalHandler(SIGUSR1, SIG_DFL);
+    #ifndef _WIN32
+    sendSignal(getpid(), signo);
+    CHECK(handledSig == signo);
+    #endif
+    raiseSignal(signo);
+    CHECK(handledSig == signo);
+    setSignalHandler(signo, SIG_DFL);
 }
 
+#ifndef _WIN32
 TEST_CASE( "action handler", "[signal]") {
 
     auto handler = [](int sig, siginfo_t *, void *) {
@@ -47,3 +60,4 @@ TEST_CASE( "action handler", "[signal]") {
         CHECK(ret.sa_sigaction == handler);
     }
 }
+#endif

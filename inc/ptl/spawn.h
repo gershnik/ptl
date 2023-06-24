@@ -10,11 +10,14 @@
 #include <optional>
 #include <iterator>
 
-#include <spawn.h>
+#if __has_include(<spawn.h>)
+    #include <spawn.h>
+#endif
 
 
 namespace ptl::inline v0 {
 
+    #ifndef __MINGW32__
     inline auto forkProcess(PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> ChildProcess {
         auto ret = ::fork();
         if (ret < 0) {
@@ -23,6 +26,7 @@ namespace ptl::inline v0 {
         }
         return ChildProcess{ret};
     }
+    #endif
 
     class StringRefArray {
     public:
@@ -93,6 +97,7 @@ namespace ptl::inline v0 {
 //MARK: - Spawn
 #pragma region Spawn
 
+    #ifndef _WIN32
     class SpawnFileActions {
     public:
         SpawnFileActions() 
@@ -172,11 +177,13 @@ namespace ptl::inline v0 {
     private:
         posix_spawnattr_t m_wrapped;
     };
+    #endif
 
     
-    struct SpawnSettings {
+    class SpawnSettings {
 
     public:
+        #ifndef _WIN32
         auto fileActions(const posix_spawn_file_actions_t * ptr) noexcept -> SpawnSettings & {
             m_fileActions = ptr;
             return *this;
@@ -196,9 +203,14 @@ namespace ptl::inline v0 {
             return *this;
         }
         auto attr(SpawnAttr && val) = delete;
+        #endif
 
         auto usePath() noexcept -> SpawnSettings & {
-            m_func = &::posix_spawnp;
+            #ifndef _WIN32
+                m_func = &::posix_spawnp;
+            #else
+                m_func = &::_spawnvpe;
+            #endif
             return *this;
         }
 
@@ -207,23 +219,35 @@ namespace ptl::inline v0 {
         requires(PTL_ERROR_REQ(err)) {
             clearError(PTL_ERROR_REF(err));
             pid_t childPid;
-            int res = m_func(&childPid, 
-                             path,
-                             m_fileActions, 
-                             m_attr,
-                             const_cast<char * const *>(args),
-                             const_cast<char * const *>(env)); 
-            if (res != 0) {
-                childPid = 0;
-                handleError(PTL_ERROR_REF(err), res, "cannot spawn {}", path);
-            }
+            #ifndef _WIN32
+                int res = m_func(&childPid, 
+                                 path,
+                                 m_fileActions, 
+                                 m_attr,
+                                 const_cast<char * const *>(args),
+                                 const_cast<char * const *>(env)); 
+                if (res != 0) {
+                    childPid = 0;
+                    handleError(PTL_ERROR_REF(err), res, "cannot spawn {}", path);
+                }
+            #else
+                childPid = m_func(_P_NOWAIT, path, args, env);
+                if (childPid == -1) {
+                    childPid = 0;
+                    handleError(PTL_ERROR_REF(err), errno, "cannot spawn {}", path);
+                }
+            #endif
             return ChildProcess(childPid);
         }
         
     private:
-        decltype(::posix_spawn) * m_func = &::posix_spawn;
-        const posix_spawn_file_actions_t * m_fileActions = nullptr;
-        const posix_spawnattr_t * m_attr = nullptr;
+        #ifndef _WIN32
+            decltype(::posix_spawn) * m_func = &::posix_spawn;
+            const posix_spawn_file_actions_t * m_fileActions = nullptr;
+            const posix_spawnattr_t * m_attr = nullptr;
+        #else
+            decltype(::_spawnve) * m_func = &::_spawnve;
+        #endif
     };
 
     
@@ -292,6 +316,7 @@ namespace ptl::inline v0 {
 //MARK: - Exec
 #pragma region Exec
 
+    #ifndef _WIN32
     //exe, env
     inline auto exec(PathLike auto && exe, const StringRefArray & args, const StringRefArray & env,
                      PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> void
@@ -331,12 +356,14 @@ namespace ptl::inline v0 {
         assert(!args.empty());
         exec(args[0], args, PTL_ERROR_REF(err));
     }
+    #endif
 
 #pragma endregion
 
 //MARK: - Execp
 #pragma region Execp
 
+    #ifndef _WIN32
     #if PTL_HAVE_EXECVPE
     //exe, env
     inline auto execp(PathLike auto && exe, const StringRefArray & args, const StringRefArray & env,
@@ -379,6 +406,7 @@ namespace ptl::inline v0 {
         assert(!args.empty());
         execp(args[0], args, PTL_ERROR_REF(err));
     }
+    #endif
     
 #pragma endregion
     

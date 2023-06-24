@@ -14,6 +14,7 @@
 
 namespace ptl::inline v0 {
 
+    #ifndef _WIN32
     class SignalSet {
     enum Init { Emtpy, All };
     public:
@@ -59,6 +60,7 @@ namespace ptl::inline v0 {
         }
         return str;
     }
+    #endif
 
     inline auto signalName(int sig) -> std::string {
     #if PTL_HAVE_SIGABBREV_NP
@@ -81,6 +83,7 @@ namespace ptl::inline v0 {
         return std::to_string(sig);
     }
 
+    #ifndef __MINGW32__
     inline void sendSignal(ProcessLike auto && proc, int sig, PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         clearError();
@@ -88,6 +91,15 @@ namespace ptl::inline v0 {
         int res = ::kill(pid, sig);
         if (res != 0)
             handleError(PTL_ERROR_REF(err), errno, "kill({}, {}) failed", pid, sig);
+    }
+    #endif
+
+    inline void raiseSignal(int sig, PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+        requires(PTL_ERROR_REQ(err)) {
+        clearError();
+        int res = ::raise(sig);
+        if (res != 0)
+            handleError(PTL_ERROR_REF(err), errno, "raise({}) failed", sig);
     }
 
     inline auto setSignalHandler(int signo, void (* handler)(int)) -> void (*)(int) {
@@ -97,6 +109,7 @@ namespace ptl::inline v0 {
         return ret;
     }
 
+    #ifndef _WIN32
     using struct_sigaction = struct ::sigaction;
 
     class SignalAction : public struct_sigaction {
@@ -139,7 +152,7 @@ namespace ptl::inline v0 {
     inline void getSignalAction(int signo, SignalAction & oact) {
         posixCheck(::sigaction(signo, nullptr, &oact), "sigaction({})", signo);
     }
-
+    #endif
 }
 
 

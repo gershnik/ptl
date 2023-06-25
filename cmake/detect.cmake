@@ -12,6 +12,14 @@ check_cxx_symbol_exists(sys_signame signal.h PTL_HAVE_SYS_SIGNAME)
 check_cxx_source_runs("
     #include <signal.h>
     #include <stdio.h>
+    int main() { 
+        const char * x = sys_sigabbrev[SIGINT];
+        printf(\"%s\", x);
+    }" 
+PTL_HAVE_SYS_SIGABBREV_DECLARED)
+check_cxx_source_runs("
+    #include <signal.h>
+    #include <stdio.h>
     extern \"C\" {
         extern const char * const sys_sigabbrev[NSIG];
     }
@@ -19,7 +27,7 @@ check_cxx_source_runs("
         const char * x = sys_sigabbrev[SIGINT];
         printf(\"%s\", x);
     }" 
-PTL_HAVE_SYS_SIGABBREV)
+PTL_HAVE_SYS_SIGABBREV_UNDECLARED)
 check_cxx_source_runs("
     #include <unistd.h>
     #include <stdlib.h>

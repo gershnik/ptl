@@ -7,6 +7,8 @@
 #include <vector>
 #include <utility>
 
+#ifndef _WIN32
+
 #include <pwd.h>
 #include <grp.h>
 
@@ -102,5 +104,7 @@ namespace ptl::inline v0 {
     using Group = UserInfoImpl<GroupTraits>;
 
 }
+
+#endif
 
 #endif

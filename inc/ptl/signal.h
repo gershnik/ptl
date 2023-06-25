@@ -6,7 +6,7 @@
 
 #include <signal.h>
 
-#if PTL_HAVE_SYS_SIGABBREV
+#if PTL_HAVE_SYS_SIGABBREV_UNDECLARED
     extern "C" {
         extern const char * const sys_sigabbrev[NSIG];
     }
@@ -74,7 +74,11 @@ namespace ptl::inline v0 {
         }
     #elif PTL_HAVE_SYS_SIGABBREV
         if (sig > 0 && sig < NSIG) {
-            std::string str = sys_sigabbrev[sig];
+            #ifndef __CYGWIN__
+                std::string str = sys_sigabbrev[sig];
+            #else
+                std::string str = sys_sigabbrev[sig] + 3;
+            #endif
             return str;
         }
     

@@ -23,4 +23,25 @@ inline auto EqualsSystemError(std::errc code) -> SystemErrorMatcher {
     return SystemErrorMatcher(code);
 }
 
+auto readAll(const auto & readable) -> std::string {
+    std::string res;
+    while(true) {
+        auto offset = res.size();
+        constexpr size_t chunk = 5;
+        res.resize(offset + chunk);
+        auto readCount = readable.read(res.data() + offset, chunk);
+        res.resize(offset + readCount);
+        if (readCount == 0)
+            break;
+    }
+    return res;
+}
+
+inline auto rtrim(const std::string & str) -> std::string {
+    auto end = std::find_if(str.rbegin(), str.rend(), [](char c) {
+        return !isspace(c);
+    });
+    return std::string(str.begin(), end.base());
+}
+
 #endif

@@ -5,6 +5,8 @@
 
 #include <utility>
 
+#ifndef _WIN32
+
 namespace ptl::inline v0 {
 
     class Identity {
@@ -45,5 +47,6 @@ namespace ptl::inline v0 {
 
 }
 
+#endif
 
 #endif 

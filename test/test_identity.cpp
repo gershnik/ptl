@@ -7,6 +7,8 @@
 
 using namespace ptl;
 
+#ifndef _WIN32
+
 TEST_CASE( "basics" , "[identity]") {
 
     auto mine = Identity::real();
@@ -18,3 +20,5 @@ TEST_CASE( "basics" , "[identity]") {
     CHECK(effective.gid == getegid());
 
 }
+
+#endif

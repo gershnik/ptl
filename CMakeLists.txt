@@ -31,6 +31,7 @@ set(PUBLIC_HEADERS
     ${INCDIR}/ptl/process.h
     ${INCDIR}/ptl/signal.h
     ${INCDIR}/ptl/spawn.h
+    ${INCDIR}/ptl/users.h
 )
 
 set(CMAKE_FILES 

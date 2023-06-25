@@ -79,6 +79,7 @@ PRIVATE
     test_file_descriptor.cpp
     test_spawn.cpp
     test_signal.cpp
+    test_users.cpp
 )
 
 set(TEST_COMMAND "")

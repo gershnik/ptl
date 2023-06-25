@@ -167,6 +167,15 @@ namespace ptl::inline v0 {
         { std::forward<T>(obj).c_str() } -> std::convertible_to<const char *>;
     };
 
+    inline auto c_str(StringLike auto && str) noexcept -> const char * {
+        using Str = std::remove_cvref_t<decltype(str)>;
+        if constexpr (std::is_convertible_v<Str, const char *>) {
+            return str;
+        } else {
+            return std::forward<decltype(str)>(str).c_str();
+        }
+    }
+
     template<class T>
     concept StringLikeArray = requires(T obj) {
         std::begin(obj);

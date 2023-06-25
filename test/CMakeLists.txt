@@ -76,6 +76,7 @@ PRIVATE
 target_sources(test
 PRIVATE
     test.cpp
+    test_identity.cpp
     test_file_descriptor.cpp
     test_spawn.cpp
     test_signal.cpp

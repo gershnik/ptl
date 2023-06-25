@@ -27,6 +27,7 @@ set(PUBLIC_HEADERS
     ${GEN_INCDIR}/ptl/config.h
 
     ${INCDIR}/ptl/core.h
+    ${INCDIR}/ptl/identity.h
     ${INCDIR}/ptl/file_descriptor.h
     ${INCDIR}/ptl/process.h
     ${INCDIR}/ptl/signal.h

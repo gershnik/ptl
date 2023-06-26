@@ -52,7 +52,14 @@ TEST_CASE( "spawn" , "[spawn]") {
         act.addOpen(stdout, "/dev/null", O_WRONLY, 0);
         SpawnAttr spawnAttr;
         spawnAttr.setFlags(POSIX_SPAWN_SETSIGDEF);
-        spawnAttr.setSigDefault(SignalSet::all());
+        #ifndef __CYGWIN__
+            spawnAttr.setSigDefault(SignalSet::all());
+        #else
+            auto sigs = SignalSet::all();
+            sigs.del(SIGKILL);
+            sigs.del(SIGSTOP);
+            spawnAttr.setSigDefault(sigs);
+        #endif
 
         auto proc = spawn({exe.c_str(), args...}, SpawnSettings().attr(spawnAttr).fileActions(act));
     };

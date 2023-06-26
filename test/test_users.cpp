@@ -20,7 +20,7 @@ static auto getMyself() -> UserInfo {
     UserInfo ret;
 
     {
-        auto [readPipe, writePipe] = FileDescriptor::pipe();
+        auto [readPipe, writePipe] = Pipe::create();
         SpawnFileActions fa;
         fa.addDup2(writePipe, stdout);
         auto child = spawn({ "whoami" }, SpawnSettings().fileActions(fa).usePath());
@@ -29,7 +29,7 @@ static auto getMyself() -> UserInfo {
         child.wait();
     }
     {
-        auto [readPipe, writePipe] = FileDescriptor::pipe();
+        auto [readPipe, writePipe] = Pipe::create();
         SpawnFileActions fa;
         fa.addDup2(writePipe, stdout);
         auto child = spawn({ "id", "-u" }, SpawnSettings().fileActions(fa).usePath());
@@ -39,7 +39,7 @@ static auto getMyself() -> UserInfo {
         child.wait();
     }
     {
-        auto [readPipe, writePipe] = FileDescriptor::pipe();
+        auto [readPipe, writePipe] = Pipe::create();
         SpawnFileActions fa;
         fa.addDup2(writePipe, stdout);
         auto child = spawn({ "id", "-g" }, SpawnSettings().fileActions(fa).usePath());

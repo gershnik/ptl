@@ -2,6 +2,7 @@
 #define PTL_HEADER_FILE_DESCRIPTOR_H_INCLUDED
 
 #include <ptl/core.h>
+#include <ptl/identity.h>
 
 #if defined(_WIN32)
     #include <io.h>
@@ -106,18 +107,6 @@ namespace ptl::inline v0 {
         }
         #endif
         
-        static auto pipe(PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> std::pair<FileDescriptor, FileDescriptor> 
-        requires(PTL_ERROR_REQ(err)) {
-            clearError(PTL_ERROR_REF(err));
-            int fds[2];
-            if (impl::pipe(fds) != 0) {
-                fds[0] = -1;
-                fds[1] = -1;
-                handleError(PTL_ERROR_REF(err), errno, "pipe() call failed");
-            }
-            return std::make_pair(FileDescriptor(fds[0]), FileDescriptor(fds[1]));
-        }
-
         void dup2(const FileDescriptorLike auto & fdTo) const {
             auto res = impl::dup2(m_fd, c_fd(std::forward<decltype(fdTo)>(fdTo)));
             if (res < 0) 
@@ -167,7 +156,58 @@ namespace ptl::inline v0 {
             { return impl::fileno(fp);}
     };
 
-    
+    struct Pipe {
+        static auto create(PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err))
+        requires(PTL_ERROR_REQ(err)) {
+            clearError(PTL_ERROR_REF(err));
+            int fds[2];
+            if (impl::pipe(fds) != 0) {
+                fds[0] = -1;
+                fds[1] = -1;
+                handleError(PTL_ERROR_REF(err), errno, "pipe() call failed");
+            }
+            return Pipe{FileDescriptor(fds[0]), FileDescriptor(fds[1])};
+        }
+
+        FileDescriptor readEnd;
+        FileDescriptor writeEnd;
+    };
+
+    #ifndef _WIN32
+
+    inline void changeOwner(FileDescriptorLike auto && desc, const Identity & owner,
+                            PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+    requires(PTL_ERROR_REQ(err)) {
+        auto fd = c_fd(std::forward<decltype(desc)>(desc));
+        if (::fchown(fd, owner.uid, owner.gid) != 0)
+            handleError(PTL_ERROR_REF(err), errno, "fchown({}, {}, {}) failed", fd, owner.uid, owner.gid);
+    }
+
+    inline void changeOwner(PathLike auto && path, const Identity & owner,
+                            PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+    requires(PTL_ERROR_REQ(err)) {
+        auto cpath = c_path(std::forward<decltype(path)>(path));
+        if (::chown(cpath, owner.uid, owner.gid) != 0)
+            handleError(PTL_ERROR_REF(err), errno, "chown({}, {}, {}) failed", cpath, owner.uid, owner.gid);
+    }
+
+    inline void changeMode(FileDescriptorLike auto && desc, mode_t mode,
+                            PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+    requires(PTL_ERROR_REQ(err)) {
+        auto fd = c_fd(std::forward<decltype(desc)>(desc));
+        if (fchmod(fd, mode) != 0)
+            handleError(PTL_ERROR_REF(err), errno, "fchmod({}, 0{:o}) failed", fd, mode);
+    }
+
+    inline void changeMode(PathLike auto && path, mode_t mode,
+                            PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+    requires(PTL_ERROR_REQ(err)) {
+        auto cpath = c_path(std::forward<decltype(path)>(path));
+        if (chmod(cpath, mode) != 0)
+            handleError(PTL_ERROR_REF(err), errno, "chmod({}, 0{:o}) failed", cpath, mode);
+    }
+
+    #endif
 }
 
 #endif

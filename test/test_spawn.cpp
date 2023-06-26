@@ -77,7 +77,7 @@ TEST_CASE( "spawn" , "[spawn]") {
     CHECK(ec.value() == ENOENT);
 
     {
-        auto [read, write] = FileDescriptor::pipe();
+        auto [read, write] = Pipe::create();
 
         SpawnFileActions act;
         act.addDup2(write, stdout);
@@ -104,7 +104,7 @@ TEST_CASE( "spawn" , "[spawn]") {
 
 TEST_CASE( "fork_exec" , "[spawn]") {
 
-    auto [read, write] = FileDescriptor::pipe();
+    auto [read, write] = Pipe::create();
 
     auto childProc = forkProcess();
     if (childProc) {

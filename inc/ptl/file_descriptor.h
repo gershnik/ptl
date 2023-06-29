@@ -2,12 +2,13 @@
 #define PTL_HEADER_FILE_DESCRIPTOR_H_INCLUDED
 
 #include <ptl/core.h>
-#include <ptl/identity.h>
+
 
 #if defined(_WIN32)
     #include <io.h>
 #endif
 #include <fcntl.h>
+#include <sys/stat.h>
 
 namespace ptl::inline v0 {
 
@@ -175,27 +176,35 @@ namespace ptl::inline v0 {
 
     #ifndef _WIN32
 
-    inline void changeOwner(FileDescriptorLike auto && desc, const Identity & owner,
+    inline void changeOwner(FileDescriptorLike auto && desc, uid_t uid, gid_t gid,
                             PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto fd = c_fd(std::forward<decltype(desc)>(desc));
-        if (::fchown(fd, owner.uid, owner.gid) != 0)
-            handleError(PTL_ERROR_REF(err), errno, "fchown({}, {}, {}) failed", fd, owner.uid, owner.gid);
+        if (::fchown(fd, uid, gid) != 0)
+            handleError(PTL_ERROR_REF(err), errno, "fchown({}, {}, {}) failed", fd, uid, gid);
     }
 
-    inline void changeOwner(PathLike auto && path, const Identity & owner,
+    inline void changeOwner(PathLike auto && path, uid_t uid, gid_t gid,
                             PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
-        if (::chown(cpath, owner.uid, owner.gid) != 0)
-            handleError(PTL_ERROR_REF(err), errno, "chown({}, {}, {}) failed", cpath, owner.uid, owner.gid);
+        if (::chown(cpath, uid, gid) != 0)
+            handleError(PTL_ERROR_REF(err), errno, "chown({}, {}, {}) failed", cpath, uid, gid);
+    }
+
+    inline void changeLinkOwner(PathLike auto && path, uid_t uid, gid_t gid,
+                            PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+    requires(PTL_ERROR_REQ(err)) {
+        auto cpath = c_path(std::forward<decltype(path)>(path));
+        if (::lchown(cpath, uid, gid) != 0)
+            handleError(PTL_ERROR_REF(err), errno, "lchown({}, {}, {}) failed", cpath, uid, gid);
     }
 
     inline void changeMode(FileDescriptorLike auto && desc, mode_t mode,
                             PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto fd = c_fd(std::forward<decltype(desc)>(desc));
-        if (fchmod(fd, mode) != 0)
+        if (::fchmod(fd, mode) != 0)
             handleError(PTL_ERROR_REF(err), errno, "fchmod({}, 0{:o}) failed", fd, mode);
     }
 
@@ -203,8 +212,40 @@ namespace ptl::inline v0 {
                             PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
-        if (chmod(cpath, mode) != 0)
+        if (::chmod(cpath, mode) != 0)
             handleError(PTL_ERROR_REF(err), errno, "chmod({}, 0{:o}) failed", cpath, mode);
+    }
+
+    inline void changeLinkMode(PathLike auto && path, mode_t mode,
+                            PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+    requires(PTL_ERROR_REQ(err)) {
+        auto cpath = c_path(std::forward<decltype(path)>(path));
+        if (::lchmod(cpath, mode) != 0)
+            handleError(PTL_ERROR_REF(err), errno, "chmod({}, 0{:o}) failed", cpath, mode);
+    }
+
+    inline void getStatus(FileDescriptorLike auto && desc, struct ::stat & res,
+                          PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+    requires(PTL_ERROR_REQ(err)) {
+        auto fd = c_fd(std::forward<decltype(desc)>(desc));
+        if (::fstat(fd, &res) != 0)
+            handleError(PTL_ERROR_REF(err), errno, "fstat({}) failed", fd);
+    }
+
+    inline void getStatus(PathLike auto && path, struct ::stat & res,
+                          PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+    requires(PTL_ERROR_REQ(err)) {
+        auto cpath = c_path(std::forward<decltype(path)>(path));
+        if (::stat(cpath, &res) != 0)
+            handleError(PTL_ERROR_REF(err), errno, "stat({}) failed", cpath);
+    }
+
+    inline void getLinkStatus(PathLike auto && path, struct ::stat & res,
+                            PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+    requires(PTL_ERROR_REQ(err)) {
+        auto cpath = c_path(std::forward<decltype(path)>(path));
+        if (::lstat(cpath, &res) != 0)
+            handleError(PTL_ERROR_REF(err), errno, "lstat({}) failed", cpath);
     }
 
     #endif

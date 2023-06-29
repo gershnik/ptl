@@ -2,6 +2,8 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#include <io.h>
+#define umask _umask
 #endif
 
 #include <sys/stat.h>
@@ -12,13 +14,14 @@ using namespace ptl;
 
 int main(int argc, char ** argv)
 {
-    #if defined (_WIN32)
-        SetConsoleOutputCP(CP_UTF8);
-    #endif
     umask(0);
 
-    SignalAction act(SIG_DFL, SA_RESTART);
-    setSignalAction(SIGCHLD, act);
+    #if defined (_WIN32)
+        SetConsoleOutputCP(CP_UTF8);
+    #else
+        SignalAction act(SIG_DFL, SA_RESTART);
+        setSignalAction(SIGCHLD, act);
+    #endif
 
     return Catch::Session().run( argc, argv );
 }

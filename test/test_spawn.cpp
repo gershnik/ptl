@@ -154,7 +154,7 @@ TEST_CASE( "spawn" , "[spawn]") {
     CHECK(ec.value() == ENOENT);
 
     {
-        auto [read, write] = FileDescriptor::pipe();
+        auto [read, write] = Pipe::create();
 
         auto proc = spawn({"cmd", "/c", ">&4 echo %PTL_STRING%"}, {"PTL_STRING=haha"}, SpawnSettings().usePath());
         write.close();

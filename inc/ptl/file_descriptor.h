@@ -201,7 +201,7 @@ namespace ptl::inline v0 {
     }
 
     inline void changeMode(FileDescriptorLike auto && desc, mode_t mode,
-                            PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+                           PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto fd = c_fd(std::forward<decltype(desc)>(desc));
         if (::fchmod(fd, mode) != 0)
@@ -209,7 +209,7 @@ namespace ptl::inline v0 {
     }
 
     inline void changeMode(PathLike auto && path, mode_t mode,
-                            PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+                           PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
         if (::chmod(cpath, mode) != 0)
@@ -217,7 +217,7 @@ namespace ptl::inline v0 {
     }
 
     inline void changeLinkMode(PathLike auto && path, mode_t mode,
-                            PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+                               PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
         if (::lchmod(cpath, mode) != 0)
@@ -241,7 +241,7 @@ namespace ptl::inline v0 {
     }
 
     inline void getLinkStatus(PathLike auto && path, struct ::stat & res,
-                            PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+                              PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
         if (::lstat(cpath, &res) != 0)

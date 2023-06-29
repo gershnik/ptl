@@ -9,6 +9,7 @@ check_cxx_symbol_exists(posix_spawn_file_actions_addchdir_np spawn.h PTL_HAVE_PO
 check_cxx_symbol_exists(posix_spawn_file_actions_addclosefrom_np spawn.h PTL_HAVE_POSIX_SPAWN_FILE_ACTIONS_ADDCLOSEFROM_NP)
 check_cxx_symbol_exists(sigabbrev_np string.h PTL_HAVE_SIGABBREV_NP)
 check_cxx_symbol_exists(sys_signame signal.h PTL_HAVE_SYS_SIGNAME)
+check_cxx_symbol_exists(lchmod sys/stat.h PTL_HAVE_LCHMOD)
 check_cxx_source_runs("
     #include <signal.h>
     #include <stdio.h>

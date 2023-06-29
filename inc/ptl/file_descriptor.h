@@ -216,6 +216,7 @@ namespace ptl::inline v0 {
             handleError(PTL_ERROR_REF(err), errno, "chmod({}, 0{:o}) failed", cpath, mode);
     }
 
+    #if PTL_HAVE_LCHMOD
     inline void changeLinkMode(PathLike auto && path, mode_t mode,
                                PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
@@ -223,6 +224,7 @@ namespace ptl::inline v0 {
         if (::lchmod(cpath, mode) != 0)
             handleError(PTL_ERROR_REF(err), errno, "chmod({}, 0{:o}) failed", cpath, mode);
     }
+    #endif
 
     inline void getStatus(FileDescriptorLike auto && desc, struct ::stat & res,
                           PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 

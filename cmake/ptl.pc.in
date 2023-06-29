@@ -1,0 +1,10 @@
+prefix=${pcfiledir}/@FROM_PCFILEDIR_TO_PREFIX@
+exec_prefix=${prefix}
+includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@
+
+Name: ptl
+Description: C++ template library for Posix
+Version: @PROJECT_VERSION@
+Requires:
+Cflags: -I${includedir}
+Libs: 

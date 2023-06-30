@@ -180,6 +180,7 @@ namespace ptl::inline v0 {
                             PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto fd = c_fd(std::forward<decltype(desc)>(desc));
+        clearError(PTL_ERROR_REF(err));
         if (::fchown(fd, uid, gid) != 0)
             handleError(PTL_ERROR_REF(err), errno, "fchown({}, {}, {}) failed", fd, uid, gid);
     }
@@ -188,6 +189,7 @@ namespace ptl::inline v0 {
                             PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
+        clearError(PTL_ERROR_REF(err));
         if (::chown(cpath, uid, gid) != 0)
             handleError(PTL_ERROR_REF(err), errno, "chown({}, {}, {}) failed", cpath, uid, gid);
     }
@@ -196,6 +198,7 @@ namespace ptl::inline v0 {
                             PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
+        clearError(PTL_ERROR_REF(err));
         if (::lchown(cpath, uid, gid) != 0)
             handleError(PTL_ERROR_REF(err), errno, "lchown({}, {}, {}) failed", cpath, uid, gid);
     }
@@ -204,6 +207,7 @@ namespace ptl::inline v0 {
                            PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto fd = c_fd(std::forward<decltype(desc)>(desc));
+        clearError(PTL_ERROR_REF(err));
         if (::fchmod(fd, mode) != 0)
             handleError(PTL_ERROR_REF(err), errno, "fchmod({}, 0{:o}) failed", fd, mode);
     }
@@ -212,6 +216,7 @@ namespace ptl::inline v0 {
                            PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
+        clearError(PTL_ERROR_REF(err));
         if (::chmod(cpath, mode) != 0)
             handleError(PTL_ERROR_REF(err), errno, "chmod({}, 0{:o}) failed", cpath, mode);
     }
@@ -221,6 +226,7 @@ namespace ptl::inline v0 {
                                PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
+        clearError(PTL_ERROR_REF(err));
         if (::lchmod(cpath, mode) != 0)
             handleError(PTL_ERROR_REF(err), errno, "chmod({}, 0{:o}) failed", cpath, mode);
     }
@@ -230,6 +236,7 @@ namespace ptl::inline v0 {
                           PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto fd = c_fd(std::forward<decltype(desc)>(desc));
+        clearError(PTL_ERROR_REF(err));
         if (::fstat(fd, &res) != 0)
             handleError(PTL_ERROR_REF(err), errno, "fstat({}) failed", fd);
     }
@@ -238,6 +245,7 @@ namespace ptl::inline v0 {
                           PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
+        clearError(PTL_ERROR_REF(err));
         if (::stat(cpath, &res) != 0)
             handleError(PTL_ERROR_REF(err), errno, "stat({}) failed", cpath);
     }
@@ -246,6 +254,7 @@ namespace ptl::inline v0 {
                               PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
+        clearError(PTL_ERROR_REF(err));
         if (::lstat(cpath, &res) != 0)
             handleError(PTL_ERROR_REF(err), errno, "lstat({}) failed", cpath);
     }
@@ -254,6 +263,7 @@ namespace ptl::inline v0 {
                               PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
+        clearError(PTL_ERROR_REF(err));
         if (mkdir(cpath, mode) != 0)
             handleError(PTL_ERROR_REF(err), errno, "mkdir({}, 0{:o}) failed", cpath, mode);
     }
@@ -263,6 +273,7 @@ namespace ptl::inline v0 {
     requires(PTL_ERROR_REQ(err)) {
         auto fd = c_fd(std::forward<decltype(desc)>(desc));
         auto cpath = c_path(std::forward<decltype(path)>(path));
+        clearError(PTL_ERROR_REF(err));
         if (mkdirat(fd, cpath, mode) != 0)
             handleError(PTL_ERROR_REF(err), errno, "mkdirat({}, {}, 0{:o}) failed", fd, cpath, mode);
     }

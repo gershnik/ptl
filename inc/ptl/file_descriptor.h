@@ -250,6 +250,23 @@ namespace ptl::inline v0 {
             handleError(PTL_ERROR_REF(err), errno, "lstat({}) failed", cpath);
     }
 
+    inline void makeDirectory(PathLike auto && path, mode_t mode,
+                              PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+    requires(PTL_ERROR_REQ(err)) {
+        auto cpath = c_path(std::forward<decltype(path)>(path));
+        if (mkdir(cpath, mode) != 0)
+            handleError(PTL_ERROR_REF(err), errno, "mkdir({}, 0{:o}) failed", cpath, mode);
+    }
+
+    inline void makeDirectoryAt(FileDescriptorLike auto && desc, PathLike auto && path, mode_t mode,
+                              PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+    requires(PTL_ERROR_REQ(err)) {
+        auto fd = c_fd(std::forward<decltype(desc)>(desc));
+        auto cpath = c_path(std::forward<decltype(path)>(path));
+        if (mkdirat(fd, cpath, mode) != 0)
+            handleError(PTL_ERROR_REF(err), errno, "mkdirat({}, {}, 0{:o}) failed", fd, cpath, mode);
+    }
+
     #endif
 }
 

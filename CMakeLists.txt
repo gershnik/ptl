@@ -28,7 +28,7 @@ set(PUBLIC_HEADERS
 
     ${INCDIR}/ptl/core.h
     ${INCDIR}/ptl/identity.h
-    ${INCDIR}/ptl/file_descriptor.h
+    ${INCDIR}/ptl/file.h
     ${INCDIR}/ptl/process.h
     ${INCDIR}/ptl/signal.h
     ${INCDIR}/ptl/spawn.h

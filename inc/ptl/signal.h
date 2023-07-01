@@ -46,6 +46,8 @@ namespace ptl::inline v0 {
 
         auto get() const -> const sigset_t &
             { return m_set; }
+        auto get() -> sigset_t &
+            { return m_set; }
     private:
         sigset_t m_set;
     };
@@ -99,7 +101,7 @@ namespace ptl::inline v0 {
     #endif
 
     inline void raiseSignal(int sig, PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
-        requires(PTL_ERROR_REQ(err)) {
+    requires(PTL_ERROR_REQ(err)) {
         if (::raise(sig) != 0)
             handleError(PTL_ERROR_REF(err), errno, "raise({}) failed", sig);
         else
@@ -109,7 +111,7 @@ namespace ptl::inline v0 {
     inline auto setSignalHandler(int signo, void (* handler)(int)) -> void (*)(int) {
         auto ret = ::signal(signo, handler);
         if (ret == SIG_ERR)
-            throwErrorCode(errno, "signal({})", signo);
+            throwErrorCode(errno, "signal({}) failed", signo);
         return ret;
     }
 
@@ -146,16 +148,29 @@ namespace ptl::inline v0 {
     static_assert(alignof(SignalAction) == alignof(struct_sigaction));
 
     inline void setSignalAction(int signo, const SignalAction & act, SignalAction & oact) {
-        posixCheck(::sigaction(signo, &act, &oact), "sigaction({})", signo);
+        posixCheck(::sigaction(signo, &act, &oact), "sigaction({}) failed", signo);
     }
 
     inline void setSignalAction(int signo, const SignalAction & act) {
-        posixCheck(::sigaction(signo, &act, nullptr), "sigaction({})", signo);
+        posixCheck(::sigaction(signo, &act, nullptr), "sigaction({}) failed", signo);
     }
 
     inline void getSignalAction(int signo, SignalAction & oact) {
-        posixCheck(::sigaction(signo, nullptr, &oact), "sigaction({})", signo);
+        posixCheck(::sigaction(signo, nullptr, &oact), "sigaction({}) failed", signo);
     }
+
+    inline void setSignalProcessMask(int how, const SignalSet & set, SignalSet & oset) {
+        posixCheck(::sigprocmask(how, &set.get(), &oset.get()), "sigprocmask({},...) failed", how);
+    }
+
+    inline void setSignalProcessMask(int how, const SignalSet & set) {
+        posixCheck(::sigprocmask(how, &set.get(), nullptr), "sigprocmask({},...) failed", how);
+    }
+
+    inline void getSignalProcessMask(SignalSet & oset) {
+        posixCheck(::sigprocmask(SIG_SETMASK, nullptr, &oset.get()), "sigprocmask(SIG_SETMASK, nullptr, ...) failed");
+    }
+    
     #endif
 }
 

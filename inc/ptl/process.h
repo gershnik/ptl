@@ -134,6 +134,26 @@ namespace ptl::inline v0 {
             { return proc.get();}
     };
 
+    inline auto setSessionId(PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> pid_t
+    requires(PTL_ERROR_REQ(err)) {
+        auto ret = ::setsid();
+        if (ret == -1)
+            handleError(PTL_ERROR_REF(err), errno, "setsid() failed");
+        else
+            clearError(PTL_ERROR_REF(err));
+        return ret;
+    }
+
+    inline void setProcessGroupId(ProcessLike auto && proc, pid_t pgid,
+                                  PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err))
+    requires(PTL_ERROR_REQ(err)) {
+        auto pid = c_pid(std::forward<decltype(proc)>(proc));
+        if (::setpgid(pid, pgid != 0))
+            handleError(PTL_ERROR_REF(err), errno, "setpgid({}, {}) failed", pid, pgid);
+        else
+            clearError(PTL_ERROR_REF(err));
+    }
+
 }
 
 #endif 

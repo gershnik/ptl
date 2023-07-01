@@ -26,12 +26,16 @@ namespace ptl::inline v0 {
             static const auto & close = ::_close;
             static const auto & fileno = ::_fileno;
             static const auto & read = ::_read;
+            static const auto & write = ::_write;
+            static const auto & dup = ::_dup;
             static const auto & dup2 = ::_dup2;
         #else
             using ::open;
             using ::close;
             using ::fileno;
             using ::read;
+            using ::write;
+            using ::dup;
             using ::dup2;
         #endif
     }
@@ -111,7 +115,7 @@ namespace ptl::inline v0 {
         #endif
 
         auto dup()  -> FileDescriptor {
-            auto ret = ::dup(m_fd);
+            auto ret = impl::dup(m_fd);
             if (ret < 0)
                 throwErrorCode(errno, "dup({}) failed", m_fd);
             return FileDescriptor(ret);
@@ -123,12 +127,25 @@ namespace ptl::inline v0 {
                 throwErrorCode(errno, "dup2({},{}) failed", m_fd, c_fd(std::forward<decltype(fdTo)>(fdTo)));
         }
 
-        auto read(void * buf, io_size_t nbyte, PTL_ERROR_REF_ARG(err)) const noexcept(PTL_ERROR_NOEXCEPT(err)) -> io_ssize_t 
+        auto read(void * buf, io_size_t nbyte, 
+                  PTL_ERROR_REF_ARG(err)) const noexcept(PTL_ERROR_NOEXCEPT(err)) -> io_ssize_t 
         requires(PTL_ERROR_REQ(err)) {
-            clearError(PTL_ERROR_REF(err));
             auto ret = impl::read(m_fd, buf, nbyte);
             if (ret < 0)
-                handleError(PTL_ERROR_REF(err), errno, "read() failed");
+                handleError(PTL_ERROR_REF(err), errno, "read({}) failed", m_fd);
+            else
+                clearError(PTL_ERROR_REF(err));
+            return ret;
+        }
+
+        auto write(const void * buf, io_size_t nbyte, 
+                   PTL_ERROR_REF_ARG(err)) const noexcept(PTL_ERROR_NOEXCEPT(err)) -> io_ssize_t 
+        requires(PTL_ERROR_REQ(err)) {
+            auto ret = impl::write(m_fd, buf, nbyte);
+            if (ret < 0)
+                handleError(PTL_ERROR_REF(err), errno, "write({}) failed", m_fd);
+            else
+                clearError(PTL_ERROR_REF(err));
             return ret;
         }
         
@@ -299,8 +316,8 @@ namespace ptl::inline v0 {
             clearError(PTL_ERROR_REF(err));
     }
 
-    void truncateFile(FileDescriptorLike auto && desc, off_t length,
-                      PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+    inline void truncateFile(FileDescriptorLike auto && desc, off_t length,
+                             PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto fd = c_fd(std::forward<decltype(desc)>(desc));
         if (::ftruncate(fd, length) != 0)
@@ -309,12 +326,34 @@ namespace ptl::inline v0 {
             clearError(PTL_ERROR_REF(err));
     }
 
-    void truncateFile(PathLike auto && path, off_t length,
-                      PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+    inline void truncateFile(PathLike auto && path, off_t length,
+                             PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
         if (::truncate(cpath, length) != 0)
             handleError(PTL_ERROR_REF(err), errno, "truncate({}, {}) failed", cpath, length);
+        else
+            clearError(PTL_ERROR_REF(err));
+    }
+
+    inline void changeDirectory(FileDescriptorLike auto && desc,
+                                PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+    requires(PTL_ERROR_REQ(err)) {
+
+        auto fd = c_fd(std::forward<decltype(desc)>(desc));
+        if (::fchdir(fd) != 0)
+            handleError(PTL_ERROR_REF(err), errno, "fchdir({}) failed", fd);
+        else
+            clearError(PTL_ERROR_REF(err));
+    }
+
+    inline void changeDirectory(PathLike auto && path,
+                                PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+    requires(PTL_ERROR_REQ(err)) {
+
+        auto cpath = c_path(std::forward<decltype(path)>(path));
+        if (::chdir(cpath) != 0)
+            handleError(PTL_ERROR_REF(err), errno, "chdir({}) failed", cpath);
         else
             clearError(PTL_ERROR_REF(err));
     }

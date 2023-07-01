@@ -92,17 +92,16 @@ namespace ptl::inline v0 {
         
         auto wait(int flags, PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> std::optional<int> 
         requires(PTL_ERROR_REQ(err)) {
-            clearError(PTL_ERROR_REF(err));
             if (m_pid == 0) {
                 throwErrorCode(EINVAL, "ChildProcess not started or has already been waited for");
             }
             int stat;
             pid_t res = impl::waitpid(m_pid, &stat, flags);
             if (res < 0) {
-                stat = -1;
                 handleError(PTL_ERROR_REF(err), errno, "waitpid for {} failed", m_pid);
             } else if (res > 0) {
                 assert(res == m_pid);
+                clearError(PTL_ERROR_REF(err));
                 #ifndef _WIN32
                 if (WIFEXITED(stat) || WIFSIGNALED(stat))
                     m_pid = 0;
@@ -110,6 +109,8 @@ namespace ptl::inline v0 {
                     m_pid = 0;
                 #endif
                 return stat;
+            } else {
+                clearError(PTL_ERROR_REF(err));
             }
             return std::nullopt;
         }

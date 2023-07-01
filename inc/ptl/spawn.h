@@ -225,26 +225,28 @@ namespace ptl::inline v0 {
         auto doSpawn(const char * path, const char * const * args, const char * const * env,
                      PTL_ERROR_REF_ARG(err)) const noexcept(PTL_ERROR_NOEXCEPT(err)) -> ChildProcess 
         requires(PTL_ERROR_REQ(err)) {
-            clearError(PTL_ERROR_REF(err));
             pid_t childPid;
             #ifndef _WIN32
-                int res = m_func(&childPid, 
-                                 path,
-                                 m_fileActions, 
-                                 m_attr,
-                                 const_cast<char * const *>(args),
-                                 const_cast<char * const *>(env)); 
-                if (res != 0) {
-                    childPid = 0;
-                    handleError(PTL_ERROR_REF(err), res, "cannot spawn {}", path);
-                }
+            int res = m_func(&childPid, 
+                                path,
+                                m_fileActions, 
+                                m_attr,
+                                const_cast<char * const *>(args),
+                                const_cast<char * const *>(env)); 
+            if (res != 0) {
+                childPid = 0;
+                handleError(PTL_ERROR_REF(err), res, "cannot spawn {}", path);
+            }
             #else
-                childPid = m_func(_P_NOWAIT, path, args, env);
-                if (childPid == -1) {
-                    childPid = 0;
-                    handleError(PTL_ERROR_REF(err), errno, "cannot spawn {}", path);
-                }
+            childPid = m_func(_P_NOWAIT, path, args, env);
+            if (childPid == -1) {
+                childPid = 0;
+                handleError(PTL_ERROR_REF(err), errno, "cannot spawn {}", path);
+            }
             #endif
+            else {
+                clearError(PTL_ERROR_REF(err));
+            }
             return ChildProcess(childPid);
         }
         
@@ -341,7 +343,6 @@ namespace ptl::inline v0 {
                      PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> void
     requires(PTL_ERROR_REQ(err)) {
 
-        clearError(PTL_ERROR_REF(err));
         auto path = c_path(std::forward<decltype(exe)>(exe));
         execv(path, args.data());
         handleError(PTL_ERROR_REF(err), errno, "cannot exec {}", path);
@@ -400,7 +401,6 @@ namespace ptl::inline v0 {
                       PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> void
     requires(PTL_ERROR_REQ(err)) {
 
-        clearError(PTL_ERROR_REF(err));
         auto path = c_path(std::forward<decltype(exe)>(exe));
         execvp(path, const_cast<char * const *>(args.data()));
         handleError(PTL_ERROR_REF(err), errno, "cannot exec {}", path);

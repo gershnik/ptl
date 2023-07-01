@@ -72,12 +72,13 @@ namespace ptl::inline v0 {
         static auto open(PathLike auto && path, int oflag, mode_t mode, PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> FileDescriptor 
         requires(PTL_ERROR_REQ(err)) {
 
-            clearError(PTL_ERROR_REF(err));
             auto cpath = c_path(std::forward<decltype(path)>(path));
             auto fd = impl::open(cpath, oflag, mode);
             if (fd < 0) {
                 fd = -1;
                 handleError(PTL_ERROR_REF(err), errno, "cannot open {}", cpath);
+            } else {
+                clearError(PTL_ERROR_REF(err));
             }
             return FileDescriptor(fd);
         }
@@ -90,10 +91,11 @@ namespace ptl::inline v0 {
         #if PTL_HAVE_MKOSTEMPS
         static auto openTemp(char * nameTemplate, size_t suffixLen, int oflags, PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> FileDescriptor 
         requires(PTL_ERROR_REQ(err)) {
-            clearError(PTL_ERROR_REF(err));
             int fd = mkostemps(nameTemplate, int(suffixLen), oflags);
             if (fd == -1)
                 handleError(PTL_ERROR_REF(err), errno, "mkostemps({}, {}) failed", nameTemplate, suffixLen);
+            else
+                clearError(PTL_ERROR_REF(err));
             return FileDescriptor(fd);
         }
 
@@ -167,12 +169,13 @@ namespace ptl::inline v0 {
     struct Pipe {
         static auto create(PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err))
         requires(PTL_ERROR_REQ(err)) {
-            clearError(PTL_ERROR_REF(err));
             int fds[2];
             if (impl::pipe(fds) != 0) {
                 fds[0] = -1;
                 fds[1] = -1;
                 handleError(PTL_ERROR_REF(err), errno, "pipe() call failed");
+            } else {
+                clearError(PTL_ERROR_REF(err));
             }
             return Pipe{FileDescriptor(fds[0]), FileDescriptor(fds[1])};
         }
@@ -187,45 +190,50 @@ namespace ptl::inline v0 {
                             PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto fd = c_fd(std::forward<decltype(desc)>(desc));
-        clearError(PTL_ERROR_REF(err));
         if (::fchown(fd, uid, gid) != 0)
             handleError(PTL_ERROR_REF(err), errno, "fchown({}, {}, {}) failed", fd, uid, gid);
+        else 
+            clearError(PTL_ERROR_REF(err));
     }
 
     inline void changeOwner(PathLike auto && path, uid_t uid, gid_t gid,
                             PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
-        clearError(PTL_ERROR_REF(err));
         if (::chown(cpath, uid, gid) != 0)
             handleError(PTL_ERROR_REF(err), errno, "chown({}, {}, {}) failed", cpath, uid, gid);
+        else
+            clearError(PTL_ERROR_REF(err));
     }
 
     inline void changeLinkOwner(PathLike auto && path, uid_t uid, gid_t gid,
                             PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
-        clearError(PTL_ERROR_REF(err));
         if (::lchown(cpath, uid, gid) != 0)
             handleError(PTL_ERROR_REF(err), errno, "lchown({}, {}, {}) failed", cpath, uid, gid);
+        else
+            clearError(PTL_ERROR_REF(err));
     }
 
     inline void changeMode(FileDescriptorLike auto && desc, mode_t mode,
                            PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto fd = c_fd(std::forward<decltype(desc)>(desc));
-        clearError(PTL_ERROR_REF(err));
         if (::fchmod(fd, mode) != 0)
             handleError(PTL_ERROR_REF(err), errno, "fchmod({}, 0{:o}) failed", fd, mode);
+        else
+            clearError(PTL_ERROR_REF(err));
     }
 
     inline void changeMode(PathLike auto && path, mode_t mode,
                            PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
-        clearError(PTL_ERROR_REF(err));
         if (::chmod(cpath, mode) != 0)
             handleError(PTL_ERROR_REF(err), errno, "chmod({}, 0{:o}) failed", cpath, mode);
+        else
+            clearError(PTL_ERROR_REF(err));
     }
 
     #if PTL_HAVE_LCHMOD
@@ -233,9 +241,10 @@ namespace ptl::inline v0 {
                                PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
-        clearError(PTL_ERROR_REF(err));
         if (::lchmod(cpath, mode) != 0)
             handleError(PTL_ERROR_REF(err), errno, "chmod({}, 0{:o}) failed", cpath, mode);
+        else
+            clearError(PTL_ERROR_REF(err));
     }
     #endif
 
@@ -243,36 +252,40 @@ namespace ptl::inline v0 {
                           PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto fd = c_fd(std::forward<decltype(desc)>(desc));
-        clearError(PTL_ERROR_REF(err));
         if (::fstat(fd, &res) != 0)
             handleError(PTL_ERROR_REF(err), errno, "fstat({}) failed", fd);
+        else
+            clearError(PTL_ERROR_REF(err));
     }
 
     inline void getStatus(PathLike auto && path, struct ::stat & res,
                           PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
-        clearError(PTL_ERROR_REF(err));
         if (::stat(cpath, &res) != 0)
             handleError(PTL_ERROR_REF(err), errno, "stat({}) failed", cpath);
+        else
+            clearError(PTL_ERROR_REF(err));
     }
 
     inline void getLinkStatus(PathLike auto && path, struct ::stat & res,
                               PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
-        clearError(PTL_ERROR_REF(err));
         if (::lstat(cpath, &res) != 0)
             handleError(PTL_ERROR_REF(err), errno, "lstat({}) failed", cpath);
+        else
+            clearError(PTL_ERROR_REF(err));
     }
 
     inline void makeDirectory(PathLike auto && path, mode_t mode,
                               PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
-        clearError(PTL_ERROR_REF(err));
         if (::mkdir(cpath, mode) != 0)
             handleError(PTL_ERROR_REF(err), errno, "mkdir({}, 0{:o}) failed", cpath, mode);
+        else
+            clearError(PTL_ERROR_REF(err));
     }
 
     inline void makeDirectoryAt(FileDescriptorLike auto && desc, PathLike auto && path, mode_t mode,
@@ -280,27 +293,30 @@ namespace ptl::inline v0 {
     requires(PTL_ERROR_REQ(err)) {
         auto fd = c_fd(std::forward<decltype(desc)>(desc));
         auto cpath = c_path(std::forward<decltype(path)>(path));
-        clearError(PTL_ERROR_REF(err));
         if (::mkdirat(fd, cpath, mode) != 0)
             handleError(PTL_ERROR_REF(err), errno, "mkdirat({}, {}, 0{:o}) failed", fd, cpath, mode);
+        else
+            clearError(PTL_ERROR_REF(err));
     }
 
     void truncateFile(FileDescriptorLike auto && desc, off_t length,
                       PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto fd = c_fd(std::forward<decltype(desc)>(desc));
-        clearError(PTL_ERROR_REF(err));
         if (::ftruncate(fd, length) != 0)
             handleError(PTL_ERROR_REF(err), errno, "ftruncate({}, {}) failed", fd, length);
+        else
+            clearError(PTL_ERROR_REF(err));
     }
 
     void truncateFile(PathLike auto && path, off_t length,
                       PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
-        clearError(PTL_ERROR_REF(err));
         if (::truncate(cpath, length) != 0)
             handleError(PTL_ERROR_REF(err), errno, "truncate({}, {}) failed", cpath, length);
+        else
+            clearError(PTL_ERROR_REF(err));
     }
 
     #endif

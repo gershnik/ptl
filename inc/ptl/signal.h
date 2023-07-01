@@ -100,10 +100,10 @@ namespace ptl::inline v0 {
 
     inline void raiseSignal(int sig, PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
         requires(PTL_ERROR_REQ(err)) {
-        clearError();
-        int res = ::raise(sig);
-        if (res != 0)
+        if (::raise(sig) != 0)
             handleError(PTL_ERROR_REF(err), errno, "raise({}) failed", sig);
+        else
+            clearError();
     }
 
     inline auto setSignalHandler(int signo, void (* handler)(int)) -> void (*)(int) {

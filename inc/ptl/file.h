@@ -107,6 +107,13 @@ namespace ptl::inline v0 {
             return openTemp(nameTemplate, 0, 0, PTL_ERROR_REF(err));
         }
         #endif
+
+        auto dup()  -> FileDescriptor {
+            auto ret = ::dup(m_fd);
+            if (ret < 0)
+                throwErrorCode(errno, "dup({}) failed", m_fd);
+            return FileDescriptor(ret);
+        }
         
         void dup2(const FileDescriptorLike auto & fdTo) const {
             auto res = impl::dup2(m_fd, c_fd(std::forward<decltype(fdTo)>(fdTo)));
@@ -264,18 +271,36 @@ namespace ptl::inline v0 {
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
         clearError(PTL_ERROR_REF(err));
-        if (mkdir(cpath, mode) != 0)
+        if (::mkdir(cpath, mode) != 0)
             handleError(PTL_ERROR_REF(err), errno, "mkdir({}, 0{:o}) failed", cpath, mode);
     }
 
     inline void makeDirectoryAt(FileDescriptorLike auto && desc, PathLike auto && path, mode_t mode,
-                              PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+                                PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto fd = c_fd(std::forward<decltype(desc)>(desc));
         auto cpath = c_path(std::forward<decltype(path)>(path));
         clearError(PTL_ERROR_REF(err));
-        if (mkdirat(fd, cpath, mode) != 0)
+        if (::mkdirat(fd, cpath, mode) != 0)
             handleError(PTL_ERROR_REF(err), errno, "mkdirat({}, {}, 0{:o}) failed", fd, cpath, mode);
+    }
+
+    void truncateFile(FileDescriptorLike auto && desc, off_t length,
+                      PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+    requires(PTL_ERROR_REQ(err)) {
+        auto fd = c_fd(std::forward<decltype(desc)>(desc));
+        clearError(PTL_ERROR_REF(err));
+        if (::ftruncate(fd, length) != 0)
+            handleError(PTL_ERROR_REF(err), errno, "ftruncate({}, {}) failed", fd, length);
+    }
+
+    void truncateFile(PathLike auto && path, off_t length,
+                      PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+    requires(PTL_ERROR_REQ(err)) {
+        auto cpath = c_path(std::forward<decltype(path)>(path));
+        clearError(PTL_ERROR_REF(err));
+        if (::truncate(cpath, length) != 0)
+            handleError(PTL_ERROR_REF(err), errno, "truncate({}, {}) failed", cpath, length);
     }
 
     #endif

@@ -208,12 +208,41 @@ namespace ptl::inline v0 {
 
     #ifndef _WIN32
 
-    inline void lockFile(FileDescriptorLike auto && desc, int operation,
+    enum class FileLock : int {
+        Shared = LOCK_SH,
+        Exclusive = LOCK_EX
+    };
+
+    inline void lockFile(FileDescriptorLike auto && desc, FileLock type,
                          PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err))
     requires(PTL_ERROR_REQ(err)) {
         auto fd = c_fd(std::forward<decltype(desc)>(desc));
+        int operation = int(type);
         if (::flock(fd, operation) != 0)
             handleError(PTL_ERROR_REF(err), errno, "flock({}, ,{}) failed", fd, operation);
+        else
+            clearError(PTL_ERROR_REF(err));
+    }
+
+    inline auto tryLockFile(FileDescriptorLike auto && desc, FileLock type,
+                            PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> bool
+    requires(PTL_ERROR_REQ(err)) {
+        auto fd = c_fd(std::forward<decltype(desc)>(desc));
+        int operation = int(type) | LOCK_NB;
+        clearError(PTL_ERROR_REF(err));
+        if (::flock(fd, operation) == 0) 
+            return true;
+        if (int code = errno; code != EWOULDBLOCK)
+            handleError(PTL_ERROR_REF(err), code, "flock({}, ,{}) failed", fd, operation);
+        return false;
+    }
+
+    inline void unlockFile(FileDescriptorLike auto && desc,
+                           PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err))
+    requires(PTL_ERROR_REQ(err)) {
+        auto fd = c_fd(std::forward<decltype(desc)>(desc));
+        if (::flock(fd, LOCK_UN) != 0)
+            handleError(PTL_ERROR_REF(err), errno, "flock({}, ,{}) failed", fd, LOCK_UN);
         else
             clearError(PTL_ERROR_REF(err));
     }

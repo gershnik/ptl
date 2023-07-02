@@ -164,7 +164,7 @@ TEST_CASE( "spawn" , "[spawn]") {
             auto offset = res.size();
             constexpr size_t chunk = 5;
             res.resize(offset + chunk);
-            auto readCount = read.read(res.data() + offset, chunk);
+            auto readCount = readFile(read, res.data() + offset, chunk);
             res.resize(offset + readCount);
             if (readCount == 0)
                 break;

@@ -134,6 +134,8 @@ namespace ptl::inline v0 {
             { return proc.get();}
     };
 
+    #ifndef _WIN32
+
     inline auto setSessionId(PTL_ERROR_REF_ARG(err)) -> pid_t
     requires(PTL_ERROR_REQ(err)) {
         auto ret = ::setsid();
@@ -154,6 +156,7 @@ namespace ptl::inline v0 {
             clearError(PTL_ERROR_REF(err));
     }
 
+    #endif
 }
 
 #endif 

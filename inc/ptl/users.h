@@ -2,6 +2,7 @@
 #define PTL_HEADER_USERS_H_INCLUDED
 
 #include <ptl/core.h>
+#include <ptl/system.h>
 
 #include <optional>
 #include <vector>
@@ -42,7 +43,7 @@ namespace ptl::inline v0 {
         UserInfoImpl(size_t buflen): m_buf(buflen) {}
 
         static auto startBufSize() -> size_t {
-            static auto theSize = std::min(size_t(sysconf(Traits::MaxSizeConf)), size_t(4096));
+            static size_t theSize = systemConfig(Traits::MaxSizeConf).value_or(4096);
             return theSize;
         }
 

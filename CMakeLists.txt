@@ -32,6 +32,7 @@ set(PUBLIC_HEADERS
     ${INCDIR}/ptl/process.h
     ${INCDIR}/ptl/signal.h
     ${INCDIR}/ptl/spawn.h
+    ${INCDIR}/ptl/system.h
     ${INCDIR}/ptl/users.h
 )
 

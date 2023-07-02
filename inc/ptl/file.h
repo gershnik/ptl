@@ -1,5 +1,5 @@
-#ifndef PTL_HEADER_FILE_DESCRIPTOR_H_INCLUDED
-#define PTL_HEADER_FILE_DESCRIPTOR_H_INCLUDED
+#ifndef PTL_HEADER_FILE_H_INCLUDED
+#define PTL_HEADER_FILE_H_INCLUDED
 
 #include <ptl/core.h>
 
@@ -114,41 +114,6 @@ namespace ptl::inline v0 {
         }
         #endif
 
-        auto dup()  -> FileDescriptor {
-            auto ret = impl::dup(m_fd);
-            if (ret < 0)
-                throwErrorCode(errno, "dup({}) failed", m_fd);
-            return FileDescriptor(ret);
-        }
-        
-        void dup2(const FileDescriptorLike auto & fdTo) const {
-            auto res = impl::dup2(m_fd, c_fd(std::forward<decltype(fdTo)>(fdTo)));
-            if (res < 0) 
-                throwErrorCode(errno, "dup2({},{}) failed", m_fd, c_fd(std::forward<decltype(fdTo)>(fdTo)));
-        }
-
-        auto read(void * buf, io_size_t nbyte, 
-                  PTL_ERROR_REF_ARG(err)) const noexcept(PTL_ERROR_NOEXCEPT(err)) -> io_ssize_t 
-        requires(PTL_ERROR_REQ(err)) {
-            auto ret = impl::read(m_fd, buf, nbyte);
-            if (ret < 0)
-                handleError(PTL_ERROR_REF(err), errno, "read({}) failed", m_fd);
-            else
-                clearError(PTL_ERROR_REF(err));
-            return ret;
-        }
-
-        auto write(const void * buf, io_size_t nbyte, 
-                   PTL_ERROR_REF_ARG(err)) const noexcept(PTL_ERROR_NOEXCEPT(err)) -> io_ssize_t 
-        requires(PTL_ERROR_REQ(err)) {
-            auto ret = impl::write(m_fd, buf, nbyte);
-            if (ret < 0)
-                handleError(PTL_ERROR_REF(err), errno, "write({}) failed", m_fd);
-            else
-                clearError(PTL_ERROR_REF(err));
-            return ret;
-        }
-        
         friend void swap(FileDescriptor & lhs, FileDescriptor & rhs) noexcept {
             std::swap(lhs.m_fd, rhs.m_fd);
         }
@@ -201,7 +166,57 @@ namespace ptl::inline v0 {
         FileDescriptor writeEnd;
     };
 
+    inline auto duplicate(FileDescriptorLike auto && desc) -> FileDescriptor {
+        auto fd = c_fd(std::forward<decltype(desc)>(desc));
+        auto ret = impl::dup(fd);
+        if (ret < 0)
+            throwErrorCode(errno, "dup({}) failed", fd);
+        return FileDescriptor(ret);
+    }
+    
+    inline void duplicateTo(FileDescriptorLike auto && from, FileDescriptorLike auto & to) {
+        auto fdFrom = c_fd(std::forward<decltype(from)>(from));
+        auto fdTo = c_fd(std::forward<decltype(to)>(to));
+        auto res = impl::dup2(fdFrom, fdTo);
+        if (res < 0) 
+            throwErrorCode(errno, "dup2({},{}) failed", fdFrom, fdTo);
+    }
+
+    inline auto readFile(FileDescriptorLike auto && desc, void * buf, io_size_t nbyte, 
+                         PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> io_ssize_t 
+    requires(PTL_ERROR_REQ(err)) {
+        auto fd = c_fd(std::forward<decltype(desc)>(desc));
+        auto ret = impl::read(fd, buf, nbyte);
+        if (ret < 0)
+            handleError(PTL_ERROR_REF(err), errno, "read({}, ,{}) failed", fd, nbyte);
+        else
+            clearError(PTL_ERROR_REF(err));
+        return ret;
+    }
+
+    inline auto writeFile(FileDescriptorLike auto && desc, const void * buf, io_size_t nbyte, 
+                          PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> io_ssize_t 
+    requires(PTL_ERROR_REQ(err)) {
+        auto fd = c_fd(std::forward<decltype(desc)>(desc));
+        auto ret = impl::write(fd, buf, nbyte);
+        if (ret < 0)
+            handleError(PTL_ERROR_REF(err), errno, "write({}, ,{}) failed", fd, nbyte);
+        else
+            clearError(PTL_ERROR_REF(err));
+        return ret;
+    }
+
     #ifndef _WIN32
+
+    inline void lockFile(FileDescriptorLike auto && desc, int operation,
+                         PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err))
+    requires(PTL_ERROR_REQ(err)) {
+        auto fd = c_fd(std::forward<decltype(desc)>(desc));
+        if (::flock(fd, operation) != 0)
+            handleError(PTL_ERROR_REF(err), errno, "flock({}, ,{}) failed", fd, operation);
+        else
+            clearError(PTL_ERROR_REF(err));
+    }
 
     inline void changeOwner(FileDescriptorLike auto && desc, uid_t uid, gid_t gid,
                             PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
@@ -354,6 +369,17 @@ namespace ptl::inline v0 {
         auto cpath = c_path(std::forward<decltype(path)>(path));
         if (::chdir(cpath) != 0)
             handleError(PTL_ERROR_REF(err), errno, "chdir({}) failed", cpath);
+        else
+            clearError(PTL_ERROR_REF(err));
+    }
+
+    inline void changeRoot(PathLike auto && path,
+                           PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+    requires(PTL_ERROR_REQ(err)) {
+
+        auto cpath = c_path(std::forward<decltype(path)>(path));
+        if (::chroot(cpath) != 0)
+            handleError(PTL_ERROR_REF(err), errno, "chroot({}) failed", cpath);
         else
             clearError(PTL_ERROR_REF(err));
     }

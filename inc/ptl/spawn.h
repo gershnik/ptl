@@ -18,7 +18,7 @@
 namespace ptl::inline v0 {
 
     #ifndef __MINGW32__
-    inline auto forkProcess(PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> ChildProcess {
+    inline auto forkProcess(PTL_ERROR_REF_ARG(err)) -> ChildProcess {
         auto ret = ::fork();
         if (ret < 0) {
             ret = 0;
@@ -223,7 +223,7 @@ namespace ptl::inline v0 {
         }
 
         auto doSpawn(const char * path, const char * const * args, const char * const * env,
-                     PTL_ERROR_REF_ARG(err)) const noexcept(PTL_ERROR_NOEXCEPT(err)) -> ChildProcess 
+                     PTL_ERROR_REF_ARG(err)) const -> ChildProcess 
         requires(PTL_ERROR_REQ(err)) {
             pid_t childPid;
             #ifndef _WIN32
@@ -263,14 +263,14 @@ namespace ptl::inline v0 {
     
     //exe, env, settings    
     inline auto spawn(PathLike auto && exe, const StringRefArray & args, const StringRefArray & env, const SpawnSettings & settings, 
-                      PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> ChildProcess 
+                      PTL_ERROR_REF_ARG(err)) -> ChildProcess 
     requires(PTL_ERROR_REQ(err)) {
         return settings.doSpawn(c_path(std::forward<decltype(exe)>(exe)), args.data(), env.data(), PTL_ERROR_REF(err));
     }
 
     //none, env, settings 
     inline auto spawn(const StringRefArray & args, const StringRefArray & env, const SpawnSettings & settings,
-                      PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> ChildProcess 
+                      PTL_ERROR_REF_ARG(err)) -> ChildProcess 
     requires(PTL_ERROR_REQ(err)) {
         assert(!args.empty());
         return spawn(args[0], args, env, settings, PTL_ERROR_REF(err));
@@ -278,21 +278,21 @@ namespace ptl::inline v0 {
 
     //exe, none, settings
     inline auto spawn(PathLike auto && exe, const StringRefArray & args, const SpawnSettings & settings, 
-                      PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> ChildProcess 
+                      PTL_ERROR_REF_ARG(err)) -> ChildProcess 
     requires(PTL_ERROR_REQ(err)) {
         return settings.doSpawn(c_path(std::forward<decltype(exe)>(exe)), args.data(), nullptr, PTL_ERROR_REF(err));
     }
 
     //exe, env, none
     inline auto spawn(PathLike auto && exe, const StringRefArray & args, const StringRefArray & env, 
-                      PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> ChildProcess 
+                      PTL_ERROR_REF_ARG(err)) -> ChildProcess 
     requires(PTL_ERROR_REQ(err)) {
         return spawn(c_path(std::forward<decltype(exe)>(exe)), args, env, {}, PTL_ERROR_REF(err));
     }
 
     //none, none, settings
     inline auto spawn(const StringRefArray & args, const SpawnSettings & settings,
-                      PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> ChildProcess 
+                      PTL_ERROR_REF_ARG(err)) -> ChildProcess 
     requires(PTL_ERROR_REQ(err)) {
         assert(!args.empty());
         return spawn(args[0], args, settings, PTL_ERROR_REF(err));
@@ -300,14 +300,14 @@ namespace ptl::inline v0 {
 
     //exe, none, none
     inline auto spawn(PathLike auto && exe, const StringRefArray & args,
-                      PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> ChildProcess 
+                      PTL_ERROR_REF_ARG(err)) -> ChildProcess 
     requires(PTL_ERROR_REQ(err)) {
         return spawn(std::forward<decltype(exe)>(exe), args, {}, PTL_ERROR_REF(err));
     }
 
     //none, env, none
     inline auto spawn(const StringRefArray & args, const StringRefArray & env,
-                      PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> ChildProcess 
+                      PTL_ERROR_REF_ARG(err)) -> ChildProcess 
     requires(PTL_ERROR_REQ(err)) {
         assert(!args.empty());
         return spawn(args[0], args, env, {}, PTL_ERROR_REF(err));
@@ -315,7 +315,7 @@ namespace ptl::inline v0 {
 
     //none, none, none
     inline auto spawn(const StringRefArray & args,
-                      PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> ChildProcess 
+                      PTL_ERROR_REF_ARG(err)) -> ChildProcess 
     requires(PTL_ERROR_REQ(err)) {
         assert(!args.empty());
         return spawn(args[0], args, {}, PTL_ERROR_REF(err));
@@ -329,7 +329,7 @@ namespace ptl::inline v0 {
     #ifndef _WIN32
     //exe, env
     inline auto exec(PathLike auto && exe, const StringRefArray & args, const StringRefArray & env,
-                     PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> void
+                     PTL_ERROR_REF_ARG(err)) -> void
     requires(PTL_ERROR_REQ(err)) {
 
         clearError(PTL_ERROR_REF(err));
@@ -340,7 +340,7 @@ namespace ptl::inline v0 {
 
     //exe, none
     inline auto exec(PathLike auto && exe, const StringRefArray & args,
-                     PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> void
+                     PTL_ERROR_REF_ARG(err)) -> void
     requires(PTL_ERROR_REQ(err)) {
 
         auto path = c_path(std::forward<decltype(exe)>(exe));
@@ -350,7 +350,7 @@ namespace ptl::inline v0 {
 
     //none, env
     inline auto exec(const StringRefArray & args, const StringRefArray & env,
-                     PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> void
+                     PTL_ERROR_REF_ARG(err)) -> void
     requires(PTL_ERROR_REQ(err)) {
 
         assert(!args.empty());
@@ -359,7 +359,7 @@ namespace ptl::inline v0 {
 
     //none, none
     inline auto exec(const StringRefArray & args,
-                     PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> void
+                     PTL_ERROR_REF_ARG(err)) -> void
     requires(PTL_ERROR_REQ(err)) {
 
         assert(!args.empty());
@@ -376,7 +376,7 @@ namespace ptl::inline v0 {
     #if PTL_HAVE_EXECVPE
     //exe, env
     inline auto execp(PathLike auto && exe, const StringRefArray & args, const StringRefArray & env,
-                      PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> void
+                      PTL_ERROR_REF_ARG(err)) -> void
     requires(PTL_ERROR_REQ(err)) {
 
         clearError(PTL_ERROR_REF(err));
@@ -387,7 +387,7 @@ namespace ptl::inline v0 {
 
     //none, env
     inline auto execp(const StringRefArray & args, const StringRefArray & env,
-                      PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> void
+                      PTL_ERROR_REF_ARG(err)) -> void
     requires(PTL_ERROR_REQ(err)) {
 
         assert(!args.empty());
@@ -398,7 +398,7 @@ namespace ptl::inline v0 {
 
     //exe, none
     inline auto execp(PathLike auto && exe, const StringRefArray & args,
-                      PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> void
+                      PTL_ERROR_REF_ARG(err)) -> void
     requires(PTL_ERROR_REQ(err)) {
 
         auto path = c_path(std::forward<decltype(exe)>(exe));
@@ -408,7 +408,7 @@ namespace ptl::inline v0 {
 
     //none, none
     inline auto execp(const StringRefArray & args,
-                      PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> void
+                      PTL_ERROR_REF_ARG(err)) -> void
     requires(PTL_ERROR_REQ(err)) {
 
         assert(!args.empty());

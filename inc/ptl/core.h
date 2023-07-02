@@ -50,8 +50,8 @@ namespace ptl::inline v0 {
     
     template<class T>
     concept ErrorSink = requires(T & obj, int code) {
-        { ErrorTraits<T>::handleError(obj, code, "") } -> std::same_as<void>;
-        { ErrorTraits<T>::clearError(obj) } -> std::same_as<void>;
+        { ErrorTraits<T>::handleError(obj, code, "") } noexcept -> std::same_as<void>;
+        { ErrorTraits<T>::clearError(obj) } noexcept -> std::same_as<void>;
     };
 
     template<ErrorSink Err, class... T>
@@ -75,6 +75,15 @@ namespace ptl::inline v0 {
         if (code == ENOMEM) //do not attempt to allocate on ENOMEM
             throw std::system_error(makeErrorCode(code));
         throw std::system_error(makeErrorCode(code),
+                                impl::vformat(format, impl::make_format_args(std::forward<T>(args)...)));
+    }
+
+    template<class... T>
+    [[noreturn, gnu::always_inline]] inline void throwErrorCode(std::error_code ec, const char * format, T && ...args) noexcept(false) {
+
+        if (ec.value() == ENOMEM) //do not attempt to allocate on ENOMEM
+            throw std::system_error(ec);
+        throw std::system_error(ec,
                                 impl::vformat(format, impl::make_format_args(std::forward<T>(args)...)));
     }
 
@@ -105,7 +114,7 @@ namespace ptl::inline v0 {
 
     #define PTL_ERROR_REF_ARG(x) ErrorSink auto & ...x
     #define PTL_ERROR_REQ(x) (sizeof...(x) < 2)
-    #define PTL_ERROR_NOEXCEPT(x) (sizeof...(x) > 0)
+    //#define PTL_ERROR_NOEXCEPT(x) (sizeof...(x) > 0)
     #define PTL_ERROR_REF(x) x...
 
     template<class T> struct CPathTraits;

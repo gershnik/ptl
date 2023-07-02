@@ -9,7 +9,7 @@
 
 namespace ptl::inline v0 {
 
-    void setUid(uid_t uid, PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err))
+    void setUid(uid_t uid, PTL_ERROR_REF_ARG(err))
     requires(PTL_ERROR_REQ(err)) {
         if (setuid(uid) != 0)
             handleError(PTL_ERROR_REF(err), errno, "setuid({}) failed", uid);
@@ -17,7 +17,7 @@ namespace ptl::inline v0 {
             clearError(PTL_ERROR_REF(err));
     }
 
-    void setGid(gid_t gid, PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err))
+    void setGid(gid_t gid, PTL_ERROR_REF_ARG(err))
     requires(PTL_ERROR_REQ(err)) {
         if (setgid(gid) != 0) 
             handleError(PTL_ERROR_REF(err), errno, "setgid({}) failed", gid);
@@ -25,7 +25,7 @@ namespace ptl::inline v0 {
             clearError(PTL_ERROR_REF(err));
     }
 
-    void setEffectiveUid(uid_t uid, PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err))
+    void setEffectiveUid(uid_t uid, PTL_ERROR_REF_ARG(err))
     requires(PTL_ERROR_REQ(err)) {
         if (seteuid(uid) != 0)
             handleError(PTL_ERROR_REF(err), errno, "seteuid({}) failed", uid);
@@ -33,7 +33,7 @@ namespace ptl::inline v0 {
             clearError(PTL_ERROR_REF(err));
     }
 
-    void setEffectiveGid(gid_t gid, PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err))
+    void setEffectiveGid(gid_t gid, PTL_ERROR_REF_ARG(err))
     requires(PTL_ERROR_REQ(err)) {
         if (setegid(gid) != 0) 
             handleError(PTL_ERROR_REF(err), errno, "setegid({}) failed", gid);

@@ -90,7 +90,7 @@ namespace ptl::inline v0 {
             return m_pid != 0;
         }
         
-        auto wait(int flags, PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> std::optional<int> 
+        auto wait(int flags, PTL_ERROR_REF_ARG(err)) -> std::optional<int> 
         requires(PTL_ERROR_REQ(err)) {
             if (m_pid == 0) {
                 throwErrorCode(EINVAL, "ChildProcess not started or has already been waited for");
@@ -115,7 +115,7 @@ namespace ptl::inline v0 {
             return std::nullopt;
         }
 
-        auto wait(PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> std::optional<int> 
+        auto wait(PTL_ERROR_REF_ARG(err)) -> std::optional<int> 
         requires(PTL_ERROR_REQ(err)) {
             return wait(0, PTL_ERROR_REF(err));
         }
@@ -126,15 +126,15 @@ namespace ptl::inline v0 {
 
 
     template<> struct ProcessTraits<pid_t> {
-        [[gnu::always_inline]] static pid_t c_pid(pid_t pid)
+        [[gnu::always_inline]] static pid_t c_pid(pid_t pid) noexcept
             { return pid;}
     };
     template<> struct ProcessTraits<ChildProcess> {
-        [[gnu::always_inline]] static pid_t c_fd(const ChildProcess & proc)
+        [[gnu::always_inline]] static pid_t c_fd(const ChildProcess & proc) noexcept
             { return proc.get();}
     };
 
-    inline auto setSessionId(PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> pid_t
+    inline auto setSessionId(PTL_ERROR_REF_ARG(err)) -> pid_t
     requires(PTL_ERROR_REQ(err)) {
         auto ret = ::setsid();
         if (ret == -1)
@@ -145,7 +145,7 @@ namespace ptl::inline v0 {
     }
 
     inline void setProcessGroupId(ProcessLike auto && proc, pid_t pgid,
-                                  PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err))
+                                  PTL_ERROR_REF_ARG(err))
     requires(PTL_ERROR_REQ(err)) {
         auto pid = c_pid(std::forward<decltype(proc)>(proc));
         if (::setpgid(pid, pgid != 0))

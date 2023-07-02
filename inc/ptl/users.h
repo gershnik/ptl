@@ -27,14 +27,14 @@ namespace ptl::inline v0 {
         UserInfoImpl & operator=(UserInfoImpl &&) noexcept = default;
 
         static auto getByName(StringLike auto && name, 
-                              PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> std::optional<UserInfoImpl> 
+                              PTL_ERROR_REF_ARG(err)) -> std::optional<UserInfoImpl> 
         requires(PTL_ERROR_REQ(err)) {
             auto nameStr = c_str(std::forward<decltype(name)>(name));
             return getByFunc(nameStr, PTL_ERROR_REF(err));
         }
 
         static auto getById(typename Traits::IDType id, 
-                            PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> std::optional<UserInfoImpl> 
+                            PTL_ERROR_REF_ARG(err)) -> std::optional<UserInfoImpl> 
         requires(PTL_ERROR_REQ(err)) {
             return getByFunc(id, PTL_ERROR_REF(err));
         }
@@ -47,7 +47,7 @@ namespace ptl::inline v0 {
             return theSize;
         }
 
-        static auto getByFunc(auto byArg, PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> std::optional<UserInfoImpl> 
+        static auto getByFunc(auto byArg, PTL_ERROR_REF_ARG(err)) -> std::optional<UserInfoImpl> 
         requires(PTL_ERROR_REQ(err)) {
 
             auto [getFunc, getFuncName] = Traits::getByInfo(byArg);

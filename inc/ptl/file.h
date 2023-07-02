@@ -73,7 +73,7 @@ namespace ptl::inline v0 {
             *this = FileDescriptor();
         }
         
-        static auto open(PathLike auto && path, int oflag, mode_t mode, PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> FileDescriptor 
+        static auto open(PathLike auto && path, int oflag, mode_t mode, PTL_ERROR_REF_ARG(err)) -> FileDescriptor 
         requires(PTL_ERROR_REQ(err)) {
 
             auto cpath = c_path(std::forward<decltype(path)>(path));
@@ -87,13 +87,13 @@ namespace ptl::inline v0 {
             return FileDescriptor(fd);
         }
 
-        static auto open(PathLike auto && path, int oflag, PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> FileDescriptor 
+        static auto open(PathLike auto && path, int oflag, PTL_ERROR_REF_ARG(err)) -> FileDescriptor 
         requires(PTL_ERROR_REQ(err)) {
             return open(std::forward<decltype(path)>(path), oflag, 0, PTL_ERROR_REF(err));
         }
         
         #if PTL_HAVE_MKOSTEMPS
-        static auto openTemp(char * nameTemplate, size_t suffixLen, int oflags, PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> FileDescriptor 
+        static auto openTemp(char * nameTemplate, size_t suffixLen, int oflags, PTL_ERROR_REF_ARG(err)) -> FileDescriptor 
         requires(PTL_ERROR_REQ(err)) {
             int fd = mkostemps(nameTemplate, int(suffixLen), oflags);
             if (fd == -1)
@@ -103,12 +103,12 @@ namespace ptl::inline v0 {
             return FileDescriptor(fd);
         }
 
-        static auto openTemp(char * nameTemplate, size_t suffixLen, PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> FileDescriptor 
+        static auto openTemp(char * nameTemplate, size_t suffixLen, PTL_ERROR_REF_ARG(err)) -> FileDescriptor 
         requires(PTL_ERROR_REQ(err)) {
             return openTemp(nameTemplate, suffixLen, 0, PTL_ERROR_REF(err));
         }
 
-        static auto openTemp(char * nameTemplate, PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> FileDescriptor 
+        static auto openTemp(char * nameTemplate, PTL_ERROR_REF_ARG(err)) -> FileDescriptor 
         requires(PTL_ERROR_REQ(err)) {
             return openTemp(nameTemplate, 0, 0, PTL_ERROR_REF(err));
         }
@@ -136,20 +136,20 @@ namespace ptl::inline v0 {
     };
 
     template<> struct FileDescriptorTraits<int> {
-        [[gnu::always_inline]] static int c_fd(int fd)
+        [[gnu::always_inline]] static int c_fd(int fd) noexcept
             { return fd;}
     };
     template<> struct FileDescriptorTraits<FileDescriptor> {
-        [[gnu::always_inline]] static int c_fd(const FileDescriptor & fd)
+        [[gnu::always_inline]] static int c_fd(const FileDescriptor & fd) noexcept
             { return fd.get();}
     };
     template<> struct FileDescriptorTraits<FILE *> {
-        [[gnu::always_inline]] static int c_fd(FILE * fp)
+        [[gnu::always_inline]] static int c_fd(FILE * fp) noexcept
             { return impl::fileno(fp);}
     };
 
     struct Pipe {
-        static auto create(PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err))
+        static auto create(PTL_ERROR_REF_ARG(err)) 
         requires(PTL_ERROR_REQ(err)) {
             int fds[2];
             if (impl::pipe(fds) != 0) {
@@ -183,7 +183,7 @@ namespace ptl::inline v0 {
     }
 
     inline auto readFile(FileDescriptorLike auto && desc, void * buf, io_size_t nbyte, 
-                         PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> io_ssize_t 
+                         PTL_ERROR_REF_ARG(err)) -> io_ssize_t 
     requires(PTL_ERROR_REQ(err)) {
         auto fd = c_fd(std::forward<decltype(desc)>(desc));
         auto ret = impl::read(fd, buf, nbyte);
@@ -195,7 +195,7 @@ namespace ptl::inline v0 {
     }
 
     inline auto writeFile(FileDescriptorLike auto && desc, const void * buf, io_size_t nbyte, 
-                          PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> io_ssize_t 
+                          PTL_ERROR_REF_ARG(err)) -> io_ssize_t 
     requires(PTL_ERROR_REQ(err)) {
         auto fd = c_fd(std::forward<decltype(desc)>(desc));
         auto ret = impl::write(fd, buf, nbyte);
@@ -214,7 +214,7 @@ namespace ptl::inline v0 {
     };
 
     inline void lockFile(FileDescriptorLike auto && desc, FileLock type,
-                         PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err))
+                         PTL_ERROR_REF_ARG(err))
     requires(PTL_ERROR_REQ(err)) {
         auto fd = c_fd(std::forward<decltype(desc)>(desc));
         int operation = int(type);
@@ -225,7 +225,7 @@ namespace ptl::inline v0 {
     }
 
     inline auto tryLockFile(FileDescriptorLike auto && desc, FileLock type,
-                            PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) -> bool
+                            PTL_ERROR_REF_ARG(err)) -> bool
     requires(PTL_ERROR_REQ(err)) {
         auto fd = c_fd(std::forward<decltype(desc)>(desc));
         int operation = int(type) | LOCK_NB;
@@ -238,7 +238,7 @@ namespace ptl::inline v0 {
     }
 
     inline void unlockFile(FileDescriptorLike auto && desc,
-                           PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err))
+                           PTL_ERROR_REF_ARG(err))
     requires(PTL_ERROR_REQ(err)) {
         auto fd = c_fd(std::forward<decltype(desc)>(desc));
         if (::flock(fd, LOCK_UN) != 0)
@@ -248,7 +248,7 @@ namespace ptl::inline v0 {
     }
 
     inline void changeOwner(FileDescriptorLike auto && desc, uid_t uid, gid_t gid,
-                            PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+                            PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto fd = c_fd(std::forward<decltype(desc)>(desc));
         if (::fchown(fd, uid, gid) != 0)
@@ -258,7 +258,7 @@ namespace ptl::inline v0 {
     }
 
     inline void changeOwner(PathLike auto && path, uid_t uid, gid_t gid,
-                            PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+                            PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
         if (::chown(cpath, uid, gid) != 0)
@@ -268,7 +268,7 @@ namespace ptl::inline v0 {
     }
 
     inline void changeLinkOwner(PathLike auto && path, uid_t uid, gid_t gid,
-                            PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+                            PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
         if (::lchown(cpath, uid, gid) != 0)
@@ -278,7 +278,7 @@ namespace ptl::inline v0 {
     }
 
     inline void changeMode(FileDescriptorLike auto && desc, mode_t mode,
-                           PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+                           PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto fd = c_fd(std::forward<decltype(desc)>(desc));
         if (::fchmod(fd, mode) != 0)
@@ -288,7 +288,7 @@ namespace ptl::inline v0 {
     }
 
     inline void changeMode(PathLike auto && path, mode_t mode,
-                           PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+                           PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
         if (::chmod(cpath, mode) != 0)
@@ -299,7 +299,7 @@ namespace ptl::inline v0 {
 
     #if PTL_HAVE_LCHMOD
     inline void changeLinkMode(PathLike auto && path, mode_t mode,
-                               PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+                               PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
         if (::lchmod(cpath, mode) != 0)
@@ -310,7 +310,7 @@ namespace ptl::inline v0 {
     #endif
 
     inline void getStatus(FileDescriptorLike auto && desc, struct ::stat & res,
-                          PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+                          PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto fd = c_fd(std::forward<decltype(desc)>(desc));
         if (::fstat(fd, &res) != 0)
@@ -320,7 +320,7 @@ namespace ptl::inline v0 {
     }
 
     inline void getStatus(PathLike auto && path, struct ::stat & res,
-                          PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+                          PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
         if (::stat(cpath, &res) != 0)
@@ -330,7 +330,7 @@ namespace ptl::inline v0 {
     }
 
     inline void getLinkStatus(PathLike auto && path, struct ::stat & res,
-                              PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+                              PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
         if (::lstat(cpath, &res) != 0)
@@ -340,7 +340,7 @@ namespace ptl::inline v0 {
     }
 
     inline void makeDirectory(PathLike auto && path, mode_t mode,
-                              PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+                              PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
         if (::mkdir(cpath, mode) != 0)
@@ -350,7 +350,7 @@ namespace ptl::inline v0 {
     }
 
     inline void makeDirectoryAt(FileDescriptorLike auto && desc, PathLike auto && path, mode_t mode,
-                                PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+                                PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto fd = c_fd(std::forward<decltype(desc)>(desc));
         auto cpath = c_path(std::forward<decltype(path)>(path));
@@ -361,7 +361,7 @@ namespace ptl::inline v0 {
     }
 
     inline void truncateFile(FileDescriptorLike auto && desc, off_t length,
-                             PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+                             PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto fd = c_fd(std::forward<decltype(desc)>(desc));
         if (::ftruncate(fd, length) != 0)
@@ -371,7 +371,7 @@ namespace ptl::inline v0 {
     }
 
     inline void truncateFile(PathLike auto && path, off_t length,
-                             PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+                             PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto cpath = c_path(std::forward<decltype(path)>(path));
         if (::truncate(cpath, length) != 0)
@@ -381,7 +381,7 @@ namespace ptl::inline v0 {
     }
 
     inline void changeDirectory(FileDescriptorLike auto && desc,
-                                PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+                                PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
 
         auto fd = c_fd(std::forward<decltype(desc)>(desc));
@@ -392,7 +392,7 @@ namespace ptl::inline v0 {
     }
 
     inline void changeDirectory(PathLike auto && path,
-                                PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+                                PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
 
         auto cpath = c_path(std::forward<decltype(path)>(path));
@@ -403,7 +403,7 @@ namespace ptl::inline v0 {
     }
 
     inline void changeRoot(PathLike auto && path,
-                           PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+                           PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
 
         auto cpath = c_path(std::forward<decltype(path)>(path));

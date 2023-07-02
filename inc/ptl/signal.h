@@ -44,9 +44,9 @@ namespace ptl::inline v0 {
             return ret != 0;
         }
 
-        auto get() const -> const sigset_t &
+        auto get() const noexcept -> const sigset_t &
             { return m_set; }
-        auto get() -> sigset_t &
+        auto get() noexcept -> sigset_t &
             { return m_set; }
     private:
         sigset_t m_set;
@@ -90,7 +90,7 @@ namespace ptl::inline v0 {
     }
 
     #ifndef __MINGW32__
-    inline void sendSignal(ProcessLike auto && proc, int sig, PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+    inline void sendSignal(ProcessLike auto && proc, int sig, PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
         clearError();
         auto pid = c_pid(std::forward<decltype(proc)>(proc));
@@ -100,7 +100,7 @@ namespace ptl::inline v0 {
     }
     #endif
 
-    inline void raiseSignal(int sig, PTL_ERROR_REF_ARG(err)) noexcept(PTL_ERROR_NOEXCEPT(err)) 
+    inline void raiseSignal(int sig, PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
         if (::raise(sig) != 0)
             handleError(PTL_ERROR_REF(err), errno, "raise({}) failed", sig);
@@ -122,25 +122,25 @@ namespace ptl::inline v0 {
     private:
         using super = struct_sigaction;
     public:
-        SignalAction(): super{} 
+        constexpr SignalAction() noexcept : super{} 
         {}
-        SignalAction(void (* handler)(int)) : super{} {
+        SignalAction(void (* handler)(int)) noexcept : super{} {
             this->sa_handler = handler;
         }
-        SignalAction(void (* handler)(int, siginfo_t *, void *)) : super{} {
+        SignalAction(void (* handler)(int, siginfo_t *, void *)) noexcept : super{} {
             this->sa_sigaction = handler;
             this->sa_flags = SA_SIGINFO;
         }
-        SignalAction(void (* handler)(int), int flags) : super{} {
+        SignalAction(void (* handler)(int), int flags) noexcept : super{} {
             this->sa_handler = handler;
             this->sa_flags = flags & ~SA_SIGINFO;
         }
-        SignalAction(void (* handler)(int, siginfo_t *, void *), int flags) : super{} {
+        SignalAction(void (* handler)(int, siginfo_t *, void *), int flags) noexcept : super{} {
             this->sa_sigaction = handler;
             this->sa_flags = flags | SA_SIGINFO;
         }
 
-        void setMask(SignalSet mask) {
+        void setMask(SignalSet mask) noexcept {
             this->sa_mask = mask.get();
         }
     };

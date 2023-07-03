@@ -76,12 +76,14 @@ PRIVATE
 
 target_sources(test
 PRIVATE
+    common.cpp
     test.cpp
     test_identity.cpp
     test_file.cpp
     test_spawn.cpp
     test_signal.cpp
     test_users.cpp
+    test_system.cpp
 )
 
 set(TEST_COMMAND "")

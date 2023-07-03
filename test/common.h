@@ -1,6 +1,8 @@
 #ifndef HEADER_COMMON_H_INCLUDED
 #define HEADER_COMMON_H_INCLUDED
 
+#include <ptl/core.h>
+
 #include <catch2/matchers/catch_matchers_templated.hpp>
 
 struct SystemErrorMatcher : Catch::Matchers::MatcherGenericBase {
@@ -43,5 +45,7 @@ inline auto rtrim(const std::string & str) -> std::string {
     });
     return std::string(str.begin(), end.base());
 }
+
+std::string shell(const ptl::StringRefArray & args);
 
 #endif

@@ -1,5 +1,4 @@
 #include <ptl/users.h>
-#include <ptl/spawn.h>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -18,37 +17,11 @@ struct UserInfo {
 
 static auto getMyself() -> const UserInfo & {
     static UserInfo theInfo = []() {
-        UserInfo ret;
-        {
-            auto [readPipe, writePipe] = Pipe::create();
-            SpawnFileActions fa;
-            fa.addDup2(writePipe, stdout);
-            auto child = spawn({ "whoami" }, SpawnSettings().fileActions(fa).usePath());
-            writePipe.close();
-            ret.user = rtrim(readAll(readPipe));
-            child.wait();
-        }
-        {
-            auto [readPipe, writePipe] = Pipe::create();
-            SpawnFileActions fa;
-            fa.addDup2(writePipe, stdout);
-            auto child = spawn({ "id", "-u" }, SpawnSettings().fileActions(fa).usePath());
-            writePipe.close();
-            auto uidstr = rtrim(readAll(readPipe));
-            ret.uid = atoi(uidstr.c_str());
-            child.wait();
-        }
-        {
-            auto [readPipe, writePipe] = Pipe::create();
-            SpawnFileActions fa;
-            fa.addDup2(writePipe, stdout);
-            auto child = spawn({ "id", "-g" }, SpawnSettings().fileActions(fa).usePath());
-            writePipe.close();
-            auto gidstr = rtrim(readAll(readPipe));
-            ret.gid = atoi(gidstr.c_str());
-            child.wait();
-        }
-        return ret;
+        return UserInfo {
+            .user = shell({ "whoami" }),
+            .uid = uid_t(atoi(shell({ "id", "-u" }).c_str())),
+            .gid = gid_t(atoi(shell({ "id", "-g" }).c_str()))
+        };
     }();
 
 

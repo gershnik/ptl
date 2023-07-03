@@ -21,7 +21,9 @@
     #include <unistd.h>
 #endif
 
-#include <ptl/config.h>
+#ifndef PTL_NO_CONFIG
+    #include <ptl/config.h>
+#endif
 
 namespace ptl::inline v0 {
 

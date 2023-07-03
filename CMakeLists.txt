@@ -1,3 +1,6 @@
+# Copyright (c) 2023, Eugene Gershnik
+# SPDX-License-Identifier: BSD-3-Clause
+
 cmake_minimum_required(VERSION 3.25)
 
 project(ptl VERSION 0.1)

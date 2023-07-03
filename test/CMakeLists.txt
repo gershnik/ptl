@@ -1,5 +1,5 @@
-
-find_package (Python3 COMPONENTS Interpreter)
+# Copyright (c) 2023, Eugene Gershnik
+# SPDX-License-Identifier: BSD-3-Clause
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

@@ -1,5 +1,7 @@
+// Copyright (c) 2023, Eugene Gershnik
+// SPDX-License-Identifier: BSD-3-Clause
+
 #include <ptl/identity.h>
-//#include <ptl/spawn.h>
 
 #include <catch2/catch_test_macros.hpp>
 

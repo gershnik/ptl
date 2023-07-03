@@ -1,3 +1,6 @@
+// Copyright (c) 2023, Eugene Gershnik
+// SPDX-License-Identifier: BSD-3-Clause
+
 #ifndef PTL_HEADER_FILE_H_INCLUDED
 #define PTL_HEADER_FILE_H_INCLUDED
 

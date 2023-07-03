@@ -3,7 +3,13 @@
 
 cmake_minimum_required(VERSION 3.25)
 
-project(ptl VERSION 0.1)
+file(READ VERSION PTL_VERSION)
+if (NOT PTL_VERSION)
+    message(FATAL_ERROR "Cannot determine library version (VERSION file not found)")
+endif()
+string(STRIP ${PTL_VERSION} PTL_VERSION)
+
+project(ptl VERSION ${PTL_VERSION})
 
 include(cmake/detect.cmake)
 

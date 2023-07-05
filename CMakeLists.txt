@@ -18,8 +18,6 @@ set(GEN_INCDIR ${CMAKE_CURRENT_BINARY_DIR}/generated/inc)
 set(CMAKEDIR ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 
-configure_file(${CMAKEDIR}/config.h.in ${GEN_INCDIR}/ptl/config.h)
-
 add_library(ptl INTERFACE)
 
 target_compile_features(ptl INTERFACE cxx_std_20)
@@ -47,10 +45,10 @@ set(PUBLIC_HEADERS
 )
 
 set(CMAKE_FILES 
-    ${CMAKEDIR}/config.h.in
     ${CMAKEDIR}/detect.cmake
     ${CMAKEDIR}/install.cmake
     ${CMAKEDIR}/ptl-config.cmake.in
+    ${CMAKEDIR}/ptl.pc.in
 )
 
 target_sources(ptl

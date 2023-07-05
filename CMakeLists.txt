@@ -11,7 +11,7 @@ string(STRIP ${PTL_VERSION} PTL_VERSION)
 
 project(ptl VERSION ${PTL_VERSION})
 
-include(cmake/detect.cmake)
+include(cmake/config.cmake)
 
 set(INCDIR ${CMAKE_CURRENT_SOURCE_DIR}/inc)
 set(GEN_INCDIR ${CMAKE_CURRENT_BINARY_DIR}/generated/inc)
@@ -45,7 +45,7 @@ set(PUBLIC_HEADERS
 )
 
 set(CMAKE_FILES 
-    ${CMAKEDIR}/detect.cmake
+    ${CMAKEDIR}/config.cmake
     ${CMAKEDIR}/install.cmake
     ${CMAKEDIR}/ptl-config.cmake.in
     ${CMAKEDIR}/ptl.pc.in

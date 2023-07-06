@@ -1,9 +1,37 @@
 # PTL
+
+[![Language](https://img.shields.io/badge/language-C++-blue.svg)](https://isocpp.org/)
+[![Standard](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://en.wikipedia.org/wiki/C%2B%2B#Standardization)
+[![License](https://img.shields.io/badge/license-BSD-brightgreen.svg)](https://opensource.org/licenses/BSD-3-Clause)
+
+
 A C++ library for Posix and related calls.
 
+<!-- TOC depthfrom:2 -->
+
+- [Purpose](#purpose)
+- [Features](#features)
+- [Naming](#naming)
+- [Extensions](#extensions)
+- [Win32/MinGW compatibility](#win32mingw-compatibility)
+- [Error handling](#error-handling)
+- [Integration](#integration)
+    - [CMake via FetchContent](#cmake-via-fetchcontent)
+    - [Building and installing on your system](#building-and-installing-on-your-system)
+        - [Basic use](#basic-use)
+        - [CMake package](#cmake-package)
+        - [Via pkg-config](#via-pkg-config)
+    - [Copying to your sources](#copying-to-your-sources)
+- [Configuration](#configuration)
+- [Usage](#usage)
+
+<!-- /TOC -->
+
 ## Purpose
-When using C++ every time one needs to issue some standard system calls on Linux/Mac/FreeBSD he has to deal with the tedium of figuring out its error reporting strategy (very often there are some peculiarities and gotchas to specific calls!) and convert it to an `std::error_code` or an `std::system_exception`. Then figure out how to convert the arguments from C++ to the form required by the call. Sometimes it is as easy as `.c_str()`, sometimes much more convoluted (try to take `std::vector<std::string>` and pass it to `exec` as command line arguments). If there is a do/undo semantics one needs to create a RAII class yet again and figure out all the little details that go with it. There is, unfortunately, nothing in C++ like Python's `os` module. The standard library steadfastly refuses to provide OS-specific calls and want everything to be fully portable. 
-This is extremely annoying, and since I couldn't find an existing library that addressed this problem to my satisfaction I've decided to create this one.
+Every time a C++ developer needs to issue some standard system call on Linux/Mac/FreeBSD he has to deal with the same old, same old annoying chores. You need to figure out its error reporting strategy (very often there are some peculiarities and gotchas to specific calls!) and adapt it to C++. You need to convert the arguments from C++ to the form required by the call and do the reverse for output. Sometimes it is as easy as `.c_str()`, sometimes much more convoluted. If there is a do/undo semantics one needs to create a RAII class yet again and figure out all the little details that go with it. 
+
+There is, unfortunately, nothing in C++ like Python's `os` module. The standard library steadfastly refuses to provide OS-specific calls and want everything to be fully portable. 
+This is extremely annoying, and, since I couldn't find an existing library that addressed this problem to my satisfaction, I've decided to create this one.
 
 PTL doesn't strive to be a comprehensive Posix wrapper (at least not initially). It contains the calls I personally needed at one point or another. I intend to extend it as need arises.
 See [Function Mapping](doc/function-mapping.md) for currently supported functions and which part of PTL exposes them.
@@ -43,7 +71,98 @@ PTL does not use, nor plans to use `std::expected` or `outcome`. This is partly 
 
 ## Integration
 
+### CMake via FetchContent
+
+```cmake
+include(FetchContent)
+...
+FetchContent_Declare(ptl
+    GIT_REPOSITORY  https://github.com/gershnik/ptl.git
+    GIT_TAG         v0.1  #use the tag, branch or sha you need
+    GIT_SHALLOW     TRUE
+)
+...
+FetchContent_MakeAvailable(ptl)
+...
+target_link_libraries(mytarget
+PRIVATE
+  ptl::ptl
+)
+```
+> ℹ&#xFE0F; _[What is FetchContent?](https://cmake.org/cmake/help/latest/module/FetchContent.html)_
+
+### Building and installing on your system
+
+You can also build and install PTL on your system using CMake.
+
+1. Download or clone this repository into SOME_PATH
+2. On command line:
+```bash
+cd SOME_PATH
+cmake -S . -B build 
+cmake --build build
+
+#Optional
+#cmake --build build --target run-tests
+
+#install to /usr/local
+sudo cmake --install build
+#or for a different prefix
+#cmake --install build --prefix /usr
+```
+
+Once PTL has been installed it can be used int the following ways:
+
+#### Basic use 
+
+Set the include directory to `<prefix>/include` where `<prefix>` is the install prefix from above.
+
+#### CMake package
+
+```cmake
+find_package(ptl)
+
+target_link_libraries(mytarget
+PRIVATE
+  ptl::ptl
+)
+```
+
+#### Via `pkg-config`
+
+Add the output of `pkg-config --cflags ptl` to your compiler flags.
+
+Note that the default installation prefix `/usr/local` might not be in the list of places your
+`pkg-config` looks into. If so you might need to do:
+```bash
+export PKG_CONFIG_PATH=/usr/local/share/pkgconfig
+```
+before running `pkg-config`
+
+
+### Copying to your sources
+
+You can also simply download the [inc](inc) directory of this repository somewhere in your source tree and add it to your include path.
+However, note that using this method you will not have `ptl/config.h` configuration header for your platform generated by CMake and will
+need to work around it. See [Configuration](#configuration) for details.
+
 ## Configuration
+
+When used via CMake (either through `FetchContent` or by installing) PTL has configuration header `ptl/config.h` generated that specifies which non-standard facilities are available on your platform. 
+
+If you do not want to use CMake at all you can either:
+1. Provide this header yourself or
+2. Define `PTL_NO_CONFIG` no config macro for the compilation to prevent its inclusion.
+
+In either case you can use PTL without any configuration macros defined but it will be limited to standard Posix functionality available everywhere.
+You can set the configuration macros manually, if desired, to match your platform. See [`cmake/config.cmake`](cmake/config.cmake) for available macros and their meaning.
+
+## Usage
+
+To access PTL you will need to either include individual `ptl/foo.h` headers (see [Function Mapping](doc/function-mapping.md) for which header provides what functionality) or simply include an umbrella header `ptl/ptl.h`.
+
+Everything in the library is under `namespace ptl`. 
+
 
 
 

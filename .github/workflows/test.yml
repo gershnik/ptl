@@ -130,10 +130,12 @@ jobs:
         key: ${{ runner.os }}-${{ steps.system-info.outputs.release }}-cygwin-out
 
     - name: Configure
+      shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
       run: |
           cmake -E make_directory out
           cmake -G "Unix Makefiles" -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo 
 
     - name: Build
+      shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
       run: |
           cmake --build out --target run-test

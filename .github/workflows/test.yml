@@ -29,7 +29,7 @@ jobs:
         "$RUNNER_TOOLS_PATH"/run-agent gh-${{ matrix.remote_host }} <<'EOF'
         set -e
         if [ ! -d work/ptl ]; then
-          git clone git@github.com:gershnik/ptl.git work/ptl
+          git clone https://github.com/gershnik/ptl.git work/ptl
         fi
         cd work/ptl
         git fetch --all

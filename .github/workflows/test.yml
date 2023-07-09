@@ -94,11 +94,13 @@ jobs:
         key: ${{ runner.os }}-${{ steps.system-info.outputs.release }}-mingw-out
 
     - name: Configure
+      shell: cmd
       run: |
           cmake -E make_directory out
           PATH=C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin;%PATH%
           cmake -G "MinGW Makefiles" -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo 
 
     - name: Build
+      shell: cmd
       run: |
           cmake --build out --target run-test

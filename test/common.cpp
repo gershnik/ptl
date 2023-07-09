@@ -7,6 +7,8 @@
 
 using namespace ptl;
 
+#ifndef _WIN32
+
 std::string shell(const StringRefArray & args) {
     auto [readPipe, writePipe] = Pipe::create();
     SpawnFileActions fa;
@@ -17,3 +19,5 @@ std::string shell(const StringRefArray & args) {
     child.wait();
     return ret;
 }
+
+#endif

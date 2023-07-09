@@ -132,10 +132,12 @@ jobs:
     - name: Configure
       shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
       run: |
+          cd ${GITHUB_WORKSPACE}
           cmake -E make_directory out
           cmake -G "Unix Makefiles" -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo 
 
     - name: Build
       shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
       run: |
+          cd ${GITHUB_WORKSPACE}
           cmake --build out --target run-test

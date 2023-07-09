@@ -105,3 +105,41 @@ jobs:
       run: |
           PATH=C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin;%PATH%
           cmake --build out --target run-test
+
+  cygwin:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Install CXygwin
+      uses: cygwin/cygwin-install-action@master
+      with:
+        packages: ['cmake', 'ninja', 'gcc-g++', 'cygwin-devel']
+
+    - name: Collect System Info
+      id: system-info
+      uses: kenchan0130/actions-system-info@master
+
+    - name: Cache Build Dir
+      id: cache-build-dir
+      uses: actions/cache@v3
+      with:
+        path: out
+        key: ${{ runner.os }}-${{ steps.system-info.outputs.release }}-mingw-out
+
+    - name: Configure
+      shell: cmd
+      run: |
+          bash <<'EOF'
+          cmake -E make_directory out
+          cmake -G "Unix Makefiles" -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo 
+          EOF
+
+    - name: Build
+      shell: cmd
+      run: |
+          bash <<'EOF'
+          cmake --build out --target run-test
+          EOF

@@ -116,7 +116,11 @@ jobs:
     - name: Install CXygwin
       uses: cygwin/cygwin-install-action@master
       with:
-        packages: ['cmake', 'ninja', 'gcc-g++', 'cygwin-devel']
+        packages: 
+          - 'cmake'
+          - 'ninja'
+          - 'gcc-g++'
+          - 'cygwin-devel'
 
     - name: Collect System Info
       id: system-info

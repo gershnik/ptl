@@ -75,7 +75,7 @@ jobs:
       run: |
           cmake -E make_directory out
           if [[ '${{ matrix.conf }}' == 'mingw' ]]; then
-            export GENERATOR='-G"MinGW Makefiles"'
+            export GENERATOR='-GMinGW Makefiles'
           fi
           cmake "${GENERATOR}" -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo 
 

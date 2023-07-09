@@ -127,7 +127,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: out C:\tools\cygwin
-        key: ${{ runner.os }}-${{ steps.system-info.outputs.release }}-mingw-out
+        key: ${{ runner.os }}-${{ steps.system-info.outputs.release }}-cygwin-out
 
     - name: Configure
       run: |

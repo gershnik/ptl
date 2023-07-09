@@ -75,7 +75,7 @@ jobs:
       run: |
           cmake --build out --target run-test
 
-mingw:
+  mingw:
     runs-on: windows-latest
     
     steps:

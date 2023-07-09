@@ -47,13 +47,8 @@ jobs:
       matrix:
         include: 
         - os: ubuntu-latest
-          conf: 'default'
         - os: macos-latest
-          conf: 'default'
         - os: windows-latest
-          conf: 'default'
-        - os: windows-latest
-          conf: 'mingw'
     
     steps:
     - name: Checkout
@@ -68,19 +63,42 @@ jobs:
       uses: actions/cache@v3
       with:
         path: out
-        key: ${{ runner.os }}-${{ steps.system-info.outputs.release }}-${{ matrix.conf }}-out
+        key: ${{ runner.os }}-${{ steps.system-info.outputs.release }}-out
 
     - name: Configure
       shell: bash
       run: |
           cmake -E make_directory out
-          if [[ '${{ matrix.conf }}' == 'mingw' ]]; then
-            export PATH=/c/ProgramData/chocolatey/lib/mingw/tools/install/mingw64/bin:$PATH
-            export GENERATOR='-GMinGW Makefiles'
-          fi
-          cmake "${GENERATOR}" -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo 
+          cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo 
 
     - name: Build
       run: |
           cmake --build out --target run-test
 
+mingw:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Collect System Info
+      id: system-info
+      uses: kenchan0130/actions-system-info@master
+
+    - name: Cache Build Dir
+      id: cache-build-dir
+      uses: actions/cache@v3
+      with:
+        path: out
+        key: ${{ runner.os }}-${{ steps.system-info.outputs.release }}-mingw-out
+
+    - name: Configure
+      run: |
+          cmake -E make_directory out
+          PATH=C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin;%PATH%
+          cmake -G "MinGW Makefiles" -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo 
+
+    - name: Build
+      run: |
+          cmake --build out --target run-test

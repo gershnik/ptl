@@ -75,12 +75,9 @@ jobs:
       run: |
           cmake -E make_directory out
           if [[ '${{ matrix.conf }}' == 'mingw' ]]; then
-            echo $PATH
-            export PATH=C:/ProgramData/Chocolatey/lib/mingw/tools/install/mingw64/bin:$PATH
-            export CC=gcc
-            export CXX=g++
+            GENERATOR='-G"MinGW Makefiles"'
           fi
-          cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo 
+          cmake ${GENERATOR} -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo 
 
     - name: Build
       run: |

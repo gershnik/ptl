@@ -12,6 +12,9 @@
 #endif
 #include <fcntl.h>
 #include <sys/stat.h>
+#if __has_include(<sys/file.h>)
+    #include <sys/file.h>
+#endif
 
 namespace ptl::inline v0 {
 

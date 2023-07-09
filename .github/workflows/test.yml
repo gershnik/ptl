@@ -134,10 +134,31 @@ jobs:
       run: |
           cd ${GITHUB_WORKSPACE}
           cmake -E make_directory out
-          cmake -G "Unix Makefiles" -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo 
+          cmake -GNinja -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo 
 
     - name: Build
       shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
       run: |
           cd ${GITHUB_WORKSPACE}
           cmake --build out --target run-test
+
+  android:
+    runs-on: macos-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    - uses: reactivecircus/android-emulator-runner@v2
+      env:
+        NDK_VER: 23.1.7779620
+        NDK_ARCH: x86_64
+        NDK_API: 29
+      with:
+        api-level: ${{env.NDK_API}}
+        arch: ${{env.NDK_ARCH}}
+        target: google_apis
+        ndk: ${{env.NDK_VER}}
+        script: |
+            cmake -E make_directory out
+            cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_TOOLCHAIN_FILE:FILEPATH=$ANDROID_SDK_ROOT/ndk/$NDK_VER/build/cmake/android.toolchain.cmake -DANDROID_ABI:STRING=$NDK_ARCH -DANDROID_PLATFORM:STRING=$NDK_API -DANDROID_STL:STRING=c++_static
+            cmake --build out --target run-test
+

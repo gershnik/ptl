@@ -89,7 +89,28 @@ PRIVATE
 set(TEST_COMMAND "")
 set(TEST_DEPS "")
 
-list(APPEND TEST_COMMAND COMMAND test)
+if (${CMAKE_SYSTEM_NAME} STREQUAL Android)
+
+    set(ANDROID_TEST_DIR /data/local/tmp/sys_string_test)
+    set(ANDROID_SDK_DIR ${CMAKE_ANDROID_NDK}/../..)
+    set(ADB ${ANDROID_SDK_DIR}/platform-tools/adb)
+
+    if("${CMAKE_SIZEOF_VOID_P}" STREQUAL "4")
+        set(ANDROID_LD_LIBRARY_PATH /apex/com.android.art/lib:/apex/com.android.runtime/lib)
+    else()
+        set(ANDROID_LD_LIBRARY_PATH /apex/com.android.art/lib64:/apex/com.android.runtime/lib64)
+    endif()
+
+    list(APPEND TEST_COMMAND COMMAND ${ADB} shell mkdir -p ${ANDROID_TEST_DIR}/data)
+    list(APPEND TEST_COMMAND COMMAND ${ADB} push test ${ANDROID_TEST_DIR})
+    list(APPEND TEST_COMMAND COMMAND ${ADB} shell \"cd ${ANDROID_TEST_DIR} && LD_LIBRARY_PATH=${ANDROID_LD_LIBRARY_PATH} ./test\")
+
+else()
+
+    list(APPEND TEST_COMMAND COMMAND test)
+    
+endif()
+
 list(APPEND TEST_DEPS test)
 
 add_custom_target(run-test 

@@ -83,7 +83,7 @@ TEST_CASE( "spawn" , "[spawn]") {
         auto [read, write] = Pipe::create();
 
         SpawnFileActions act;
-        act.addDup2(write, stdout);
+        act.addDuplicateTo(write, stdout);
         auto proc = spawn({"sh", "-c", "echo $PTL_STRING"}, {"PTL_STRING=haha"}, SpawnSettings().fileActions(act).usePath());
         write.close();
 

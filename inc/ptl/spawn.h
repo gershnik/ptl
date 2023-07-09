@@ -62,7 +62,7 @@ namespace ptl::inline v0 {
                        "posix_spawn_file_actions_addopen failed");
         }
 
-        void addDup2(FileDescriptorLike auto && fdFrom, const FileDescriptorLike auto & fdTo) {
+        void addDuplicateTo(FileDescriptorLike auto && fdFrom, const FileDescriptorLike auto & fdTo) {
             posixCheck(posix_spawn_file_actions_adddup2(&m_wrapped, 
                                                         c_fd(std::forward<decltype(fdFrom)>(fdFrom)), 
                                                         c_fd(std::forward<decltype(fdTo)>(fdTo))),

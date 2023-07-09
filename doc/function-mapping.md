@@ -17,6 +17,7 @@
 [close()]:          https://pubs.opengroup.org/onlinepubs/9699919799/functions/close.html
 [dup()]:            https://pubs.opengroup.org/onlinepubs/9699919799/functions/dup.html
 [dup2()]:           https://pubs.opengroup.org/onlinepubs/9699919799/functions/dup2.html
+[exec()]:           https://pubs.opengroup.org/onlinepubs/9699919799/functions/exec.html
 [fchdir()]:         https://pubs.opengroup.org/onlinepubs/9699919799/functions/fchdir.html
 [fchmod()]:         https://pubs.opengroup.org/onlinepubs/9699919799/functions/fchmod.html
 [fchown()]:         https://pubs.opengroup.org/onlinepubs/9699919799/functions/fchown.html
@@ -30,6 +31,18 @@
 [mkdirat()]:        https://pubs.opengroup.org/onlinepubs/9699919799/functions/mkdirat.html
 [open()]:           https://pubs.opengroup.org/onlinepubs/9699919799/functions/open.html
 [pipe()]:           https://pubs.opengroup.org/onlinepubs/9699919799/functions/pipe.html
+[posix_spawn_file_actions_addclose()]:  https://pubs.opengroup.org/onlinepubs/9699919799/functions/posix_spawn_file_actions_addclose.html
+[posix_spawn_file_actions_adddup2()]:   https://pubs.opengroup.org/onlinepubs/9699919799/functions/posix_spawn_file_actions_adddup2.html
+[posix_spawn_file_actions_addopen()]:   https://pubs.opengroup.org/onlinepubs/9699919799/functions/posix_spawn_file_actions_addopen.html
+[posix_spawn_file_actions_destroy()]:   https://pubs.opengroup.org/onlinepubs/9699919799/functions/posix_spawn_file_actions_destroy.html
+[posix_spawn_file_actions_init()]:      https://pubs.opengroup.org/onlinepubs/9699919799/functions/posix_spawn_file_actions_init.html
+[posix_spawnattr_destroy()]:            https://pubs.opengroup.org/onlinepubs/9699919799/functions/posix_spawnattr_destroy.html
+[posix_spawnattr_init()]:               https://pubs.opengroup.org/onlinepubs/9699919799/functions/posix_spawnattr_init.html
+[posix_spawnattr_setflags()]:           https://pubs.opengroup.org/onlinepubs/9699919799/functions/posix_spawnattr_setflags.html
+[posix_spawnattr_setsigdefault()]:      https://pubs.opengroup.org/onlinepubs/9699919799/functions/posix_spawnattr_setsigdefault.html
+[posix_spawnattr_setpgroup()]:          https://pubs.opengroup.org/onlinepubs/9699919799/functions/posix_spawnattr_setpgroup.html
+[posix_spawn()]:    https://pubs.opengroup.org/onlinepubs/9699919799/functions/posix_spawn.html
+[posix_spawnp()]:   https://pubs.opengroup.org/onlinepubs/9699919799/functions/posix_spawnp.html
 [raise()]:          https://pubs.opengroup.org/onlinepubs/9699919799/functions/raise.html
 [read()]:           https://pubs.opengroup.org/onlinepubs/9699919799/functions/read.html
 [setgid()]:         https://pubs.opengroup.org/onlinepubs/9699919799/functions/setgid.html
@@ -52,6 +65,7 @@
 [waitpid()]:        https://pubs.opengroup.org/onlinepubs/9699919799/functions/waitpid.html
 [write()]:          https://pubs.opengroup.org/onlinepubs/9699919799/functions/write.html
 
+[execvpe]:          https://man7.org/linux/man-pages/man3/execvpe.3.html
 [flock-lin]:        https://man7.org/linux/man-pages/man2/flock.2.html
 [mkostemps-lin]:    https://man7.org/linux/man-pages/man3/mkstemp.3.html
 [sigabbrev_np()]:   https://man7.org/linux/man-pages/man3/sigabbrev_np.3.html
@@ -64,6 +78,8 @@
 [lchmod-bsd]:       https://man.freebsd.org/cgi/man.cgi?query=lchmod
 [mkostemps-bsd]:    https://man.freebsd.org/cgi/man.cgi?query=mkostemp
 [sys_signame]:      https://man.freebsd.org/cgi/man.cgi?query=sys_signame
+[posix_spawn_file_actions_addclosefrom_np]: https://man.freebsd.org/cgi/man.cgi?query=posix_spawn_file_actions_addclosefrom_np
+[posix_spawn_file_actions_addchdir_np]: https://man.freebsd.org/cgi/man.cgi?query=posix_spawn_file_actions_addchdir_np
 
 <!-- Links -->
 
@@ -77,6 +93,7 @@
 |[close()]       | `FileDescriptor::~FileDescriptor()`, `FileDescriptor::close()` | [file.h] | 
 |[dup()]         | `duplicate()`                | [file.h]     | 
 |[dup2()]        | `duplicateTo()`              | [file.h]     | 
+|[exec()] family | `exec()`, `execp()`          | [spawn.h]    | An overload of `execp()` that takes environment is only available on platforms that support `execvpe()` call: [Linux][execvpe], OpenBSD.
 |[fchdir()]      | `changeDirectory()`          | [file.h]     | 
 |[fchmod()]      | `changeMode()`               | [file.h]     | 
 |[fchown()]      | `changeOwner()`              | [file.h]     | 
@@ -93,6 +110,19 @@
 |[mkdirat()]     | `makeDirectoryAt()`          | [file.h]     | 
 |[open()]        | `FileDescriptor::open()`     | [file.h]     | 
 |[pipe()]        | `Pipe::create()`             | [file.h]     | 
+|`posix_spawn_file_actions_addchdir_np()`     | `SpawnFileActions::addChdirNp()`     | [spawn.h] | Mac (see local man page), [BSD][posix_spawn_file_actions_addchdir_np]
+|[posix_spawn_file_actions_addclose()]        | `SpawnFileActions::addClose()`       | [spawn.h] |
+|`posix_spawn_file_actions_addclosefrom_np()` | `SpawnFileActions::addCloseFromNp`   | [spawn.h] | [BSD][posix_spawn_file_actions_addclosefrom_np]
+|[posix_spawn_file_actions_adddup2()]         | `SpawnFileActions::addDuplicateTo()` | [spawn.h] |
+|`posix_spawn_file_actions_addinherit_np()`   | `SpawnFileActions::addInheritNp()`   | [spawn.h] | Mac (see local man page)
+|[posix_spawn_file_actions_addopen()]         | `SpawnFileActions::addOpen()`        | [spawn.h] |
+|[posix_spawn_file_actions_init()], [posix_spawn_file_actions_destroy()] | `SpawnFileActions` class | [spawn.h] |
+|[posix_spawnattr_init()], [posix_spawnattr_destroy()] | `SpawnAttr` class | [spawn.h] |
+|[posix_spawnattr_setflags()]                   | `SpawnAttr::setFlags()`            | [spawn.h] |
+|[posix_spawnattr_setsigdefault()]              | `SpawnAttr::setSigDefault()`       | [spawn.h] |
+|[posix_spawnattr_setpgroup()]                  | `SpawnAttr::setPGroup()`           | [spawn.h] |
+|[posix_spawn()] | `spawn()`                    | [spawn.h]    | Mapped to `_spawn()` on Win32
+|[posix_spawnp()]| `spawn()`                    | [spawn.h]    | Mapped to `_spawnp()` on Win32
 |[raise()]       | `raiseSignal()`              | [signal.h]   | 
 |[read()]        | `readFile()`                 | [file.h]     | 
 |[setgid()]      | `setGid()`                   | [identity.h] |
@@ -101,7 +131,7 @@
 |[setpgid()]     | `setProcessGroupId()`        | [process.h]  |
 |[setsid()]      | `setSessionId()`             | [process.h]  |
 |[setuid()]      | `setUid()`                   | [identity.h] |
-| [sigabbrev_np()], [sys_signame], `sys_sigabbrev` | `signalName()` | [signal.h] | Various non-portable ways of obtaining a signal name. The `signalName()` is supported on all platforms and falls back on returning signal number converted to string if no known mapping is available
+|[sigabbrev_np()], [sys_signame], `sys_sigabbrev` | `signalName()` | [signal.h] | Various non-portable ways of obtaining a signal name. The `signalName()` is supported on all platforms and falls back on returning signal number converted to string if no known mapping is available
 |[sigaction()]   | `setSignalAction()`, `getSignalAction()` | [signal.h] | Note that `struct sigaction` is minimally wrapped by `SignalAction` class
 |[sigaddset()]   | `SignalSet::add()`           | [signal.h]   |
 |[sigdelset()]   | `SignalSet::del()`           | [signal.h]   |

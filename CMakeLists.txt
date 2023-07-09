@@ -9,7 +9,7 @@ if (NOT PTL_VERSION)
 endif()
 string(STRIP ${PTL_VERSION} PTL_VERSION)
 
-project(ptl VERSION ${PTL_VERSION})
+project(ptl VERSION ${PTL_VERSION} LANGUAGES CXX)
 
 include(cmake/config.cmake)
 

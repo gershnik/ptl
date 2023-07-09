@@ -135,6 +135,5 @@ jobs:
           cmake -G "Unix Makefiles" -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo 
 
     - name: Build
-      shell: cmd
       run: |
           cmake --build out --target run-test

@@ -47,11 +47,11 @@ jobs:
       matrix:
         include: 
         - os: ubuntu-latest
-          conf: ''
+          conf: 'default'
         - os: macos-latest
-          conf: ''
+          conf: 'default'
         - os: windows-latest
-          conf: ''
+          conf: 'default'
         - os: windows-latest
           conf: 'mingw'
     
@@ -68,7 +68,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: out
-        key: ${{ runner.os }}-${{ steps.system-info.outputs.release }}-out
+        key: ${{ runner.os }}-${{ steps.system-info.outputs.release }}-${{ matrix.conf }}-out
 
     - name: Configure
       shell: bash

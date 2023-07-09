@@ -126,20 +126,15 @@ jobs:
       id: cache-build-dir
       uses: actions/cache@v3
       with:
-        path: out
+        path: out C:\tools\cygwin
         key: ${{ runner.os }}-${{ steps.system-info.outputs.release }}-mingw-out
 
     - name: Configure
-      shell: cmd
       run: |
-          bash <<'EOF'
           cmake -E make_directory out
           cmake -G "Unix Makefiles" -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo 
-          EOF
 
     - name: Build
       shell: cmd
       run: |
-          bash <<'EOF'
           cmake --build out --target run-test
-          EOF

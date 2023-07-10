@@ -4,7 +4,6 @@
 include(CMakePushCheckState)
 include(CheckCXXSymbolExists)
 include(CheckCXXSourceCompiles)
-include(CheckCXXSourceRuns)
 
 set(CONFIG_CONTENT  
 "// Copyright (c) 2023, Eugene Gershnik
@@ -33,7 +32,7 @@ string(APPEND CONFIG_CONTENT "#cmakedefine01 PTL_HAVE_SIGABBREV_NP\n")
 check_cxx_symbol_exists(sys_signame signal.h PTL_HAVE_SYS_SIGNAME)
 string(APPEND CONFIG_CONTENT "#cmakedefine01 PTL_HAVE_SYS_SIGNAME\n")
 
-check_cxx_source_runs("
+check_cxx_source_compiles("
     #include <signal.h>
     #include <stdio.h>
     int main() { 
@@ -43,7 +42,7 @@ check_cxx_source_runs("
 PTL_HAVE_SYS_SIGABBREV_DECLARED)
 string(APPEND CONFIG_CONTENT "#cmakedefine01 PTL_HAVE_SYS_SIGABBREV_DECLARED\n")
 
-check_cxx_source_runs("
+check_cxx_source_compiles("
     #include <signal.h>
     #include <stdio.h>
     extern \"C\" {
@@ -58,7 +57,7 @@ string(APPEND CONFIG_CONTENT "#cmakedefine01 PTL_HAVE_SYS_SIGABBREV_UNDECLARED\n
 
 string(APPEND CONFIG_CONTENT "#define PTL_HAVE_SYS_SIGABBREV PTL_HAVE_SYS_SIGABBREV_UNDECLARED || PTL_HAVE_SYS_SIGABBREV_DECLARED\n")
 
-check_cxx_source_runs("
+check_cxx_source_compiles("
     #include <unistd.h>
     #include <stdlib.h>
     

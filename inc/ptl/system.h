@@ -27,10 +27,13 @@ namespace ptl::inline v0 {
 
     inline void getHostName(std::span<char> buf, PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
-        if (::gethostname(buf.data(), buf.size()) != 0)
+        if (::gethostname(buf.data(), buf.size()) != 0) {
             handleError(PTL_ERROR_REF(err), errno, "gethostname(...,{}) failed", buf.size());
-        else
+        } else {
             clearError(PTL_ERROR_REF(err));
+            if (auto size = buf.size())
+                buf[size - 1] = '\0';
+        }
     }
 
 }

@@ -3,6 +3,8 @@
 
 #include <ptl/system.h>
 
+#include <limits.h>
+
 #include <catch2/catch_test_macros.hpp>
 
 #include "common.h"

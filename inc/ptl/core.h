@@ -10,6 +10,7 @@
 #include <string>
 #include <algorithm>
 #include <type_traits>
+#include <concepts>
 
 #if __cpp_lib_format >= 202110L
     #include <format>

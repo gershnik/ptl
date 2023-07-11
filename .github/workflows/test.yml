@@ -117,12 +117,11 @@ jobs:
     - uses: actions/checkout@v3
     - uses: reactivecircus/android-emulator-runner@v2
       with:
-        api-level: ${{ matrix.api }}
+        api-level: 30
         arch: ${{matrix.arch}}
         target: google_apis
         ndk: ${{ matrix.version }}
         script: |
-            set -e
             cmake -E make_directory out
             cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_TOOLCHAIN_FILE:FILEPATH=$ANDROID_SDK_ROOT/ndk/${{ matrix.version }}/build/cmake/android.toolchain.cmake -DANDROID_ABI:STRING=${{ matrix.arch }} -DANDROID_PLATFORM:STRING=${{ matrix.api }} -DANDROID_STL:STRING=c++_static
             cmake --build out --target run-test

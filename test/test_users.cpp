@@ -21,7 +21,7 @@ struct UserInfo {
 static auto getMyself() -> const UserInfo & {
     static UserInfo theInfo = []() {
         return UserInfo {
-            .user = shell({ "id", "-un" }),
+            .user = shell({ "whoami" }),
             .uid = uid_t(atoi(shell({ "id", "-u" }).c_str())),
             .gid = gid_t(atoi(shell({ "id", "-g" }).c_str()))
         };

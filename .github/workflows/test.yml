@@ -20,8 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: 
-        - remote_host: freebsd-13.1
+        remote_host: [freebsd-13.1]
         
     steps:
     - name: Run remote build
@@ -35,7 +34,7 @@ jobs:
         git fetch --all
         git fetch -f --prune --tags
         git reset --hard ${{ github.sha }}
-        [ -d "out" ] || mkdir out
+        rm -rf out
         cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo 
         cmake --build out --target run-test
         EOF
@@ -45,25 +44,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: 
-        - os: ubuntu-latest
-        - os: macos-latest
-        - os: windows-latest
+        os: [ubuntu-latest, macos-latest, windows-latest]
     
     steps:
     - name: Checkout
       uses: actions/checkout@v3
-
-    - name: Collect System Info
-      id: system-info
-      uses: kenchan0130/actions-system-info@master
-
-    - name: Cache Build Dir
-      id: cache-build-dir
-      uses: actions/cache@v3
-      with:
-        path: out
-        key: ${{ runner.os }}-${{ steps.system-info.outputs.release }}-out
 
     - name: Configure
       shell: bash
@@ -81,17 +66,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
-
-    - name: Collect System Info
-      id: system-info
-      uses: kenchan0130/actions-system-info@master
-
-    - name: Cache Build Dir
-      id: cache-build-dir
-      uses: actions/cache@v3
-      with:
-        path: out
-        key: ${{ runner.os }}-${{ steps.system-info.outputs.release }}-mingw-out
 
     - name: Configure
       shell: cmd
@@ -118,17 +92,6 @@ jobs:
       with:
         packages: cmake ninja gcc-g++ cygwin-devel
 
-    - name: Collect System Info
-      id: system-info
-      uses: kenchan0130/actions-system-info@master
-
-    - name: Cache Build Dir
-      id: cache-build-dir
-      uses: actions/cache@v3
-      with:
-        path: out C:\tools\cygwin
-        key: ${{ runner.os }}-${{ steps.system-info.outputs.release }}-cygwin-out
-
     - name: Configure
       shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
       run: |
@@ -144,21 +107,20 @@ jobs:
 
   android:
     runs-on: macos-latest
-    
+    matrix:
+      version: [25.2.9519653]
+      api: [21, 30]    
+      arch: [x86_64]
     steps:
     - uses: actions/checkout@v3
     - uses: reactivecircus/android-emulator-runner@v2
-      env:
-        NDK_VER: 25.2.9519653
-        NDK_ARCH: x86_64
-        NDK_API: 29
       with:
-        api-level: ${{env.NDK_API}}
-        arch: ${{env.NDK_ARCH}}
+        api-level: ${{ matrix.api }}
+        arch: ${{matrix.arch}}
         target: google_apis
-        ndk: ${{env.NDK_VER}}
+        ndk: ${{ matrix.version }}
         script: |
             cmake -E make_directory out
-            cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_TOOLCHAIN_FILE:FILEPATH=$ANDROID_SDK_ROOT/ndk/$NDK_VER/build/cmake/android.toolchain.cmake -DANDROID_ABI:STRING=$NDK_ARCH -DANDROID_PLATFORM:STRING=$NDK_API -DANDROID_STL:STRING=c++_static
+            cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_TOOLCHAIN_FILE:FILEPATH=$ANDROID_SDK_ROOT/ndk/${{ matrix.version }}/build/cmake/android.toolchain.cmake -DANDROID_ABI:STRING=${{ matrix.arch }} -DANDROID_PLATFORM:STRING=${{ matrix.api }} -DANDROID_STL:STRING=c++_static
             cmake --build out --target run-test
 

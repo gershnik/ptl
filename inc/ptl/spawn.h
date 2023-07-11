@@ -34,6 +34,8 @@ namespace ptl::inline v0 {
 //MARK: - Spawn
 #pragma region Spawn
 
+    #if !defined(__ANDROID__) || (defined(__ANDROID__) && __ANDROID_API__ >= 28)
+
     #ifndef _WIN32
     class SpawnFileActions {
     public:
@@ -257,6 +259,8 @@ namespace ptl::inline v0 {
         assert(!args.empty());
         return spawn(args[0], args, {}, PTL_ERROR_REF(err));
     }
+
+    #endif //ANDROID version check
 
 #pragma endregion
     

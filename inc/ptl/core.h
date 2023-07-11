@@ -10,13 +10,19 @@
 #include <string>
 #include <algorithm>
 #include <type_traits>
-#include <concepts>
+#include <iterator>
+
 
 #if __cpp_lib_format >= 202110L
     #include <format>
     #define PTL_USE_STD_FORMAT 1
 #else
     #include <fmt/format.h>
+#endif
+
+#if __cpp_lib_concepts >=  202002L
+    #include <concepts>
+    #define PTL_USE_STD_CONCEPTS 1
 #endif
 
 #include <errno.h>
@@ -30,6 +36,49 @@
 #endif
 
 namespace ptl::inline v0 {
+
+    #if PTL_USE_STD_CONCEPTS
+
+        template <class From, class To>
+        concept SameAs = std::same_as<From, To>;
+
+        template <class From, class To>
+        concept ConvertibleTo = std::convertible_to<From, To>;
+
+        template < class T >
+        concept UnsignedIntegral = std::unsigned_integral<T>;
+
+        template<class I>
+        concept ContiguousIterator = std::contiguous_iterator<I>;
+
+    #else
+
+        template< class T, class U >
+        concept SameAs = std::is_same_v<T, U> && std::is_same_v<U, T>;
+
+        template <class From, class To>
+        concept ConvertibleTo = std::is_convertible_v<From, To> &&
+        requires {
+            static_cast<To>(std::declval<From>());
+        };
+
+        template < class T >
+        concept UnsignedIntegral = std::is_integral_v<T> && !std::is_signed_v<T>;
+
+        template<class I>
+        concept ContiguousIterator = std::is_convertible_v<typename std::iterator_traits<I>::iterator_category, std::random_access_iterator_tag> &&
+        std::is_lvalue_reference_v<typename std::iterator_traits<I>::reference> &&
+        SameAs<
+        typename std::iterator_traits<I>::value_type, std::remove_cvref_t<typename std::iterator_traits<I>::reference>
+        > &&
+        requires(const I& i) {
+        { std::to_address(i) } ->
+            SameAs<std::add_pointer_t<typename std::iterator_traits<I>::reference>>;
+        };
+
+    #endif
+
+    
 
     #if defined(_WIN32) && !defined(__MINGW32__)
         using mode_t = int;
@@ -56,8 +105,8 @@ namespace ptl::inline v0 {
     
     template<class T>
     concept ErrorSink = requires(T & obj, int code) {
-        { ErrorTraits<T>::handleError(obj, code, "") } noexcept -> std::same_as<void>;
-        { ErrorTraits<T>::clearError(obj) } noexcept -> std::same_as<void>;
+        { ErrorTraits<T>::handleError(obj, code, "") } noexcept -> SameAs<void>;
+        { ErrorTraits<T>::clearError(obj) } noexcept -> SameAs<void>;
     };
 
     template<ErrorSink Err, class... T>
@@ -127,7 +176,7 @@ namespace ptl::inline v0 {
 
     template<class T>
     concept PathLike = requires(T && obj) {
-        { CPathTraits<std::remove_cvref_t<T>>::c_path(std::forward<T>(obj)) } -> std::convertible_to<const char *>;
+        { CPathTraits<std::remove_cvref_t<T>>::c_path(std::forward<T>(obj)) } -> ConvertibleTo<const char *>;
     };
 
     template<PathLike T>
@@ -178,8 +227,8 @@ namespace ptl::inline v0 {
     };
     
     template<class T>
-    concept StringLike = std::convertible_to<T, const char *> || requires(T && obj) {
-        { std::forward<T>(obj).c_str() } -> std::convertible_to<const char *>;
+    concept StringLike = ConvertibleTo<T, const char *> || requires(T && obj) {
+        { std::forward<T>(obj).c_str() } -> ConvertibleTo<const char *>;
     };
 
     inline auto c_str(StringLike auto && str) noexcept -> const char * {
@@ -195,7 +244,7 @@ namespace ptl::inline v0 {
     concept StringLikeArray = requires(T obj) {
         std::begin(obj);
         std::end(obj);
-        { std::size(obj) } -> std::same_as<size_t>;   
+        { std::size(obj) } -> SameAs<size_t>;   
         requires StringLike<decltype(*std::begin(obj))>;
     };
 
@@ -207,7 +256,7 @@ namespace ptl::inline v0 {
             auto arrayBegin = std::begin(std::forward<T>(array));
 
             if constexpr (std::is_same_v<std::remove_cvref_t<decltype(*arrayBegin)>, const char *> &&
-                          std::contiguous_iterator<decltype(arrayBegin)>) {
+                          ContiguousIterator<decltype(arrayBegin)>) {
                 if (arraySize > 0 && *(arrayBegin + arraySize - 1) == 0) {
                     m_ptr = &*arrayBegin;
                     return;
@@ -245,7 +294,7 @@ namespace ptl::inline v0 {
             { return *m_ptr == 0; }
 
     private:
-        void transform(StringLikeArray auto && array, std::unsigned_integral auto size) {
+        void transform(StringLikeArray auto && array, UnsignedIntegral auto size) {
             using ArrayType = std::remove_cvref_t<decltype(array)>;
 
             m_transformed.reset(new const char *[size + 1]);

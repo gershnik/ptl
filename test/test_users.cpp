@@ -79,6 +79,8 @@ TEST_CASE( "user by id" , "[users]") {
     CHECK(!ec);
 }
 
+#if !defined(__ANDROID__) || (defined(__ANDROID__) && __ANDROID_API__ >= 24)
+
 TEST_CASE( "group by name and id" , "[users]") {
 
     auto & myself = getMyself();
@@ -119,5 +121,7 @@ TEST_CASE( "group by name and id" , "[users]") {
     REQUIRE(!res);
     CHECK(!ec);
 }
+
+#endif //ANDROID check
 
 #endif

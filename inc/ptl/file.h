@@ -50,7 +50,7 @@ namespace ptl::inline v0 {
 
     template<class T>
     concept FileDescriptorLike = requires(T && obj) {
-        { FileDescriptorTraits<std::remove_cvref_t<T>>::c_fd(std::forward<T>(obj)) } -> std::same_as<int>;
+        { FileDescriptorTraits<std::remove_cvref_t<T>>::c_fd(std::forward<T>(obj)) } -> SameAs<int>;
     };
 
     template<FileDescriptorLike T>
@@ -180,7 +180,7 @@ namespace ptl::inline v0 {
         return FileDescriptor(ret);
     }
     
-    inline void duplicateTo(FileDescriptorLike auto && from, FileDescriptorLike auto & to) {
+    inline void duplicateTo(FileDescriptorLike auto && from, FileDescriptorLike auto && to) {
         auto fdFrom = c_fd(std::forward<decltype(from)>(from));
         auto fdTo = c_fd(std::forward<decltype(to)>(to));
         auto res = impl::dup2(fdFrom, fdTo);

@@ -39,7 +39,7 @@ namespace ptl::inline v0 {
 
     template<class T>
     concept ProcessLike = requires(T && obj) {
-        { ProcessTraits<std::remove_cvref_t<T>>::c_pid(std::forward<T>(obj)) } -> std::same_as<pid_t>;
+        { ProcessTraits<std::remove_cvref_t<T>>::c_pid(std::forward<T>(obj)) } -> SameAs<pid_t>;
     };
 
     template<ProcessLike T>

@@ -59,7 +59,11 @@ namespace ptl::inline v0 {
             for ( ; ; ) {
                 typename Traits::CStruct * result = nullptr;
                 int res = getFunc(byArg, &ret, ret.m_buf.data(), ret.m_buf.size(), &result);
-                if (res == 0) {
+                if (res == 0 
+                #ifdef __ANDROID__
+                    || res == ENOENT  //Android does not obey Posix here
+                #endif
+                ) {
                     if (!result)
                         break;
                     return ret;
@@ -90,6 +94,10 @@ namespace ptl::inline v0 {
         }
     };
 
+    using Passwd = UserInfoImpl<PasswdTraits>;
+
+    #if !defined(__ANDROID__) || (defined(__ANDROID__) && __ANDROID_API__ >= 24)
+
     struct GroupTraits {
         using CStruct = ::group;
         using IDType = ::gid_t;
@@ -103,9 +111,9 @@ namespace ptl::inline v0 {
         }
     };
 
-
-    using Passwd = UserInfoImpl<PasswdTraits>;
     using Group = UserInfoImpl<GroupTraits>;
+
+    #endif
 
 }
 

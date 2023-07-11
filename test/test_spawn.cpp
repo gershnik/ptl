@@ -10,6 +10,8 @@
 
 using namespace ptl;
 
+#if !defined(__ANDROID__) || (defined(__ANDROID__) && __ANDROID_API__ >= 28)
+
 TEST_CASE( "spawn signatures" , "[spawn]") {
 
     const char * dummyArgs[] = {
@@ -47,8 +49,15 @@ TEST_CASE( "spawn signatures" , "[spawn]") {
 
 }
 
+#endif
+
 #ifndef _WIN32
+
+#if !defined(__ANDROID__) || (defined(__ANDROID__) && __ANDROID_API__ >= 28)
+
 TEST_CASE( "spawn" , "[spawn]") {
+
+    #ifndef __ANDROID__ //Android doesn't error on invalid executable, it simply fork/execs so you can only wait on child and see
 
     auto launch = [](std::filesystem::path exe, auto && ...args) {
         SpawnFileActions act;
@@ -79,6 +88,8 @@ TEST_CASE( "spawn" , "[spawn]") {
     CHECK_NOTHROW(launchEc(ec, "no_such_exe", "-c", "ls", (const char *)nullptr));
     CHECK(ec.value() == ENOENT);
 
+    #endif
+
     {
         auto [read, write] = Pipe::create();
 
@@ -103,6 +114,8 @@ TEST_CASE( "spawn" , "[spawn]") {
         CHECK(res == "haha\n");
     }
 }
+
+#endif //ANDROID version check
 
 
 TEST_CASE( "fork_exec" , "[spawn]") {

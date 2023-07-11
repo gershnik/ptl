@@ -13,6 +13,7 @@ A C++ library for Posix and related calls.
 - [Features](#features)
 - [Naming](#naming)
 - [Extensions](#extensions)
+- [Android compatibility](#android-compatibility)
 - [Win32/MinGW compatibility](#win32mingw-compatibility)
 - [Error handling](#error-handling)
 - [Integration](#integration)
@@ -53,6 +54,11 @@ PTL uses `CamelCase` for types and `lowerUpper` case for methods. It also mostly
 ## Extensions
 
 In addition to portable Posix functionality PTL also includes support for some common extensions. If you use PTL via CMake or build and install it the extensions supported on your platform will be automatically detected and enabled. If you simply grab PTL headers then you will need to manually set various enabling macros to 1 in order to enable them. See [Configuration](#configuration) for more details.
+
+## Android compatibility
+
+FTL can be used on Android. However, note that some functionality may not be available based on what Posix calls are provided on given Android API level. Generally, all things should work above API level 30. Also note that Android often deviates from exact Posix semantics of many calls even if the calls themselves are available. In some cases, where the deviation can affect safety (e.g. `gethostname` not null terminating truncated output)
+or is especially annoying (`getpwnam_r` producing hard error when username is not found) PTL 'fixes' the issue. In other cases (like `posix_spawn` not reporting error when executable is not found) you will need to deal with differences in your own code. 
 
 ## Win32/MinGW compatibility
 

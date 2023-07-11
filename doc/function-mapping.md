@@ -24,6 +24,11 @@
 [fork()]:           https://pubs.opengroup.org/onlinepubs/9699919799/functions/fork.html
 [fstat()]:          https://pubs.opengroup.org/onlinepubs/9699919799/functions/fstat.html
 [ftruncate()]:      https://pubs.opengroup.org/onlinepubs/9699919799/functions/ftruncate.html
+[getgrnam_r()]:     https://pubs.opengroup.org/onlinepubs/9699919799/functions/getgrnam_r.html
+[getgruid_r()]:     https://pubs.opengroup.org/onlinepubs/9699919799/functions/getgruid_r.html
+[gethostname()]:    https://pubs.opengroup.org/onlinepubs/9699919799/functions/gethostname.html
+[getpwnam_r()]:     https://pubs.opengroup.org/onlinepubs/9699919799/functions/getpwnam_r.html
+[getpwuid_r()]:     https://pubs.opengroup.org/onlinepubs/9699919799/functions/getpwuid_r.html
 [kill()]:           https://pubs.opengroup.org/onlinepubs/9699919799/functions/kill.html
 [lchown()]:         https://pubs.opengroup.org/onlinepubs/9699919799/functions/lchown.html
 [lstat()]:          https://pubs.opengroup.org/onlinepubs/9699919799/functions/lstat.html
@@ -61,6 +66,7 @@
 [sigprocmask()]:    https://pubs.opengroup.org/onlinepubs/9699919799/functions/sigprocmask.html
 [stat()]:           https://pubs.opengroup.org/onlinepubs/9699919799/functions/stat.html
 [strsignal()]:      https://pubs.opengroup.org/onlinepubs/9699919799/functions/strsignal.html
+[sysconf()]:        https://pubs.opengroup.org/onlinepubs/9699919799/functions/sysconf.html
 [truncate()]:       https://pubs.opengroup.org/onlinepubs/9699919799/functions/truncate.html
 [waitpid()]:        https://pubs.opengroup.org/onlinepubs/9699919799/functions/waitpid.html
 [write()]:          https://pubs.opengroup.org/onlinepubs/9699919799/functions/write.html
@@ -101,6 +107,11 @@
 |[fork()]        | `forkProcess()`              | [spawn.h]    |
 |[fstat()]       | `getStatus()`                | [file.h]     |
 |[ftruncate()]   | `truncateFile()`             | [file.h]     |
+|[getgrnam_r()]  | `Group::getByName()`         | [users.h]    |
+|[getgruid_r()]  | `Group::getById()`           | [users.h]    |
+|[gethostname()] | `getHostName()`              | [system.h]   |
+|[getpwnam_r()]  | `Passwd::getByName()`        | [users.h]    |
+|[getpwuid_r()]  | `Passwd::getById()`          | [users.h]    |
 |[kill()]        | `sendSignal()`               | [signal.h]   | 
 |`lchmod()`      | `changeLinkMode()`           | [file.h]     | [Mac][mkostemps-mac], [BSD][mkostemps-bsd]
 |[lchown()]      | `changeLinkOwner()`          | [file.h]     | 
@@ -142,6 +153,7 @@
 |[sigprocmask()] | `setSignalProcessMask()`, `getSignalProcessMask()`| [signal.h] |
 |[stat()]        | `getStatus()`                | [file.h]     | 
 |[strsignal()]   | `signalMessage()`            | [signal.h]   | 
+|[sysconf()]     | `systemConfig()`             | [system.h]   |
 |[truncate()]    | `truncateFile()`             | [file.h]     |
 |[waitpid()]     | `ChildProcess::~ChildProcess()`, `ChildProcess::wait()` | [process.h] | 
 |[write()]       | `writeFile()`                | [file.h]     | 

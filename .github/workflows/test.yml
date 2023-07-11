@@ -107,10 +107,12 @@ jobs:
 
   android:
     runs-on: macos-latest
-    matrix:
-      version: [25.2.9519653]
-      api: [21, 30]    
-      arch: [x86_64]
+    strategy:
+      fail-fast: false
+      matrix:
+        version: [25.2.9519653]
+        api: [21, 30]    
+        arch: [x86_64]
     steps:
     - uses: actions/checkout@v3
     - uses: reactivecircus/android-emulator-runner@v2

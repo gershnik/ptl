@@ -114,15 +114,42 @@ jobs:
         api: [21, 30]    
         arch: [x86_64]
     steps:
-    - uses: actions/checkout@v3
-    - uses: reactivecircus/android-emulator-runner@v2
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: AVD cache
+      uses: actions/cache@v3
+      id: avd-cache
+      with:
+        path: |
+          ~/.android/avd/*
+          ~/.android/adb*
+        key: avd-${{ matrix.version }}-${{ matrix.arch }}-30
+
+    - name: Create AVD and generate snapshot for caching
+      if: steps.avd-cache.outputs.cache-hit != 'true'
+      uses: reactivecircus/android-emulator-runner@v2
       with:
         api-level: 30
         arch: ${{matrix.arch}}
         target: google_apis
         ndk: ${{ matrix.version }}
+        force-avd-creation: false
+        emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+        disable-animations: false
+        script: echo "Generated AVD snapshot for caching."
+
+    - name: Run tests
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 30
+        arch: ${{matrix.arch}}
+        target: google_apis
+        ndk: ${{ matrix.version }}
+        force-avd-creation: false
+        emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+        disable-animations: true
         script: |
-            cmake -E make_directory out
             cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_TOOLCHAIN_FILE:FILEPATH=$ANDROID_SDK_ROOT/ndk/${{ matrix.version }}/build/cmake/android.toolchain.cmake -DANDROID_ABI:STRING=${{ matrix.arch }} -DANDROID_PLATFORM:STRING=${{ matrix.api }} -DANDROID_STL:STRING=c++_static
             cmake --build out --target run-test
 

@@ -180,6 +180,15 @@ namespace ptl::inline v0 {
         throwErrorCode(code, format, std::forward<T>(args)...);
     }
 
+    #ifdef _WIN32
+
+    template<class... T>
+    [[noreturn, gnu::always_inline]] inline void handleError(SystemError code, const char * format, T && ...args) noexcept(false) {
+        throwErrorCode(std::error_code(code.value, std::system_category()), format, std::forward<T>(args)...);
+    }
+
+    #endif
+
     [[gnu::always_inline]] inline void clearError() noexcept 
     {}
 

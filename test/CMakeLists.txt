@@ -54,6 +54,7 @@ PRIVATE
     ptl::ptl
     fmt::fmt
     Catch2::Catch2
+    $<${WIN32}:ws2_32.lib>
 )
 
 target_compile_options(test

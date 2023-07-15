@@ -21,6 +21,8 @@ int main(int argc, char ** argv)
 
     #if defined (_WIN32)
         SetConsoleOutputCP(CP_UTF8);
+        WSADATA wsaData;
+        WSAStartup(MAKEWORD(2, 2), &wsaData);
     #else
         SignalAction act(SIG_DFL, SA_RESTART);
         setSignalAction(SIGCHLD, act);

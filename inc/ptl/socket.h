@@ -28,6 +28,8 @@ namespace ptl::inline v0 {
 
         using Socket = FileDescriptor;
 
+        using socklen_t = ::socklen_t;
+
     #else
 
         template<class T> struct SocketTraits;
@@ -51,7 +53,7 @@ namespace ptl::inline v0 {
                 if (m_socket != INVALID_SOCKET)
                     closesocket(m_socket);
             }
-            Socket(Socket && src) noexcept : m_fd(src.m_fd) {
+            Socket(Socket && src) noexcept : m_socket(src.m_socket) {
                 src.m_socket = INVALID_SOCKET;
             }
             Socket(const Socket &) = delete;
@@ -68,12 +70,12 @@ namespace ptl::inline v0 {
                 std::swap(lhs.m_socket, rhs.m_socket);
             }
             
-            auto get() const noexcept -> int {
+            auto get() const noexcept -> SOCKET {
                 return m_socket;
             }
             
-            auto detach() noexcept -> int {
-                int ret = m_socket;
+            auto detach() noexcept -> SOCKET {
+                SOCKET ret = m_socket;
                 m_socket = INVALID_SOCKET;
                 return ret;
             }
@@ -84,6 +86,8 @@ namespace ptl::inline v0 {
         private:
             SOCKET m_socket = INVALID_SOCKET;
         };
+
+        using socklen_t = int;
 
     #endif
 

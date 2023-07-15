@@ -90,6 +90,12 @@ namespace ptl::inline v0 {
         using io_ssize_t = ::ssize_t;
     #endif
 
+    #ifndef _WIN32
+        using SystemError = int;
+    #else
+        struct SystemError { int value; };
+    #endif
+
     namespace impl {
 
         #if PTL_USE_STD_FORMAT
@@ -104,14 +110,17 @@ namespace ptl::inline v0 {
     template<class T> struct ErrorTraits;
     
     template<class T>
-    concept ErrorSink = requires(T & obj, int code) {
-        { ErrorTraits<T>::handleError(obj, code, "") } noexcept -> SameAs<void>;
+    concept ErrorSink = requires(T & obj) {
+        { ErrorTraits<T>::assignError(obj, int(), "") } noexcept -> SameAs<void>;
+        #ifdef _WIN32
+        { ErrorTraits<T>::assignError(obj, SystemError{}, "") } noexcept -> SameAs<void>;
+        #endif
         { ErrorTraits<T>::clearError(obj) } noexcept -> SameAs<void>;
     };
 
     template<ErrorSink Err, class... T>
     [[gnu::always_inline]] inline void handleError(Err & err, int code, const char * format, T && ...args) noexcept {
-        ErrorTraits<Err>::handleError(err, code, format, std::forward<T>(args)...);
+        ErrorTraits<Err>::assignError(err, code, format, std::forward<T>(args)...);
     }
 
     template<ErrorSink Err>
@@ -121,7 +130,11 @@ namespace ptl::inline v0 {
 
 
     [[gnu::always_inline]] inline auto makeErrorCode(int code) -> std::error_code {
-        return std::make_error_code(static_cast<std::errc>(code));
+    #ifndef _WIN32
+        return std::error_code(code, std::system_category());
+    #else
+        return std::error_code(code, std::generic_category());
+    #endif
     }
 
     template<class... T>
@@ -144,9 +157,18 @@ namespace ptl::inline v0 {
 
     template<> struct ErrorTraits<std::error_code> {
         template<class... T>
-        [[gnu::always_inline]] static inline void handleError(std::error_code & err, int code, const char *, T && ...) noexcept {
+        [[gnu::always_inline]] static inline void assignError(std::error_code & err, int code, const char *, T && ...) noexcept {
             err = makeErrorCode(code);
         }
+
+        #ifdef _WIN32
+
+        template<class... T>
+        [[gnu::always_inline]] static inline void assignError(std::error_code & err, SystemError code, const char *, T && ...) noexcept {
+            err = std::error_code(code.value, std::system_category());
+        }
+
+        #endif
 
         [[gnu::always_inline]] static inline void clearError(std::error_code & err) noexcept {
             err.clear();

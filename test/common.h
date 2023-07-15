@@ -9,7 +9,7 @@
 #include <catch2/matchers/catch_matchers_templated.hpp>
 
 struct SystemErrorMatcher : Catch::Matchers::MatcherGenericBase {
-    SystemErrorMatcher(std::errc code): m_code(std::make_error_code(code))
+    SystemErrorMatcher(std::errc code): m_code(code)
     {}
 
     bool match(const std::system_error & ex) const {
@@ -17,11 +17,11 @@ struct SystemErrorMatcher : Catch::Matchers::MatcherGenericBase {
     }
 
     std::string describe() const override {
-        return "Equals: " + m_code.message();
+        return "Equals: " + std::make_error_code(m_code).message();
     }
 
 private:
-    std::error_code m_code;
+    std::errc m_code;
 };
 
 inline auto EqualsSystemError(std::errc code) -> SystemErrorMatcher {

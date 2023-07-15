@@ -8,6 +8,7 @@
 #include <ptl/identity.h>
 #include <ptl/process.h>
 #include <ptl/signal.h>
+#include <ptl/socket.h>
 #include <ptl/spawn.h>
 #include <ptl/system.h>
 #include <ptl/users.h>

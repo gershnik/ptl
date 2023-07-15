@@ -82,6 +82,7 @@ PRIVATE
     test_file.cpp
     test_spawn.cpp
     test_signal.cpp
+    test_socket.cpp
     test_users.cpp
     test_system.cpp
 )

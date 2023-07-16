@@ -32,11 +32,11 @@ TEST_CASE( "gethostname" , "[system]") {
     std::string str(1, 'A');
     std::error_code ec;
     ptl::getHostName(str, ec);
-    CHECK((ec.value() == ENAMETOOLONG || str[str.size() - 1] == 0));
+    CHECK((errorEquals(ec, std::errc::filename_too_long) || str[str.size() - 1] == 0));
     
     str.resize(3, 'A');
     ptl::getHostName(str, ec);
-    CHECK((ec.value() == ENAMETOOLONG || str[str.size() - 1] == 0));
+    CHECK((errorEquals(ec, std::errc::filename_too_long) || str[str.size() - 1] == 0));
 
     str.resize(len + 1);
     ptl::getHostName(str, ec);

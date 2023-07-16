@@ -18,7 +18,7 @@ TEST_CASE( "open file" , "[file_descriptor]") {
     std::error_code ec;
     auto fd = FileDescriptor::open("nonexistant", O_RDONLY, ec);
     CHECK(!fd);
-    CHECK(ec.value() == ENOENT);
+    CHECK(errorEquals(ec, std::errc::no_such_file_or_directory));
 }
 
 #ifndef _WIN32

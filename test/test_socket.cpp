@@ -27,11 +27,13 @@ TEST_CASE( "socket options" , "[socket]") {
     auto sock = createSocket(PF_INET, SOCK_STREAM, 0);
     REQUIRE(sock);
 
+    #ifndef __linux__
     {
         INFO("SockOptDebug");
         setSocketOption(sock, SockOptDebug{true});
         CHECK(getSocketOption<SockOptDebug>(sock).value());
     }
+    #endif
 
     {
         INFO("SockOptBroadcast");

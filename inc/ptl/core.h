@@ -127,7 +127,7 @@ namespace ptl::inline v0 {
     #ifdef _WIN32
 
     template<ErrorSink Err, class... T>
-    [[noreturn, gnu::always_inline]] inline void handleError(Err & err, SystemError code, const char * format, T && ...args) noexcept {
+    [[gnu::always_inline]] inline void handleError(Err & err, SystemError code, const char * format, T && ...args) noexcept {
         ErrorTraits<Err>::assignError(err, code, format, std::forward<T>(args)...);
     }
 

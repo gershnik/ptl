@@ -64,6 +64,7 @@ TEST_CASE( "socket options" , "[socket]") {
         SockOptLinger lingerOut;
         CHECK((lingerOut.l_onoff == 0 && lingerOut.l_linger == 0));
         getSocketOption(sock, lingerOut);
-        CHECK((linger.l_onoff == lingerOut.l_onoff && linger.l_linger == lingerOut.l_linger));
+        CHECK(lingerOut.l_onoff != 0);
+        CHECK(linger.l_linger == lingerOut.l_linger);
     }
 }

@@ -124,6 +124,15 @@ namespace ptl::inline v0 {
         ErrorTraits<Err>::assignError(err, code, format, std::forward<T>(args)...);
     }
 
+    #ifdef _WIN32
+
+    template<<ErrorSink Err, class... T>
+    [[noreturn, gnu::always_inline]] inline void handleError(Err & err, SystemError code, const char * format, T && ...args) noexcept {
+        ErrorTraits<Err>::assignError(err, code, format, std::forward<T>(args)...);
+    }
+
+    #endif
+
     template<ErrorSink Err>
     [[gnu::always_inline]] inline void clearError(Err & err) noexcept {
         ErrorTraits<Err>::clearError(err);

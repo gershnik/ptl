@@ -214,7 +214,7 @@ namespace ptl::inline v0 {
             { return &this->m_value; }
         static auto size() noexcept -> socklen_t
             { return socklen_t(sizeof(T)); } 
-        static auto resize(socklen_t newSize) noexcept
+        static auto resize([[maybe_unused]] socklen_t newSize) noexcept
             { assert(newSize == size()); }
     private:
         T m_value{};
@@ -241,14 +241,14 @@ namespace ptl::inline v0 {
             { return &this->m_value; }
         static auto size() noexcept -> socklen_t
             { return socklen_t(sizeof(int)); } 
-        static auto resize(socklen_t newSize) noexcept
+        static auto resize([[maybe_unused]] socklen_t newSize) noexcept
             { assert(newSize == size()); }
     private:
         int m_value;
     };
 
     template<int Level, int Name, class T>
-    class SockOpt<Level, Name, T, /*IsPrimitive*/false> : T {
+    class SockOpt<Level, Name, T, /*IsPrimitive*/false> : public T {
     public:
         static constexpr int level = Level;
         static constexpr int name  = Name;
@@ -259,10 +259,10 @@ namespace ptl::inline v0 {
         auto addr() const noexcept -> const void * 
             { return static_cast<const T *>(this); }
         auto addr() noexcept -> void * 
-            { return static_cast<const T *>(this); }
+            { return static_cast<T *>(this); }
         static auto size() noexcept -> socklen_t 
             { return socklen_t(sizeof(T)); }
-        static auto resize(socklen_t newSize) noexcept
+        static auto resize([[maybe_unused]] socklen_t newSize) noexcept
             { assert(newSize == size()); }
     };
 

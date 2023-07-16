@@ -241,8 +241,13 @@ namespace ptl::inline v0 {
             { return &this->m_value; }
         static auto size() noexcept -> socklen_t
             { return socklen_t(sizeof(int)); } 
-        static auto resize([[maybe_unused]] socklen_t newSize) noexcept
-            { assert(newSize == size()); }
+        static auto resize([[maybe_unused]] socklen_t newSize) noexcept { 
+            #ifdef _WIN32
+                assert(newSize == size() || newSize == 1); //Windows is moronic this way
+            #else
+                assert(newSize == size()); 
+            #endif
+        }
     private:
         int m_value;
     };

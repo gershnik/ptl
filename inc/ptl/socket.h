@@ -46,7 +46,7 @@ namespace ptl::inline v0 {
         };
 
         template<SocketLike T>
-        [[gnu::always_inline]] inline int c_socket(T && obj)
+        [[gnu::always_inline]] inline SOCKET c_socket(T && obj)
             { return SocketTraits<std::remove_cvref_t<T>>::c_socket(std::forward<T>(obj)); }
 
 

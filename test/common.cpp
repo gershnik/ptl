@@ -108,18 +108,18 @@ constexpr struct {
 #endif
 
 
-bool SystemErrorMatcher::match(const std::system_error & ex) const {
+auto errorEquals(const std::error_code & ec, std::errc code) -> bool {
 #ifdef __MINGW32__
-    if (ex.code().category() == std::system_category()) {
+    if (ec.category() == std::system_category()) {
         for (const auto & entry : errorsMap) {
-            if (entry.win32 == ex.code().value()) {
-                return entry.posix == m_code;
+            if (entry.win32 == ec.value()) {
+                return entry.posix == code;
             }
         }
         return false;
     }
 #endif
-    return ex.code() == m_code;
+    return ec == code;
 }
 
 

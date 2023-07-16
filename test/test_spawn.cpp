@@ -80,7 +80,7 @@ TEST_CASE( "spawn" , "[spawn]") {
         auto proc = spawn({exe.c_str(), args...}, ec);
     };
 
-    CHECK_THROWS_MATCHES(launch("no_such_exe", "-c", "ls"), std::system_error, EqualsSystemError(std::errc::no_such_file_or_directory));
+    CHECK_THROWS_MATCHES(launch("no_such_exe", "-c", "ls"), std::system_error, equalsSystemError(std::errc::no_such_file_or_directory));
     CHECK_NOTHROW(launch("/bin/sh", "-c", "ls"));
     std::error_code ec;
     CHECK_NOTHROW(launchEc(ec, "no_such_exe", "-c", "ls"));
@@ -161,7 +161,7 @@ TEST_CASE( "spawn" , "[spawn]") {
         auto proc = spawn({exe.string().c_str(), args...}, ec);
     };
 
-    CHECK_THROWS_MATCHES(launch("no_such_exe", "/c", "dir"), std::system_error, EqualsSystemError(std::errc::no_such_file_or_directory));
+    CHECK_THROWS_MATCHES(launch("no_such_exe", "/c", "dir"), std::system_error, equalsSystemError(std::errc::no_such_file_or_directory));
     CHECK_NOTHROW(launch("C:\\Windows\\System32\\cmd.exe", "/c", "dir >nul:"));
     std::error_code ec;
     CHECK_NOTHROW(launchEc(ec, "no_such_exe", "/c", "dir"));

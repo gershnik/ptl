@@ -19,7 +19,7 @@ TEST_CASE( "sysconf" , "[system]") {
     REQUIRE(res);
     CHECK(*res >= _POSIX_OPEN_MAX);
 
-    CHECK_THROWS_MATCHES(ptl::systemConfig(32765), std::system_error, EqualsSystemError(std::errc::invalid_argument));
+    CHECK_THROWS_MATCHES(ptl::systemConfig(32765), std::system_error, equalsSystemError(std::errc::invalid_argument));
 }
 
 TEST_CASE( "gethostname" , "[system]") {

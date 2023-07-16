@@ -116,6 +116,7 @@ namespace ptl::inline v0 {
         { ErrorTraits<T>::assignError(obj, SystemError{}, "") } noexcept -> SameAs<void>;
         #endif
         { ErrorTraits<T>::clearError(obj) } noexcept -> SameAs<void>;
+        { ErrorTraits<T>::failed(obj) } noexcept -> SameAs<bool>;
     };
 
     template<ErrorSink Err, class... T>
@@ -126,6 +127,11 @@ namespace ptl::inline v0 {
     template<ErrorSink Err>
     [[gnu::always_inline]] inline void clearError(Err & err) noexcept {
         ErrorTraits<Err>::clearError(err);
+    }
+
+    template<ErrorSink Err>
+    [[gnu::always_inline]] inline auto failed(Err & err) noexcept -> bool {
+        return ErrorTraits<Err>::failed(err);
     }
 
 
@@ -173,6 +179,10 @@ namespace ptl::inline v0 {
         [[gnu::always_inline]] static inline void clearError(std::error_code & err) noexcept {
             err.clear();
         }
+
+        [[gnu::always_inline]] static inline auto failed(std::error_code & err) noexcept -> bool {
+            return bool(err);
+        }
     };
 
     template<class... T>
@@ -189,8 +199,11 @@ namespace ptl::inline v0 {
 
     #endif
 
-    [[gnu::always_inline]] inline void clearError() noexcept 
+    [[gnu::always_inline]] constexpr inline void clearError() noexcept 
     {}
+
+    [[gnu::always_inline]] constexpr inline auto failed() noexcept -> bool
+        { return false; }
 
     template<class... T>
     [[gnu::always_inline]] inline void posixCheck(int retval, const char * format, T && ...args) noexcept(false) {
@@ -200,7 +213,7 @@ namespace ptl::inline v0 {
 
     #define PTL_ERROR_REF_ARG(x) ErrorSink auto & ...x
     #define PTL_ERROR_REQ(x) (sizeof...(x) < 2)
-    //#define PTL_ERROR_NOEXCEPT(x) (sizeof...(x) > 0)
+    #define PTL_ERROR_PRESENT(x) (sizeof...(x) == 1)
     #define PTL_ERROR_REF(x) x...
 
     template<class T> struct CPathTraits;

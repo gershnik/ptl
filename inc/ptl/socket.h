@@ -7,6 +7,8 @@
 #include <ptl/core.h>
 #include <ptl/file.h>
 
+#include <cassert>
+
 #if __has_include(<sys/socket.h>)
     #include <sys/socket.h>
 #endif
@@ -30,6 +32,10 @@ namespace ptl::inline v0 {
 
         using socklen_t = ::socklen_t;
 
+        namespace impl {
+            using SocketOptionValueType = void;
+        }
+
     #else
 
         template<class T> struct SocketTraits;
@@ -39,7 +45,7 @@ namespace ptl::inline v0 {
             { SocketTraits<std::remove_cvref_t<T>>::c_socket(std::forward<T>(obj)) } -> SameAs<SOCKET>;
         };
 
-        template<FileDescriptorLike T>
+        template<SocketLike T>
         [[gnu::always_inline]] inline int c_socket(T && obj)
             { return SocketTraits<std::remove_cvref_t<T>>::c_socket(std::forward<T>(obj)); }
 
@@ -87,7 +93,20 @@ namespace ptl::inline v0 {
             SOCKET m_socket = INVALID_SOCKET;
         };
 
+        template<> struct SocketTraits<int> {
+            [[gnu::always_inline]] static SOCKET c_socket(SOCKET sock) noexcept
+                { return sock;}
+        };
+        template<> struct SocketTraits<Socket> {
+            [[gnu::always_inline]] static SOCKET c_socket(const Socket & sock) noexcept
+                { return sock.get();}
+        };
+
         using socklen_t = int;
+
+        namespace impl {
+            using SocketOptionValueType = char;
+        }
 
     #endif
 
@@ -112,24 +131,24 @@ namespace ptl::inline v0 {
         return ret;
     }
 
-    inline void setSocketOption(FileDescriptorLike auto && socket, 
+    inline void setSocketOption(SocketLike auto && socket, 
                                 int level, int option_name, const void * option_value, socklen_t option_len,
                                 PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto fd = c_socket(std::forward<decltype(socket)>(socket));
-        int res = ::setsockopt(fd, level, option_name, option_value, option_len);
+        int res = ::setsockopt(fd, level, option_name, static_cast<const impl::SocketOptionValueType *>(option_value), option_len);
         if (res != 0)
             handleError(PTL_ERROR_REF(err), impl::getSocketError(), "setsockopt({}, {}, {}) failed", fd, level, option_name);
         else
             clearError(PTL_ERROR_REF(err));
     }
 
-    inline void getSocketOption(FileDescriptorLike auto && socket, 
-                                int level, int option_name, void * option_value, socklen_t option_len,
+    inline void getSocketOption(SocketLike auto && socket, 
+                                int level, int option_name, void * option_value, socklen_t * option_len,
                                 PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
         auto fd = c_socket(std::forward<decltype(socket)>(socket));
-        int res = ::getsockopt(fd, level, option_name, option_value, option_len);
+        int res = ::getsockopt(fd, level, option_name, static_cast<impl::SocketOptionValueType *>(option_value), option_len);
         if (res != 0)
             handleError(PTL_ERROR_REF(err), impl::getSocketError(), "setsockopt({}, {}, {}) failed", fd, level, option_name);
         else
@@ -137,18 +156,19 @@ namespace ptl::inline v0 {
     }
 
     template<class T>
-    concept SocketOption = requires(const T & cobj, T & mobj) {
-    
-        { T::level } -> SameAs<int>;
-        { T::name } -> SameAs<int>;
-        { cobj.addr() } -> ConvertibleTo<const void *>;
-        { mobj.addr() } -> ConvertibleTo<void *>;
-        { cobj.size() } -> SameAs<socklen_t>;
-        { mobj.size() } -> SameAs<socklen_t>;
-    };
+    concept SocketOption = 
+        std::is_same_v<std::remove_cvref_t<decltype(T::level)>, int> &&
+        std::is_same_v<std::remove_cvref_t<decltype(T::name)>, int> &&
+        requires(const T & cobj, T & mobj) {
+            { cobj.addr() } -> ConvertibleTo<const void *>;
+            { mobj.addr() } -> ConvertibleTo<void *>;
+            { cobj.size() } -> SameAs<socklen_t>;
+            { mobj.size() } -> SameAs<socklen_t>;
+            { mobj.resize(socklen_t{}) };
+        };
 
     template<SocketOption Option>
-    inline void setSocketOption(FileDescriptorLike auto && socket, const Option & option,
+    inline void setSocketOption(SocketLike auto && socket, const Option & option,
                                 PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
         setSocketOption(std::forward<decltype(socket)>(socket), Option::level, Option::name, option.addr(), option.size(),
@@ -156,20 +176,23 @@ namespace ptl::inline v0 {
     }
 
     template<SocketOption Option>
-    inline void getSocketOption(FileDescriptorLike auto && socket, Option & option,
-                                PTL_ERROR_REF_ARG(err)) 
+    inline void getSocketOption(SocketLike auto && socket, Option & option,
+                                PTL_ERROR_REF_ARG(err))
     requires(PTL_ERROR_REQ(err)) {
-        getSocketOption(std::forward<decltype(socket)>(socket), Option::level, Option::name, option.addr(), option.size(),
+        auto len = option.size();
+        getSocketOption(std::forward<decltype(socket)>(socket), Option::level, Option::name, option.addr(), &len,
                         PTL_ERROR_REF(err));
+        if (!failed(PTL_ERROR_REF(err))) {
+            option.resize(len);
+        }
     }
 
     template<SocketOption Option>
-    inline auto getSocketOption(FileDescriptorLike auto && socket,
+    inline auto getSocketOption(SocketLike auto && socket,
                                 PTL_ERROR_REF_ARG(err)) -> Option
     requires(PTL_ERROR_REQ(err)) {
         Option option;
-        getSocketOption(std::forward<decltype(socket)>(socket), Option::level, Option::name, option.addr(), option.size(),
-                        PTL_ERROR_REF(err));
+        getSocketOption(std::forward<decltype(socket)>(socket), option, PTL_ERROR_REF(err));
         return option;
     }
 
@@ -191,8 +214,10 @@ namespace ptl::inline v0 {
             { return &this->m_value; }
         static auto size() noexcept -> socklen_t
             { return socklen_t(sizeof(T)); } 
+        static auto resize(socklen_t newSize) noexcept
+            { assert(newSize == size()); }
     private:
-        T m_value;
+        T m_value{};
     };
 
     template<int Level, int Name>
@@ -200,6 +225,9 @@ namespace ptl::inline v0 {
     public:
         static constexpr int level = Level;
         static constexpr int name  = Name;
+
+        constexpr SockOpt() noexcept: m_value(false)
+            {}
 
         constexpr SockOpt(bool val) noexcept: m_value(val)
             {}
@@ -213,6 +241,8 @@ namespace ptl::inline v0 {
             { return &this->m_value; }
         static auto size() noexcept -> socklen_t
             { return socklen_t(sizeof(int)); } 
+        static auto resize(socklen_t newSize) noexcept
+            { assert(newSize == size()); }
     private:
         int m_value;
     };
@@ -232,6 +262,8 @@ namespace ptl::inline v0 {
             { return static_cast<const T *>(this); }
         static auto size() noexcept -> socklen_t 
             { return socklen_t(sizeof(T)); }
+        static auto resize(socklen_t newSize) noexcept
+            { assert(newSize == size()); }
     };
 
     using SockOptDebug              = SockOpt<SOL_SOCKET, SO_DEBUG,         bool>;

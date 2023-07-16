@@ -9,7 +9,21 @@
 
 using namespace ptl;
 
-TEST_CASE( "socket creation" , "[signal]") {
+TEST_CASE( "socket creation" , "[socket]") {
 
     auto sock = createSocket(PF_INET, SOCK_STREAM, 0);
+    CHECK(sock);
+
+    CHECK_THROWS_MATCHES(createSocket(PF_UNIX, SOCK_DGRAM, 0), std::system_error, EqualsSystemError(std::errc::address_family_not_supported));
+}
+
+TEST_CASE( "socket options" , "[socket]") {
+
+    auto sock = createSocket(PF_INET, SOCK_STREAM, 0);
+    REQUIRE(sock);
+
+    setSocketOption(sock, SockOptDebug{true});
+    CHECK(getSocketOption<SockOptDebug>(sock).value());
+
+    CHECK_THROWS_MATCHES(setSocketOption(sock, SockOptBroadcast{true}), std::system_error, EqualsSystemError(std::errc::no_protocol_option));
 }

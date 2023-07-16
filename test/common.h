@@ -12,9 +12,7 @@ struct SystemErrorMatcher : Catch::Matchers::MatcherGenericBase {
     SystemErrorMatcher(std::errc code): m_code(code)
     {}
 
-    bool match(const std::system_error & ex) const {
-        return ex.code() == m_code;
-    }
+    bool match(const std::system_error & ex) const;
 
     std::string describe() const override {
         return "Equals: " + std::make_error_code(m_code).message();

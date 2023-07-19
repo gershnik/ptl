@@ -112,13 +112,13 @@ namespace ptl::inline v0 {
     template<class T> struct ErrorTraits;
     
     template<class T>
-    concept ErrorSink = requires(T & obj) {
+    concept ErrorSink = requires(T & obj, const T & cobj) {
         { ErrorTraits<T>::assignError(obj, int(), "") } noexcept -> SameAs<void>;
         #ifdef _WIN32
         { ErrorTraits<T>::assignError(obj, SystemError{}, "") } noexcept -> SameAs<void>;
         #endif
         { ErrorTraits<T>::clearError(obj) } noexcept -> SameAs<void>;
-        { ErrorTraits<T>::failed(obj) } noexcept -> SameAs<bool>;
+        { ErrorTraits<T>::failed(cobj) } noexcept -> SameAs<bool>;
     };
 
     template<ErrorSink Err, class... T>
@@ -141,7 +141,7 @@ namespace ptl::inline v0 {
     }
 
     template<ErrorSink Err>
-    [[gnu::always_inline]] inline auto failed(Err & err) noexcept -> bool {
+    [[gnu::always_inline]] inline auto failed(const Err & err) noexcept -> bool {
         return ErrorTraits<Err>::failed(err);
     }
 
@@ -191,7 +191,7 @@ namespace ptl::inline v0 {
             err.clear();
         }
 
-        [[gnu::always_inline]] static inline auto failed(std::error_code & err) noexcept -> bool {
+        [[gnu::always_inline]] static inline auto failed(const std::error_code & err) noexcept -> bool {
             return bool(err);
         }
     };

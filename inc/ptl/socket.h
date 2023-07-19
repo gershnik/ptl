@@ -1,8 +1,8 @@
 // Copyright (c) 2023, Eugene Gershnik
 // SPDX-License-Identifier: BSD-3-Clause
 
-#ifndef PTL_HEADER_SIGNAL_H_INCLUDED
-#define PTL_HEADER_SIGNAL_H_INCLUDED
+#ifndef PTL_HEADER_SOCKET_H_INCLUDED
+#define PTL_HEADER_SOCKET_H_INCLUDED
 
 #include <ptl/core.h>
 #include <ptl/file.h>
@@ -371,10 +371,10 @@ namespace ptl::inline v0 {
         constexpr auto SockOptIPv6MulticastHops     = SockOptDesc<int>       {IPPROTO_IPV6, IPV6_MULTICAST_HOPS};
     #endif
     #ifdef IPV6_MULTICAST_IF
-        constexpr auto SockOptIpv6MulticastIface    = SockOptDesc<unsigned>  {IPPROTO_IPV6, IPV6_MULTICAST_IF};
+        constexpr auto SockOptIPv6MulticastIface    = SockOptDesc<unsigned>  {IPPROTO_IPV6, IPV6_MULTICAST_IF};
     #endif
     #ifdef IPV6_MULTICAST_ALL
-        constexpr auto SockOptIPv4MulticastAll      = SockOptDesc<bool>      {IPPROTO_IPV6, IPV6_MULTICAST_ALL};
+        constexpr auto SockOptIPv6MulticastAll      = SockOptDesc<bool>      {IPPROTO_IPV6, IPV6_MULTICAST_ALL};
     #endif
 
 }

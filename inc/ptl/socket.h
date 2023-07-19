@@ -6,6 +6,7 @@
 
 #include <ptl/core.h>
 #include <ptl/file.h>
+#include <ptl/util.h>
 
 
 #if __has_include(<sys/socket.h>)
@@ -185,7 +186,7 @@ namespace ptl::inline v0 {
                 return;
             }
             #ifdef _WIN32
-                if (len == 1) //Windows is moronic this way {
+                if (len == 1) { //Windows is moronic this way 
                     value = *((const unsigned char *)&val) != 0;
                     return;
                 }
@@ -216,20 +217,6 @@ namespace ptl::inline v0 {
         const int name;  
     };
 
-    template<class X, class... Allowed>
-    struct TypeInPackImpl {
-        static constexpr bool value = (std::is_same_v<X, Allowed> || ...);
-    };
-
-    template<class X>
-    struct TypeInPackImpl<X> {
-        static constexpr bool value = false;
-    };
-
-    template<class X, class... Allowed>
-    constexpr bool TypeInPack = TypeInPackImpl<X, Allowed...>::value;
-
-
     template<class T, class Allowed1, class... AllowedRest>
     inline void setSocketOption(SocketLike auto && socket, SockOptDesc<Allowed1, AllowedRest...> desc, const T & option,
                                 PTL_ERROR_REF_ARG(err)) 
@@ -246,7 +233,7 @@ namespace ptl::inline v0 {
                         PTL_ERROR_REF(err));
     }
 
-    template<class T, class Allowed1, class... AllowedRest>
+    template<class Allowed1, class T = Allowed1, class... AllowedRest>
     inline auto getSocketOption(SocketLike auto && socket, SockOptDesc<Allowed1, AllowedRest...> desc,
                                 PTL_ERROR_REF_ARG(err)) -> T
     requires(PTL_ERROR_REQ(err) && TypeInPack<T, Allowed1, AllowedRest...>) {
@@ -255,30 +242,21 @@ namespace ptl::inline v0 {
         return ret;
     }
 
-    template<class T>
-    inline auto getSocketOption(SocketLike auto && socket, SockOptDesc<T> desc,
-                                PTL_ERROR_REF_ARG(err)) -> T
-    requires(PTL_ERROR_REQ(err)) {
-        T ret;
-        getSocketOption(std::forward<decltype(socket)>(socket), desc, ret, PTL_ERROR_REF(err));
-        return ret;
-    }
-
     //Posix options
 
-    constexpr auto SockOptDebug              = SockOptDesc<bool>        {SOL_SOCKET, SO_DEBUG};
-    constexpr auto SockOptBroadcast          = SockOptDesc<bool>        {SOL_SOCKET, SO_BROADCAST};
-    constexpr auto SockOptReuseAddr          = SockOptDesc<bool>        {SOL_SOCKET, SO_REUSEADDR};
-    constexpr auto SockOptKeepAlive          = SockOptDesc<bool>        {SOL_SOCKET, SO_KEEPALIVE};
-    constexpr auto SockOptLinger             = SockOptDesc<::linger>    {SOL_SOCKET, SO_LINGER};
-    constexpr auto SockOptOOBInline          = SockOptDesc<bool>        {SOL_SOCKET, SO_OOBINLINE};
-    constexpr auto SockOptSndBuf             = SockOptDesc<int>         {SOL_SOCKET, SO_SNDBUF};
-    constexpr auto SockOptRcvBuf             = SockOptDesc<int>         {SOL_SOCKET, SO_RCVBUF};
-    constexpr auto SockOptDontRoute          = SockOptDesc<bool>        {SOL_SOCKET, SO_DONTROUTE};
-    constexpr auto SockOptRcvLowWatermark    = SockOptDesc<int>         {SOL_SOCKET, SO_RCVLOWAT};
-    constexpr auto SockOptRcvTimeout         = SockOptDesc<::timeval>   {SOL_SOCKET, SO_RCVLOWAT};
-    constexpr auto SockOptSndLowWatermark    = SockOptDesc<int>         {SOL_SOCKET, SO_SNDLOWAT};
-    constexpr auto SockOptSndTimeout         = SockOptDesc<::timeval>   {SOL_SOCKET, SO_SNDTIMEO};
+    constexpr auto SockOptDebug              = SockOptDesc<bool>            {SOL_SOCKET, SO_DEBUG};
+    constexpr auto SockOptBroadcast          = SockOptDesc<bool>            {SOL_SOCKET, SO_BROADCAST};
+    constexpr auto SockOptReuseAddr          = SockOptDesc<bool>            {SOL_SOCKET, SO_REUSEADDR};
+    constexpr auto SockOptKeepAlive          = SockOptDesc<bool>            {SOL_SOCKET, SO_KEEPALIVE};
+    constexpr auto SockOptLinger             = SockOptDesc<::linger>        {SOL_SOCKET, SO_LINGER};
+    constexpr auto SockOptOOBInline          = SockOptDesc<bool>            {SOL_SOCKET, SO_OOBINLINE};
+    constexpr auto SockOptSndBuf             = SockOptDesc<unsigned, int>   {SOL_SOCKET, SO_SNDBUF};
+    constexpr auto SockOptRcvBuf             = SockOptDesc<unsigned, int>   {SOL_SOCKET, SO_RCVBUF};
+    constexpr auto SockOptDontRoute          = SockOptDesc<bool>            {SOL_SOCKET, SO_DONTROUTE};
+    constexpr auto SockOptRcvLowWatermark    = SockOptDesc<unsigned, int>   {SOL_SOCKET, SO_RCVLOWAT};
+    constexpr auto SockOptRcvTimeout         = SockOptDesc<::timeval>       {SOL_SOCKET, SO_RCVLOWAT};
+    constexpr auto SockOptSndLowWatermark    = SockOptDesc<unsigned, int>   {SOL_SOCKET, SO_SNDLOWAT};
+    constexpr auto SockOptSndTimeout         = SockOptDesc<::timeval>       {SOL_SOCKET, SO_SNDTIMEO};
 
     //Non-standard options
 
@@ -301,7 +279,8 @@ namespace ptl::inline v0 {
         constexpr auto SockOptNWrite             = SockOptDesc<socklen_t>   {SOL_SOCKET, SO_NWRITE};
     #endif
     #ifdef SO_LINGER_SEC
-        constexpr auto SockOptLingerSec          = SockOptDesc<int>         {SOL_SOCKET, SO_LINGER_SEC};
+        constexpr auto SockOptLingerSec          = SockOptDesc<unsigned, 
+                                                               int>         {SOL_SOCKET, SO_LINGER_SEC};
     #endif
     #ifdef SO_ACCEPTCONN
         constexpr auto SockOptAcceptsConn        = SockOptDesc<bool>        {SOL_SOCKET, SO_ACCEPTCONN};
@@ -333,7 +312,8 @@ namespace ptl::inline v0 {
         constexpr auto SockOptIPv4MulticastLoop     = SockOptDesc<bool>     {IPPROTO_IP, IP_MULTICAST_LOOP};
     #endif
     #ifdef IP_MULTICAST_TTL
-        constexpr auto SockOptIPv4MulticastTtl      = SockOptDesc<uint8_t>  {IPPROTO_IP, IP_MULTICAST_TTL};
+        constexpr auto SockOptIPv4MulticastTtl      = SockOptDesc<uint8_t,
+                                                                  int8_t>   {IPPROTO_IP, IP_MULTICAST_TTL};
     #endif
     #ifdef IP_MULTICAST_IF
         constexpr auto SockOptIPv4MulticastIface    = SockOptDesc<
@@ -365,16 +345,17 @@ namespace ptl::inline v0 {
 
     //IPPROTO_IPV6 options
     #ifdef IPV6_MULTICAST_LOOP
-        constexpr auto SockOptIPv6MulticastLoop     = SockOptDesc<bool>      {IPPROTO_IPV6, IPV6_MULTICAST_LOOP};
+        constexpr auto SockOptIPv6MulticastLoop     = SockOptDesc<bool>     {IPPROTO_IPV6, IPV6_MULTICAST_LOOP};
     #endif
     #ifdef IPV6_MULTICAST_HOPS
-        constexpr auto SockOptIPv6MulticastHops     = SockOptDesc<int>       {IPPROTO_IPV6, IPV6_MULTICAST_HOPS};
+        constexpr auto SockOptIPv6MulticastHops     = SockOptDesc<int>      {IPPROTO_IPV6, IPV6_MULTICAST_HOPS};
     #endif
     #ifdef IPV6_MULTICAST_IF
-        constexpr auto SockOptIPv6MulticastIface    = SockOptDesc<unsigned>  {IPPROTO_IPV6, IPV6_MULTICAST_IF};
+        constexpr auto SockOptIPv6MulticastIface    = SockOptDesc<unsigned, 
+                                                                  int>      {IPPROTO_IPV6, IPV6_MULTICAST_IF};
     #endif
     #ifdef IPV6_MULTICAST_ALL
-        constexpr auto SockOptIPv6MulticastAll      = SockOptDesc<bool>      {IPPROTO_IPV6, IPV6_MULTICAST_ALL};
+        constexpr auto SockOptIPv6MulticastAll      = SockOptDesc<bool>     {IPPROTO_IPV6, IPV6_MULTICAST_ALL};
     #endif
 
 }

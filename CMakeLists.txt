@@ -43,6 +43,7 @@ set(PUBLIC_HEADERS
     ${INCDIR}/ptl/spawn.h
     ${INCDIR}/ptl/system.h
     ${INCDIR}/ptl/users.h
+    ${INCDIR}/ptl/util.h
 )
 
 set(CMAKE_FILES 

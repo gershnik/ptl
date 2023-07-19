@@ -17,7 +17,8 @@
 #endif
 
 #ifdef _WIN32
-#include <winsock.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #endif
 
 namespace ptl::inline v0 {

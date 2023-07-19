@@ -158,7 +158,7 @@ namespace ptl::inline v0 {
             #ifndef _WIN32
                 return ec.value() == static_cast<int>(code);
             #else
-                for (const auto & entry : errorsMap) {
+                for (const auto & entry : systemErrorsMap) {
                     if (entry.win32 == ec.value()) {
                         return entry.posix == code;
                     }

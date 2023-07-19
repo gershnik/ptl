@@ -30,42 +30,41 @@ TEST_CASE( "socket options" , "[socket]") {
     #ifndef __linux__
     {
         INFO("SockOptDebug");
-        setSocketOption(sock, SockOptDebug{true});
-        CHECK(getSocketOption<SockOptDebug>(sock).value());
+        setSocketOption(sock, SockOptDebug, true);
+        CHECK(getSocketOption(sock, SockOptDebug));
     }
     #endif
 
     {
         INFO("SockOptBroadcast");
         std::error_code ec;
-        setSocketOption(sock, SockOptBroadcast{true}, ec);
+        setSocketOption(sock, SockOptBroadcast, true, ec);
         if (ec)
             CHECK(errorEquals(ec, std::errc::no_protocol_option));
         else
-            CHECK(getSocketOption<SockOptBroadcast>(sock).value());
+            CHECK(getSocketOption(sock, SockOptBroadcast));
     }
 
     {
         INFO("SockOptReuseAddr");
-        setSocketOption(sock, SockOptReuseAddr{true});
-        CHECK(getSocketOption<SockOptReuseAddr>(sock).value());
+        setSocketOption(sock, SockOptReuseAddr, true);
+        CHECK(getSocketOption(sock, SockOptReuseAddr));
     }
 
     {
         INFO("SockOptKeepAlive");
-        setSocketOption(sock, SockOptKeepAlive{true});
-        CHECK(getSocketOption<SockOptKeepAlive>(sock).value());
+        setSocketOption(sock, SockOptKeepAlive, true);
+        CHECK(getSocketOption(sock, SockOptKeepAlive));
     }
 
     {
         INFO("SockOptLinger");
-        SockOptLinger linger;
+        ::linger linger;
         linger.l_onoff = 1;
         linger.l_linger = 3;
-        setSocketOption(sock, linger);
-        SockOptLinger lingerOut;
-        CHECK((lingerOut.l_onoff == 0 && lingerOut.l_linger == 0));
-        getSocketOption(sock, lingerOut);
+        setSocketOption(sock, SockOptLinger, linger);
+        ::linger lingerOut{};
+        getSocketOption(sock, SockOptLinger, lingerOut);
         CHECK(lingerOut.l_onoff != 0);
         CHECK(linger.l_linger == lingerOut.l_linger);
     }

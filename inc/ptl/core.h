@@ -99,9 +99,11 @@ namespace ptl::inline v0 {
     namespace impl {
 
         #if PTL_USE_STD_FORMAT
+            using ::std::format;
             using ::std::vformat;
             using ::std::make_format_args;
         #else
+            using ::fmt::format;
             using ::fmt::vformat;
             using ::fmt::make_format_args;
         #endif

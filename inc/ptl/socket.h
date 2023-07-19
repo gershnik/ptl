@@ -7,10 +7,12 @@
 #include <ptl/core.h>
 #include <ptl/file.h>
 
-#include <cassert>
 
 #if __has_include(<sys/socket.h>)
     #include <sys/socket.h>
+#endif
+#if __has_include(<netinet/in.h>)
+    #include <netinet/in.h>
 #endif
 
 #ifdef _WIN32
@@ -156,134 +158,225 @@ namespace ptl::inline v0 {
     }
 
     template<class T>
-    concept SocketOption = 
-        std::is_same_v<std::remove_cvref_t<decltype(T::level)>, int> &&
-        std::is_same_v<std::remove_cvref_t<decltype(T::name)>, int> &&
-        requires(const T & cobj, T & mobj) {
-            { cobj.addr() } -> ConvertibleTo<const void *>;
-            { mobj.addr() } -> ConvertibleTo<void *>;
-            { cobj.size() } -> SameAs<socklen_t>;
-            { mobj.size() } -> SameAs<socklen_t>;
-            { mobj.resize(socklen_t{}) };
-        };
-
-    template<SocketOption Option>
-    inline void setSocketOption(SocketLike auto && socket, const Option & option,
+    inline void setSocketOption(SocketLike auto && socket, 
+                                int level, int option_name, const T & value,
                                 PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
-        setSocketOption(std::forward<decltype(socket)>(socket), Option::level, Option::name, option.addr(), option.size(),
-                        PTL_ERROR_REF(err));
-    }
-
-    template<SocketOption Option>
-    inline void getSocketOption(SocketLike auto && socket, Option & option,
-                                PTL_ERROR_REF_ARG(err))
-    requires(PTL_ERROR_REQ(err)) {
-        auto len = option.size();
-        getSocketOption(std::forward<decltype(socket)>(socket), Option::level, Option::name, option.addr(), &len,
-                        PTL_ERROR_REF(err));
-        if (!failed(PTL_ERROR_REF(err))) {
-            option.resize(len);
+        if constexpr (std::is_same_v<T, bool>) {
+            const int val = value;
+            setSocketOption(std::forward<decltype(socket)>(socket), level, option_name, &val, socklen_t(sizeof(val)), PTL_ERROR_REF(err));
+        } else {
+            setSocketOption(std::forward<decltype(socket)>(socket), level, option_name, &value, socklen_t(sizeof(value)), PTL_ERROR_REF(err));
         }
     }
 
-    template<SocketOption Option>
-    inline auto getSocketOption(SocketLike auto && socket,
-                                PTL_ERROR_REF_ARG(err)) -> Option
+    template<class T>
+    inline void getSocketOption(SocketLike auto && socket, 
+                                int level, int option_name, T & value,
+                                PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
-        Option option;
-        getSocketOption(std::forward<decltype(socket)>(socket), option, PTL_ERROR_REF(err));
-        return option;
-    }
-
-    template<int Level, int Name, class T, bool IsPrimitive = !std::is_class_v<T> && !std::is_union_v<T>>
-    class SockOpt;
-
-    template<int Level, int Name, class T>
-    class SockOpt<Level, Name, T, /*IsPrimitive*/true> {
-    public:
-        static constexpr int level = Level;
-        static constexpr int name  = Name;
-
-        constexpr auto value() const noexcept -> T
-            { return m_value; }
-
-        auto addr() const noexcept -> const void *
-            { return &this->m_value; }
-        auto addr() noexcept -> void *
-            { return &this->m_value; }
-        static auto size() noexcept -> socklen_t
-            { return socklen_t(sizeof(T)); } 
-        static auto resize([[maybe_unused]] socklen_t newSize) noexcept
-            { assert(newSize == size()); }
-    private:
-        T m_value{};
-    };
-
-    template<int Level, int Name>
-    class SockOpt<Level, Name, bool, /*IsPrimitive*/true> {
-    public:
-        static constexpr int level = Level;
-        static constexpr int name  = Name;
-
-        constexpr SockOpt() noexcept: m_value(false)
-            {}
-
-        constexpr SockOpt(bool val) noexcept: m_value(val)
-            {}
-
-        constexpr auto value() const noexcept -> bool
-            { return m_value != 0; }
-
-        auto addr() const noexcept -> const void *
-            { return &this->m_value; }
-        auto addr() noexcept -> void *
-            { return &this->m_value; }
-        static auto size() noexcept -> socklen_t
-            { return socklen_t(sizeof(int)); } 
-        static auto resize([[maybe_unused]] socklen_t newSize) noexcept { 
+        socklen_t len;
+        if constexpr (std::is_same_v<T, bool>) {
+            int val;
+            len = socklen_t(sizeof(val));
+            getSocketOption(std::forward<decltype(socket)>(socket), level, option_name, &val, &len, PTL_ERROR_REF(err));
+            if (len == socklen_t(sizeof(val))) {
+                value = val;
+                return;
+            }
             #ifdef _WIN32
-                assert(newSize == size() || newSize == 1); //Windows is moronic this way
-            #else
-                assert(newSize == size()); 
+                if (len == 1) //Windows is moronic this way {
+                    value = *((const unsigned char *)&val) != 0;
+                    return;
+                }
             #endif
+        } else {
+            len = socklen_t(sizeof(value));
+            getSocketOption(std::forward<decltype(socket)>(socket), level, option_name, &value, &len, PTL_ERROR_REF(err));
+            if (len == socklen_t(sizeof(value))) {
+                return;
+            }
         }
-    private:
-        int m_value;
+        throwErrorCode(EINVAL, "return length from getsockopt({}, {}): {} doesn't match passed argument", level, option_name, len);
+    }
+
+    template<class T>
+    inline auto getSocketOption(SocketLike auto && socket, 
+                                int level, int option_name,
+                                PTL_ERROR_REF_ARG(err)) -> T
+    requires(PTL_ERROR_REQ(err)) {
+        T ret;
+        getSocketOption(std::forward<decltype(socket)>(socket), level, option_name, ret, PTL_ERROR_REF(err));
+        return ret;
+    }
+
+    template<class Allowed1, class... AllowedRest>
+    struct SockOptDesc {
+        const int level;
+        const int name;  
     };
 
-    template<int Level, int Name, class T>
-    class SockOpt<Level, Name, T, /*IsPrimitive*/false> : public T {
-    public:
-        static constexpr int level = Level;
-        static constexpr int name  = Name;
-
-        SockOpt() noexcept : T{}
-        {}
-
-        auto addr() const noexcept -> const void * 
-            { return static_cast<const T *>(this); }
-        auto addr() noexcept -> void * 
-            { return static_cast<T *>(this); }
-        static auto size() noexcept -> socklen_t 
-            { return socklen_t(sizeof(T)); }
-        static auto resize([[maybe_unused]] socklen_t newSize) noexcept
-            { assert(newSize == size()); }
+    template<class X, class... Allowed>
+    struct TypeInPackImpl {
+        static constexpr bool value = (std::is_same_v<X, Allowed> || ...);
     };
 
-    using SockOptDebug              = SockOpt<SOL_SOCKET, SO_DEBUG,         bool>;
-    using SockOptBroadcast          = SockOpt<SOL_SOCKET, SO_BROADCAST,     bool>;
-    using SockOptReuseAddr          = SockOpt<SOL_SOCKET, SO_REUSEADDR,     bool>;
-    using SockOptKeepAlive          = SockOpt<SOL_SOCKET, SO_KEEPALIVE,     bool>;
-    using SockOptLinger             = SockOpt<SOL_SOCKET, SO_LINGER,        ::linger>;
-    using SockOptOOBInline          = SockOpt<SOL_SOCKET, SO_OOBINLINE,     bool>;
-    using SockOptSndBuf             = SockOpt<SOL_SOCKET, SO_SNDBUF,        int>;
-    using SockOptRcvBuf             = SockOpt<SOL_SOCKET, SO_RCVBUF,        int>;
-    using SockOptDontRoute          = SockOpt<SOL_SOCKET, SO_DONTROUTE,     bool>;
-    using SockOptRcvLowWatermark    = SockOpt<SOL_SOCKET, SO_RCVLOWAT,      int>;
-    using SockOptRcvTimeout         = SockOpt<SOL_SOCKET, SO_RCVLOWAT,      ::timeval>;
-    using SockOptSndLowWatermark    = SockOpt<SOL_SOCKET, SO_SNDLOWAT,      int>;
-    using SockOptSndTimeout         = SockOpt<SOL_SOCKET, SO_SNDTIMEO,      ::timeval>;
+    template<class X>
+    struct TypeInPackImpl<X> {
+        static constexpr bool value = false;
+    };
+
+    template<class X, class... Allowed>
+    constexpr bool TypeInPack = TypeInPackImpl<X, Allowed...>::value;
+
+
+    template<class T, class Allowed1, class... AllowedRest>
+    inline void setSocketOption(SocketLike auto && socket, SockOptDesc<Allowed1, AllowedRest...> desc, const T & option,
+                                PTL_ERROR_REF_ARG(err)) 
+    requires(PTL_ERROR_REQ(err) && TypeInPack<T, Allowed1, AllowedRest...>) {
+        setSocketOption(std::forward<decltype(socket)>(socket), desc.level, desc.name, option,
+                        PTL_ERROR_REF(err));
+    }
+
+    template<class T, class Allowed1, class... AllowedRest>
+    inline void getSocketOption(SocketLike auto && socket, SockOptDesc<Allowed1, AllowedRest...> desc, T & option,
+                                PTL_ERROR_REF_ARG(err))
+    requires(PTL_ERROR_REQ(err) && TypeInPack<T, Allowed1, AllowedRest...>) {
+        getSocketOption(std::forward<decltype(socket)>(socket), desc.level, desc.name, option,
+                        PTL_ERROR_REF(err));
+    }
+
+    template<class T, class Allowed1, class... AllowedRest>
+    inline auto getSocketOption(SocketLike auto && socket, SockOptDesc<Allowed1, AllowedRest...> desc,
+                                PTL_ERROR_REF_ARG(err)) -> T
+    requires(PTL_ERROR_REQ(err) && TypeInPack<T, Allowed1, AllowedRest...>) {
+        T ret;
+        getSocketOption(std::forward<decltype(socket)>(socket), desc, ret, PTL_ERROR_REF(err));
+        return ret;
+    }
+
+    template<class T>
+    inline auto getSocketOption(SocketLike auto && socket, SockOptDesc<T> desc,
+                                PTL_ERROR_REF_ARG(err)) -> T
+    requires(PTL_ERROR_REQ(err)) {
+        T ret;
+        getSocketOption(std::forward<decltype(socket)>(socket), desc, ret, PTL_ERROR_REF(err));
+        return ret;
+    }
+
+    //Posix options
+
+    constexpr auto SockOptDebug              = SockOptDesc<bool>        {SOL_SOCKET, SO_DEBUG};
+    constexpr auto SockOptBroadcast          = SockOptDesc<bool>        {SOL_SOCKET, SO_BROADCAST};
+    constexpr auto SockOptReuseAddr          = SockOptDesc<bool>        {SOL_SOCKET, SO_REUSEADDR};
+    constexpr auto SockOptKeepAlive          = SockOptDesc<bool>        {SOL_SOCKET, SO_KEEPALIVE};
+    constexpr auto SockOptLinger             = SockOptDesc<::linger>    {SOL_SOCKET, SO_LINGER};
+    constexpr auto SockOptOOBInline          = SockOptDesc<bool>        {SOL_SOCKET, SO_OOBINLINE};
+    constexpr auto SockOptSndBuf             = SockOptDesc<int>         {SOL_SOCKET, SO_SNDBUF};
+    constexpr auto SockOptRcvBuf             = SockOptDesc<int>         {SOL_SOCKET, SO_RCVBUF};
+    constexpr auto SockOptDontRoute          = SockOptDesc<bool>        {SOL_SOCKET, SO_DONTROUTE};
+    constexpr auto SockOptRcvLowWatermark    = SockOptDesc<int>         {SOL_SOCKET, SO_RCVLOWAT};
+    constexpr auto SockOptRcvTimeout         = SockOptDesc<::timeval>   {SOL_SOCKET, SO_RCVLOWAT};
+    constexpr auto SockOptSndLowWatermark    = SockOptDesc<int>         {SOL_SOCKET, SO_SNDLOWAT};
+    constexpr auto SockOptSndTimeout         = SockOptDesc<::timeval>   {SOL_SOCKET, SO_SNDTIMEO};
+
+    //Non-standard options
+
+    #ifdef SO_REUSEPORT
+        constexpr auto SockOptReusePort          = SockOptDesc<bool>        {SOL_SOCKET, SO_REUSEPORT};
+    #endif
+    #ifdef SO_TYPE
+        constexpr auto SockOptType               = SockOptDesc<int>         {SOL_SOCKET, SO_TYPE};
+    #endif
+    #ifdef SO_ERROR
+        constexpr auto SockOptError              = SockOptDesc<int>         {SOL_SOCKET, SO_ERROR};
+    #endif
+    #ifdef SO_NOSIGPIPE
+        constexpr auto SockOptNoSIGPIPE          = SockOptDesc<bool>        {SOL_SOCKET, SO_NOSIGPIPE};
+    #endif
+    #ifdef SO_NREAD
+        constexpr auto SockOptNRead              = SockOptDesc<socklen_t>   {SOL_SOCKET, SO_NREAD};
+    #endif
+    #ifdef SO_NWRITE
+        constexpr auto SockOptNWrite             = SockOptDesc<socklen_t>   {SOL_SOCKET, SO_NWRITE};
+    #endif
+    #ifdef SO_LINGER_SEC
+        constexpr auto SockOptLingerSec          = SockOptDesc<int>         {SOL_SOCKET, SO_LINGER_SEC};
+    #endif
+    #ifdef SO_ACCEPTCONN
+        constexpr auto SockOptAcceptsConn        = SockOptDesc<bool>        {SOL_SOCKET, SO_ACCEPTCONN};
+    #endif
+    #ifdef SO_TIMESTAMP
+        constexpr auto SockOptTimestamp          = SockOptDesc<bool>        {SOL_SOCKET, SO_TIMESTAMP};
+    #endif
+    #ifdef SO_TIMESTAMPNS
+        constexpr auto SockOptTimestampNs        = SockOptDesc<bool>        {SOL_SOCKET, SO_TIMESTAMPNS};
+    #endif
+    #ifdef SO_TIMESTAMP_MONOTONIC
+        constexpr auto SockOptTimestampMonotonic = SockOptDesc<bool>        {SOL_SOCKET, SO_TIMESTAMP_MONOTONIC};
+    #endif
+    #ifdef SO_DOMAIN
+        constexpr auto SockOptDomain             = SockOptDesc<int>         {SOL_SOCKET, SO_DOMAIN};
+    #endif
+    #ifdef SO_PROTOCOL
+        constexpr auto SockOptProtocols          = SockOptDesc<int>         {SOL_SOCKET, SO_PROTOCOL};
+    #endif
+    #ifdef SO_BSP_STATE
+        constexpr auto SockOptBspState           = SockOptDesc<CSADDR_INFO> {SOL_SOCKET, SO_BSP_STATE};
+    #endif
+    #ifdef SO_EXCLUSIVEADDRUSE
+        constexpr auto SockOptExclusiveAddrUse   = SockOptDesc<bool>        {SOL_SOCKET, SO_EXCLUSIVEADDRUSE};
+    #endif
+
+    //IPPROTO_IP options
+    #ifdef IP_MULTICAST_LOOP
+        constexpr auto SockOptIPv4MulticastLoop     = SockOptDesc<bool>     {IPPROTO_IP, IP_MULTICAST_LOOP};
+    #endif
+    #ifdef IP_MULTICAST_TTL
+        constexpr auto SockOptIPv4MulticastTtl      = SockOptDesc<uint8_t>  {IPPROTO_IP, IP_MULTICAST_TTL};
+    #endif
+    #ifdef IP_MULTICAST_IF
+        constexpr auto SockOptIPv4MulticastIface    = SockOptDesc<
+                                                        #if PTL_HAVE_IP_MREQN
+                                                            ::ip_mreqn,
+                                                        #endif
+                                                        #if PTL_HAVE_IP_MREQ
+                                                            ::ip_mreq,
+                                                        #endif
+                                                        ::in_addr>          {IPPROTO_IP, IP_MULTICAST_IF};
+    #endif
+    #ifdef IP_ADD_MEMBERSHIP
+        constexpr auto SockOptIPv4AddMembership     = SockOptDesc<
+                                                        #if PTL_HAVE_IP_MREQN
+                                                            ::ip_mreqn,
+                                                        #endif
+                                                        ::ip_mreq>          {IPPROTO_IP, IP_ADD_MEMBERSHIP};
+    #endif
+    #ifdef IP_DROP_MEMBERSHIP
+        constexpr auto SockOptIPv4DropMembership    = SockOptDesc<
+                                                        #if PTL_HAVE_IP_MREQN
+                                                            ::ip_mreqn,
+                                                        #endif
+                                                        ::ip_mreq>          {IPPROTO_IP, IP_DROP_MEMBERSHIP};
+    #endif
+    #ifdef IP_MULTICAST_ALL
+        constexpr auto SockOptIPv4MulticastAll      = SockOptDesc<bool>     {IPPROTO_IP, IP_MULTICAST_ALL};
+    #endif
+
+    //IPPROTO_IPV6 options
+    #ifdef IPV6_MULTICAST_LOOP
+        constexpr auto SockOptIPv6MulticastLoop     = SockOptDesc<bool>      {IPPROTO_IPV6, IPV6_MULTICAST_LOOP};
+    #endif
+    #ifdef IPV6_MULTICAST_HOPS
+        constexpr auto SockOptIPv6MulticastHops     = SockOptDesc<int>       {IPPROTO_IPV6, IPV6_MULTICAST_HOPS};
+    #endif
+    #ifdef IPV6_MULTICAST_IF
+        constexpr auto SockOptIpv6MulticastIface    = SockOptDesc<unsigned>  {IPPROTO_IPV6, IPV6_MULTICAST_IF};
+    #endif
+    #ifdef IPV6_MULTICAST_ALL
+        constexpr auto SockOptIPv4MulticastAll      = SockOptDesc<bool>      {IPPROTO_IPV6, IPV6_MULTICAST_ALL};
+    #endif
+
 }
 
 #endif

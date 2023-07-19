@@ -113,23 +113,23 @@ namespace ptl::inline v0 {
     
     template<class T>
     concept ErrorSink = requires(T & obj, const T & cobj) {
-        { ErrorTraits<T>::assignError(obj, int(), "") } noexcept -> SameAs<void>;
+        { ErrorTraits<T>::assignError(obj, int(), "") } -> SameAs<void>;
         #ifdef _WIN32
-        { ErrorTraits<T>::assignError(obj, SystemError{}, "") } noexcept -> SameAs<void>;
+        { ErrorTraits<T>::assignError(obj, SystemError{}, "") } -> SameAs<void>;
         #endif
         { ErrorTraits<T>::clearError(obj) } noexcept -> SameAs<void>;
         { ErrorTraits<T>::failed(cobj) } noexcept -> SameAs<bool>;
     };
 
     template<ErrorSink Err, class... T>
-    [[gnu::always_inline]] inline void handleError(Err & err, int code, const char * format, T && ...args) noexcept {
+    [[gnu::always_inline]] inline void handleError(Err & err, int code, const char * format, T && ...args) {
         ErrorTraits<Err>::assignError(err, code, format, std::forward<T>(args)...);
     }
 
     #ifdef _WIN32
 
     template<ErrorSink Err, class... T>
-    [[gnu::always_inline]] inline void handleError(Err & err, SystemError code, const char * format, T && ...args) noexcept {
+    [[gnu::always_inline]] inline void handleError(Err & err, SystemError code, const char * format, T && ...args) {
         ErrorTraits<Err>::assignError(err, code, format, std::forward<T>(args)...);
     }
 

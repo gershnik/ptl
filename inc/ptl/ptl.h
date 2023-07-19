@@ -4,6 +4,7 @@
 #ifndef PTL_HEADER_PTL_H_INCLUDED
 #define PTL_HEADER_PTL_H_INCLUDED
 
+#include <ptl/errors.h>
 #include <ptl/file.h>
 #include <ptl/identity.h>
 #include <ptl/process.h>

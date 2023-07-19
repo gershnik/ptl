@@ -80,6 +80,7 @@ PRIVATE
     common.cpp
     test.cpp
     test_identity.cpp
+    test_errors.cpp
     test_file.cpp
     test_spawn.cpp
     test_signal.cpp

@@ -36,6 +36,7 @@ set(PUBLIC_HEADERS
     ${INCDIR}/ptl/core.h
     ${INCDIR}/ptl/ptl.h
     ${INCDIR}/ptl/identity.h
+    ${INCDIR}/ptl/errors.h
     ${INCDIR}/ptl/file.h
     ${INCDIR}/ptl/process.h
     ${INCDIR}/ptl/signal.h

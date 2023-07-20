@@ -15,7 +15,7 @@ TEST_CASE( "allowed" , "[errors]") {
     {
         AllowedErrors<ENOENT, EDOM> ec;
         auto fd = FileDescriptor::open("nonexistant", O_RDONLY, ec);
-        CHECK(errorEquals(ec.code(), std::errc::no_such_file_or_directory));
+        CHECK(ec.code() == ENOENT);
     }
 
     {
@@ -24,7 +24,4 @@ TEST_CASE( "allowed" , "[errors]") {
             auto fd = FileDescriptor::open("nonexistant", O_RDONLY, ec);
         }(), std::system_error, equalsSystemError(std::errc::no_such_file_or_directory));
     }
-
-
-
 }

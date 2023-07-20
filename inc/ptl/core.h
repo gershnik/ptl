@@ -107,31 +107,37 @@ namespace ptl::inline v0 {
         #endif
     }
 
-    #ifndef _WIN32
-        using Error = int;
-    #else
-        struct Error {
-            enum ErrorType {
-                Posix,
-                Windows
-            };
-
-            constexpr Error(int code_ = 0) noexcept: type(Posix), code(code_)
-            {}
-            constexpr Error(ErrorType type_, int code_) noexcept: type(type_), code(code_)
-            {}
-
-            constexpr bool operator==(const Error & rhs) const = default;
-            constexpr bool operator!=(const Error & rhs) const = default;
-
-            ErrorType type;
-            int code;
+    struct Error {
+        #ifdef _WIN32
+        enum ErrorType {
+            Posix,
+            Windows
         };
-    #endif
+        #endif
+
+        constexpr Error(int code_ = 0) noexcept: code(code_)
+        {}
+
+        #ifdef _WIN32
+        constexpr Error(ErrorType type_, int code_) noexcept: type(type_), code(code_)
+        {}
+        #endif
+
+        constexpr bool operator==(const Error & rhs) const = default;
+        constexpr bool operator!=(const Error & rhs) const = default;
+
+        explicit operator bool() const noexcept 
+            { return this->code != 0; }
+
+        #ifdef _WIN32
+        ErrorType type;
+        #endif
+        int code;
+    };
 
     [[gnu::always_inline]] inline auto makeErrorCode(Error err) -> std::error_code {
         #ifndef _WIN32
-            return std::error_code(err, std::system_category());
+            return std::error_code(err.code, std::system_category());
         #else
             return std::error_code(err.code, err.type == Error::Posix ? std::generic_category() : std::system_category());
         #endif
@@ -141,8 +147,8 @@ namespace ptl::inline v0 {
     [[noreturn, gnu::always_inline]] inline void throwErrorCode(Error err, const char * format, T && ...args) noexcept(false) {
         //do not attempt to allocate on ENOMEM
         #ifndef _WIN32
-            if (err == ENOMEM) 
-                throw std::system_error(makeErrorCode(code));
+            if (err.code == ENOMEM) 
+                throw std::system_error(makeErrorCode(err));
         #else
             if ((err.type == Error::Posix && err.code == ENOMEM) ||
                 (err.type == Error::Windows && (err.code == ERROR_OUTOFMEMORY || err.code == ERROR_NOT_ENOUGH_MEMORY)))
@@ -168,27 +174,38 @@ namespace ptl::inline v0 {
     };
 
     template<ErrorSink Err, class... T>
-    [[gnu::always_inline]] inline void handleError(Err & dest, Error err, const char * format, T && ...args) {
-        ErrorTraits<Err>::assignError(dest, err, format, std::forward<T>(args)...);
-    }
+    [[gnu::always_inline]] inline void handleError(Err & dest, Error err, const char * format, T && ...args) 
+        { ErrorTraits<Err>::assignError(dest, err, format, std::forward<T>(args)...); }
     template<class... T>
-    [[noreturn, gnu::always_inline]] inline void handleError(Error err, const char * format, T && ...args) noexcept(false) {
-        throwErrorCode(err, format, std::forward<T>(args)...);
-    }
+    [[noreturn, gnu::always_inline]] inline void handleError(Error err, const char * format, T && ...args) noexcept(false) 
+        { throwErrorCode(err, format, std::forward<T>(args)...); }
 
     template<ErrorSink Err>
-    [[gnu::always_inline]] inline void clearError(Err & err) noexcept {
-        ErrorTraits<Err>::clearError(err);
-    }
+    [[gnu::always_inline]] inline void clearError(Err & err) noexcept 
+        { ErrorTraits<Err>::clearError(err); }
     [[gnu::always_inline]] constexpr inline void clearError() noexcept 
-    {}
+        {}
 
     template<ErrorSink Err>
-    [[gnu::always_inline]] inline auto failed(const Err & err) noexcept -> bool {
-        return ErrorTraits<Err>::failed(err);
-    }
+    [[gnu::always_inline]] inline auto failed(const Err & err) noexcept -> bool 
+        { return ErrorTraits<Err>::failed(err); }
     [[gnu::always_inline]] constexpr inline auto failed() noexcept -> bool
-    { return false; }
+        { return false; }
+
+    template<> struct ErrorTraits<Error> {
+        template<class... T>
+        [[gnu::always_inline]] static inline void assignError(Error & dest, Error err, const char *, T && ...) noexcept {
+            dest = err;
+        }
+
+        [[gnu::always_inline]] static inline void clearError(Error & err) noexcept {
+            err = 0;
+        }
+
+        [[gnu::always_inline]] static inline auto failed(const Error & err) noexcept -> bool {
+            return err.code != 0;
+        }
+    };
 
     template<> struct ErrorTraits<std::error_code> {
         template<class... T>

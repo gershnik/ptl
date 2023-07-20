@@ -11,13 +11,13 @@ namespace ptl::inline v0 {
     template<Error First, Error... Rest>
     class AllowedErrors {
     public:
-        auto code() const noexcept -> const std::error_code & 
+        auto code() const noexcept -> Error 
             { return m_code; }
 
         auto assign(Error err) noexcept -> bool {
             for(auto allowed: {First, Rest...}) {
                 if (err == allowed) {
-                    m_code = makeErrorCode(err);
+                    m_code = err;
                     return true;
                 }
             }
@@ -25,12 +25,12 @@ namespace ptl::inline v0 {
         }
 
         void clear() noexcept 
-            { m_code.clear(); }
+            { m_code = 0; }
 
         explicit operator bool() const noexcept 
             { return bool(m_code); }
     private:
-        std::error_code m_code;
+        Error m_code;
     };
 
     template<Error First, Error... Rest> 

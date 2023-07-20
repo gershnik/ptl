@@ -71,7 +71,6 @@ PRIVATE
 
 target_compile_definitions(test
 PRIVATE
-    CATCH_AMALGAMATED_CUSTOM_MAIN
     $<$<CXX_COMPILER_ID:MSVC>:_CRT_SECURE_NO_WARNINGS>
 )
 

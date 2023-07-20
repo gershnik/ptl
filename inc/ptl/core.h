@@ -115,10 +115,12 @@ namespace ptl::inline v0 {
         };
         #endif
 
+        #ifndef _WIN32
         constexpr Error(int code_ = 0) noexcept: code(code_)
         {}
-
-        #ifdef _WIN32
+        #else
+        constexpr Error(int code_ = 0) noexcept: type(Posix), code(code_)
+        {}
         constexpr Error(ErrorType type_, int code_) noexcept: type(type_), code(code_)
         {}
         #endif

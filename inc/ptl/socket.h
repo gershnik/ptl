@@ -115,11 +115,11 @@ namespace ptl::inline v0 {
     #endif
 
     namespace impl {
-        inline auto getSocketError() -> SystemError {
+        inline auto getSocketError() -> Error {
             #ifndef _WIN32
                 return errno;
             #else
-                return {WSAGetLastError()};
+                return Error{Error::Windows, WSAGetLastError()};
             #endif
         }
     }

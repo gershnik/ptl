@@ -6,22 +6,18 @@
 
 #include <ptl/core.h>
 
-#ifdef _WIN32
-    #include <winerror.h>
-#endif
-
 namespace ptl::inline v0 {
 
-    template<int First, int... Rest>
+    template<Error First, Error... Rest>
     class AllowedErrors {
     public:
         auto code() const noexcept -> const std::error_code & 
             { return m_code; }
 
-        auto assign(int code) noexcept -> bool {
+        auto assign(Error err) noexcept -> bool {
             for(auto allowed: {First, Rest...}) {
-                if (code == allowed) {
-                    m_code = makeErrorCode(code);
+                if (err == allowed) {
+                    m_code = makeErrorCode(err);
                     return true;
                 }
             }
@@ -37,14 +33,14 @@ namespace ptl::inline v0 {
         std::error_code m_code;
     };
 
-    template<int First, int... Rest> 
+    template<Error First, Error... Rest> 
     struct ErrorTraits<AllowedErrors<First, Rest...>> {
         template<class... T>
-        [[gnu::always_inline]] static inline void assignError(AllowedErrors<First, Rest...> & err, int code, const char * format, T && ...args) {
-            if (!err.assign(code))
-                ptl::throwErrorCode(code, format, std::forward<T>(args)...);
+        [[gnu::always_inline]] static inline void assignError(AllowedErrors<First, Rest...> & dest, Error err, const char * format, T && ...args) {
+            if (!dest.assign(err))
+                ptl::throwErrorCode(err, format, std::forward<T>(args)...);
         }
-
+        
         [[gnu::always_inline]] static inline void clearError(AllowedErrors<First, Rest...> & err) noexcept {
             err.clear();
         }

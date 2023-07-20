@@ -7,6 +7,7 @@
 [process.h]:    ../inc/ptl/process.h
 [signal.h]:     ../inc/ptl/signal.h
 [spawn.h]:      ../inc/ptl/spawn.h
+[socket.h]:     ../inc/ptl/socket.h
 [system.h]:     ../inc/ptl/system.h
 [users.h]:      ../inc/ptl/users.h
 
@@ -29,6 +30,7 @@
 [gethostname()]:    https://pubs.opengroup.org/onlinepubs/9699919799/functions/gethostname.html
 [getpwnam_r()]:     https://pubs.opengroup.org/onlinepubs/9699919799/functions/getpwnam_r.html
 [getpwuid_r()]:     https://pubs.opengroup.org/onlinepubs/9699919799/functions/getpwuid_r.html
+[getsockopt()]:     https://pubs.opengroup.org/onlinepubs/9699919799/functions/getsockopt.html
 [kill()]:           https://pubs.opengroup.org/onlinepubs/9699919799/functions/kill.html
 [lchown()]:         https://pubs.opengroup.org/onlinepubs/9699919799/functions/lchown.html
 [lstat()]:          https://pubs.opengroup.org/onlinepubs/9699919799/functions/lstat.html
@@ -55,6 +57,7 @@
 [seteuid()]:        https://pubs.opengroup.org/onlinepubs/9699919799/functions/seteuid.html
 [setpgid()]:        https://pubs.opengroup.org/onlinepubs/9699919799/functions/setpgid.html
 [setsid()]:         https://pubs.opengroup.org/onlinepubs/9699919799/functions/setsid.html
+[setsockopt()]:     https://pubs.opengroup.org/onlinepubs/9699919799/functions/setsockopt.html
 [setuid()]:         https://pubs.opengroup.org/onlinepubs/9699919799/functions/setuid.html
 [sigaction()]:      https://pubs.opengroup.org/onlinepubs/9699919799/functions/sigaction.html
 [sigaddset()]:      https://pubs.opengroup.org/onlinepubs/9699919799/functions/sigaddset.html
@@ -64,6 +67,7 @@
 [sigismember()]:    https://pubs.opengroup.org/onlinepubs/9699919799/functions/sigismember.html
 [signal()]:         https://pubs.opengroup.org/onlinepubs/9699919799/functions/signal.html
 [sigprocmask()]:    https://pubs.opengroup.org/onlinepubs/9699919799/functions/sigprocmask.html
+[socket()]:         https://pubs.opengroup.org/onlinepubs/9699919799/functions/socket.html
 [stat()]:           https://pubs.opengroup.org/onlinepubs/9699919799/functions/stat.html
 [strsignal()]:      https://pubs.opengroup.org/onlinepubs/9699919799/functions/strsignal.html
 [sysconf()]:        https://pubs.opengroup.org/onlinepubs/9699919799/functions/sysconf.html
@@ -112,6 +116,7 @@
 |[gethostname()] | `getHostName()`              | [system.h]   |
 |[getpwnam_r()]  | `Passwd::getByName()`        | [users.h]    |
 |[getpwuid_r()]  | `Passwd::getById()`          | [users.h]    |
+|[getsockopt()]  | `getSocketOption()`          | [socket.h]   |
 |[kill()]        | `sendSignal()`               | [signal.h]   | 
 |`lchmod()`      | `changeLinkMode()`           | [file.h]     | [Mac][mkostemps-mac], [BSD][mkostemps-bsd]
 |[lchown()]      | `changeLinkOwner()`          | [file.h]     | 
@@ -141,6 +146,7 @@
 |[seteuid()]     | `setEffectiveUid()`          | [identity.h] |
 |[setpgid()]     | `setProcessGroupId()`        | [process.h]  |
 |[setsid()]      | `setSessionId()`             | [process.h]  |
+|[setsockopt()]  | `setSocketOption()`          | [socket.h]   |
 |[setuid()]      | `setUid()`                   | [identity.h] |
 |[sigabbrev_np()], [sys_signame], `sys_sigabbrev` | `signalName()` | [signal.h] | Various non-portable ways of obtaining a signal name. The `signalName()` is supported on all platforms and falls back on returning signal number converted to string if no known mapping is available
 |[sigaction()]   | `setSignalAction()`, `getSignalAction()` | [signal.h] | Note that `struct sigaction` is minimally wrapped by `SignalAction` class
@@ -151,6 +157,7 @@
 |[sigismember()] | `SignalSet::isMember()`      | [signal.h]   |
 |[signal()]      | `setSignalHandler()`         | [signal.h]   |
 |[sigprocmask()] | `setSignalProcessMask()`, `getSignalProcessMask()`| [signal.h] |
+|[socket()]      | `createSocket()`             | [socket.h]   |
 |[stat()]        | `getStatus()`                | [file.h]     | 
 |[strsignal()]   | `signalMessage()`            | [signal.h]   | 
 |[sysconf()]     | `systemConfig()`             | [system.h]   |

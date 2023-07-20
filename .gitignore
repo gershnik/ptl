@@ -5,4 +5,6 @@
 /.vs
 
 CMakeSettings.json
+.vscode/launch.json
+
 

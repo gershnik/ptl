@@ -13,12 +13,17 @@ TEST_CASE( "open file" , "[file_descriptor]") {
 
     CHECK_THROWS_MATCHES([]() {
         auto fd = FileDescriptor::open("nonexistant", O_RDONLY);
-    }(), std::system_error, EqualsSystemError(std::errc::no_such_file_or_directory));
+    }(), std::system_error, equalsSystemError(std::errc::no_such_file_or_directory));
 
     std::error_code ec;
     auto fd = FileDescriptor::open("nonexistant", O_RDONLY, ec);
     CHECK(!fd);
-    CHECK(ec.value() == ENOENT);
+    CHECK(errorEquals(ec, std::errc::no_such_file_or_directory));
+
+    Error err;
+    fd = FileDescriptor::open("nonexistant", O_RDONLY, err);
+    CHECK(!fd);
+    CHECK(err == ENOENT);
 }
 
 #ifndef _WIN32

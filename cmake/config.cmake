@@ -70,6 +70,32 @@ string(APPEND CONFIG_CONTENT "#cmakedefine01 PTL_HAVE_MKOSTEMPS\n")
 check_cxx_symbol_exists(lchmod sys/stat.h PTL_HAVE_LCHMOD)
 string(APPEND CONFIG_CONTENT "#cmakedefine01 PTL_HAVE_LCHMOD\n")
 
+check_cxx_source_compiles("
+    #ifndef _WIN32
+        #include <netinet/in.h>
+    #else
+        #include <ws2tcpip.h>
+    #endif
+
+    int main() {
+        struct ip_mreqn blah;
+    }"
+PTL_HAVE_IP_MREQN)
+string(APPEND CONFIG_CONTENT "#cmakedefine01 PTL_HAVE_IP_MREQN\n")
+
+check_cxx_source_compiles("
+    #ifndef _WIN32
+        #include <netinet/in.h>
+    #else
+        #include <ws2tcpip.h>
+    #endif
+
+    int main() {
+        struct ip_mreq blah;
+    }"
+PTL_HAVE_IP_MREQ)
+string(APPEND CONFIG_CONTENT "#cmakedefine01 PTL_HAVE_IP_MREQ\n")
+
 
 string(APPEND CONFIG_CONTENT "
 #endif

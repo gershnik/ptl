@@ -54,6 +54,7 @@ PRIVATE
     ptl::ptl
     fmt::fmt
     Catch2::Catch2
+    $<$<BOOL:${WIN32}>:ws2_32.lib>
 )
 
 target_compile_options(test
@@ -70,7 +71,6 @@ PRIVATE
 
 target_compile_definitions(test
 PRIVATE
-    CATCH_AMALGAMATED_CUSTOM_MAIN
     $<$<CXX_COMPILER_ID:MSVC>:_CRT_SECURE_NO_WARNINGS>
 )
 
@@ -79,9 +79,11 @@ PRIVATE
     common.cpp
     test.cpp
     test_identity.cpp
+    test_errors.cpp
     test_file.cpp
     test_spawn.cpp
     test_signal.cpp
+    test_socket.cpp
     test_users.cpp
     test_system.cpp
 )

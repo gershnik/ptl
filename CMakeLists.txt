@@ -36,12 +36,15 @@ set(PUBLIC_HEADERS
     ${INCDIR}/ptl/core.h
     ${INCDIR}/ptl/ptl.h
     ${INCDIR}/ptl/identity.h
+    ${INCDIR}/ptl/errors.h
     ${INCDIR}/ptl/file.h
     ${INCDIR}/ptl/process.h
     ${INCDIR}/ptl/signal.h
+    ${INCDIR}/ptl/socket.h
     ${INCDIR}/ptl/spawn.h
     ${INCDIR}/ptl/system.h
     ${INCDIR}/ptl/users.h
+    ${INCDIR}/ptl/util.h
 )
 
 set(CMAKE_FILES 

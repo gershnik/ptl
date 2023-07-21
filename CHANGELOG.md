@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [0.3] - 2023-07-20
+
 ### Added
 - Initial support for socket APIs
 - Some helpful error handling utilities
@@ -18,3 +20,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Initial version
 
 [0.2]: https://github.com/gershnik/wsdd-native/releases/v0.2
+[0.3]: https://github.com/gershnik/wsdd-native/releases/v0.3

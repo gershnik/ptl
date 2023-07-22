@@ -15,7 +15,7 @@ A C++ library for Posix and related calls.
 - [Extensions](#extensions)
 - [Android compatibility](#android-compatibility)
 - [Win32/MinGW compatibility](#win32mingw-compatibility)
-- [Error handling](#error-handling)
+- [Error Handling](#error-handling)
 - [Integration](#integration)
     - [CMake via FetchContent](#cmake-via-fetchcontent)
     - [Building and installing on your system](#building-and-installing-on-your-system)
@@ -41,7 +41,7 @@ See [Function Mapping](doc/function-mapping.md) for currently supported function
 * Header only
 * Depends only on C++20 standard library. If and only if your standard library is missing `std::format` (which is all too common in 2023) you will need to have `fmt` available instead.
 * Thin. The functions and classes it provides are minimal inline safe wrappers of Posix functionality. There is no attempt to provide a higher level of abstraction unless it is absolutely necessary for safety. Similarly, there are no helpful utilities (like for example "read all content of file" or "spawn a process and read its output into a string") which are trivial to implement on top of wrapped calls. These are nice but the belong to a different library.
-* Supports both error code returns (`std::error_code`, `boost::error_code` or any error code class you might want to use!) and exceptions _without code duplication_. See [Error Handling](#error_handling) below for details.
+* Supports both error code returns (`std::error_code`, `boost::error_code` or any error code class you might want to use!) and exceptions _without code duplication_. See [Error Handling](#error-handling) below for details.
 * RAII everywhere there is do/undo semantics.
 * Free functions that take conceptual arguments rather than class methods whenever practical. For example, using this library you can say `duplicate(STDOUT_FILENO)` or `duplicate(stdout)` or `duplicate(an_instance_of_file_descriptor_class)` and they all will do the same thing: duplicate the file descriptor and produce a new instance of file descriptor class. The `duplicate` function takes anything that matches a "file like" concept. This way you can mix and match PTL with plain Posix code as desired. It is not all or nothing proposition. You can even make PTL work with your own classes if you have them by matching them to a concept (via traits specialization usually).
 
@@ -65,7 +65,7 @@ or is especially annoying (`getpwnam_r` producing hard error when username is no
 PTL can be used on Win32/MinGW but it only exposes very limited Posix-compatibility functionality provided be these environments. If you need a full portability between Unix and Windows you should look for a portable library of some sort. 
 Note that PTL is fully supported on Cygwin as it is a "normal" Posix-like environment.
 
-## Error handling
+## Error Handling
 
 PTL uses the strategy similar (but not identical!) to one popularized by `std::filesystem` (and `boost::filesystem` before).
 

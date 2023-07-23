@@ -58,26 +58,10 @@ target_sources(ptl
 INTERFACE 
     FILE_SET HEADERS BASE_DIRS ${INCDIR} ${GEN_INCDIR} FILES
         ${PUBLIC_HEADERS}
+PRIVATE
+    ${PUBLIC_HEADERS}
+    ${CMAKE_FILES}
 )
-
-if (PROJECT_IS_TOP_LEVEL)
-
-    set(PROJECT_FILES "")
-
-    foreach(dir ${PUBLIC_HEADERS})
-        list(APPEND PROJECT_FILES $<BUILD_INTERFACE:${dir}>)
-    endforeach()
-
-    foreach(dir ${CMAKE_FILES})
-        list(APPEND PROJECT_FILES $<BUILD_INTERFACE:${dir}>)
-    endforeach()
-
-    target_sources(ptl
-    INTERFACE 
-        ${PROJECT_FILES}
-    )
-
-endif()
 
 
 add_library(ptl::ptl ALIAS ptl)

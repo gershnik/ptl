@@ -25,7 +25,7 @@ with open(ROOT / "CHANGELOG.md", "rt") as change_log:
             )
         else:
             lines.append(line)
-    lines.append(f'[{NEW_VER}]: https://github.com/gershnik/wsdd-native/releases/v{NEW_VER}\n')
+    lines.append(f'[{NEW_VER}]: https://github.com/gershnik/ptl/releases/v{NEW_VER}\n')
 
 with open(ROOT / "CHANGELOG.md", "wt") as change_log:
     change_log.writelines(lines)

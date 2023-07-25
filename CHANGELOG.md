@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [0.4] - 2023-07-25
+
 ### Added
 - Additional socket calls: `bind`, `recvxxx`, `sendxx`, `getsockname`
 
@@ -24,3 +26,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 [0.2]: https://github.com/gershnik/ptl/releases/v0.2
 [0.3]: https://github.com/gershnik/ptl/releases/v0.3
+[0.4]: https://github.com/gershnik/ptl/releases/v0.4

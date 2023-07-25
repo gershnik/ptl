@@ -35,6 +35,7 @@ namespace ptl::inline v0 {
         using Socket = FileDescriptor;
 
         using socklen_t = ::socklen_t;
+        using sockio_size_t = ::size_t;
 
         namespace impl {
             using SocketOptionValueType = void;
@@ -108,6 +109,7 @@ namespace ptl::inline v0 {
         };
 
         using socklen_t = int;
+        using sockio_size_t = int;
 
         namespace impl {
             using SocketOptionValueType = char;
@@ -159,7 +161,7 @@ namespace ptl::inline v0 {
             clearError(PTL_ERROR_REF(err));
     }
 
-    inline auto receiveSocket(SocketLike auto && socket, void * buf, size_t length, int flags,
+    inline auto receiveSocket(SocketLike auto && socket, void * buf, sockio_size_t length, int flags,
                               PTL_ERROR_REF_ARG(err)) -> io_ssize_t 
     requires(PTL_ERROR_REQ(err)) {
         auto fd = c_socket(std::forward<decltype(socket)>(socket));
@@ -171,7 +173,7 @@ namespace ptl::inline v0 {
         return ret;
     }
 
-    inline auto receiveSocket(SocketLike auto && socket, void * buf, size_t length, int flags,
+    inline auto receiveSocket(SocketLike auto && socket, void * buf, sockio_size_t length, int flags,
                               sockaddr * address, socklen_t * address_len,
                               PTL_ERROR_REF_ARG(err)) -> io_ssize_t 
     requires(PTL_ERROR_REQ(err)) {
@@ -198,7 +200,7 @@ namespace ptl::inline v0 {
     }
     #endif
 
-    inline auto sendSocket(SocketLike auto && socket, const void * buf, size_t length, int flags,
+    inline auto sendSocket(SocketLike auto && socket, const void * buf, sockio_size_t length, int flags,
                            PTL_ERROR_REF_ARG(err)) -> io_ssize_t 
     requires(PTL_ERROR_REQ(err)) {
         auto fd = c_socket(std::forward<decltype(socket)>(socket));
@@ -210,7 +212,7 @@ namespace ptl::inline v0 {
         return ret;
     }
 
-    inline auto sendSocket(SocketLike auto && socket, const void * buf, size_t length, int flags,
+    inline auto sendSocket(SocketLike auto && socket, const void * buf, sockio_size_t length, int flags,
                            const sockaddr * dest_addr, socklen_t dest_len,
                            PTL_ERROR_REF_ARG(err)) -> io_ssize_t 
     requires(PTL_ERROR_REQ(err)) {

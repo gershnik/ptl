@@ -84,7 +84,8 @@ TEST_CASE( "read-write" , "[socket]") {
     bindSocket(recvSock, reinterpret_cast<sockaddr *>(&addr), addrLen);
     getSocketName(recvSock, reinterpret_cast<sockaddr *>(&addr), &addrLen);
     REQUIRE(addrLen == sizeof(addr));
-
+    REQUIRE(addr.sin_port != 0);
+    
     auto sendSock = createSocket(PF_INET, SOCK_DGRAM, 0);
 
     ptl::socklen_t sent;

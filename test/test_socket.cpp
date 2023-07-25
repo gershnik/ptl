@@ -78,7 +78,7 @@ TEST_CASE( "read-write" , "[socket]") {
     sockaddr_in addr = {};
     addr.sin_family = AF_INET;
     addr.sin_port = 0;
-    addr.sin_addr.s_addr = 0;
+    addr.sin_addr.s_addr = htonl(0x7F000001);
     ptl::socklen_t addrLen = sizeof(addr);
 
     bindSocket(recvSock, reinterpret_cast<sockaddr *>(&addr), addrLen);
@@ -88,17 +88,16 @@ TEST_CASE( "read-write" , "[socket]") {
     
     auto sendSock = createSocket(PF_INET, SOCK_DGRAM, 0);
 
-    ptl::socklen_t sent;
-    std::error_code ec;
     std::thread sender([&](){
-        sent = sendSocket(sendSock, "hello", 6, 0, reinterpret_cast<sockaddr *>(&addr), addrLen, ec);
+        std::error_code ec;
+        auto sent = sendSocket(sendSock, "hello", 6, 0, reinterpret_cast<sockaddr *>(&addr), addrLen, ec);
+        CHECK(!ec);
+        CHECK(sent == 6);
     });
     
     char buf[6];
     auto received = receiveSocket(recvSock, buf, sizeof(buf), 0);
-    sender.join();
-    CHECK(!ec);
-    CHECK(sent == 6);
     CHECK(received == 6);
-    CHECK(strcmp(buf, "hello") == 0);
+    CHECK(memcmp(buf, "hello", 6) == 0);
+    sender.join();
 }

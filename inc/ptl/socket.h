@@ -38,6 +38,7 @@ namespace ptl::inline v0 {
 
         namespace impl {
             using SocketOptionValueType = void;
+            using SocketBufferValueType = void;
         }
 
     #else
@@ -110,6 +111,7 @@ namespace ptl::inline v0 {
 
         namespace impl {
             using SocketOptionValueType = char;
+            using SocketBufferValueType = char;
         }
 
     #endif
@@ -134,6 +136,106 @@ namespace ptl::inline v0 {
             clearError(PTL_ERROR_REF(err));
         return ret;
     }
+
+    inline void bindSocket(SocketLike auto && socket, const sockaddr * address, socklen_t address_len,
+                           PTL_ERROR_REF_ARG(err))
+    requires(PTL_ERROR_REQ(err)) {
+        auto fd = c_socket(std::forward<decltype(socket)>(socket));
+        int res = ::bind(fd, address, address_len);
+        if (res != 0)
+            handleError(PTL_ERROR_REF(err), impl::getSocketError(), "bind({}) failed", fd);
+        else
+            clearError(PTL_ERROR_REF(err));
+    }
+
+    inline void getSocketName(SocketLike auto && socket, sockaddr * address, socklen_t * address_len,
+                              PTL_ERROR_REF_ARG(err))
+    requires(PTL_ERROR_REQ(err)) {
+        auto fd = c_socket(std::forward<decltype(socket)>(socket));
+        int res = ::getsockname(fd, address, address_len);
+        if (res != 0)
+            handleError(PTL_ERROR_REF(err), impl::getSocketError(), "getsockname({}) failed", fd);
+        else
+            clearError(PTL_ERROR_REF(err));
+    }
+
+    inline auto receiveSocket(SocketLike auto && socket, void * buf, io_size_t length, int flags,
+                              PTL_ERROR_REF_ARG(err)) -> io_ssize_t 
+    requires(PTL_ERROR_REQ(err)) {
+        auto fd = c_socket(std::forward<decltype(socket)>(socket));
+        auto ret = ::recv(fd, static_cast<impl::SocketBufferValueType *>(buf), length, flags);
+        if (ret < 0)
+            handleError(PTL_ERROR_REF(err), impl::getSocketError(), "recv({}, ,{}) failed", fd, length);
+        else
+            clearError(PTL_ERROR_REF(err));
+        return ret;
+    }
+
+    inline auto receiveSocket(SocketLike auto && socket, void * buf, io_size_t length, int flags,
+                              sockaddr * address, socklen_t * address_len,
+                              PTL_ERROR_REF_ARG(err)) -> io_ssize_t 
+    requires(PTL_ERROR_REQ(err)) {
+        auto fd = c_socket(std::forward<decltype(socket)>(socket));
+        auto ret = ::recvfrom(fd, static_cast<impl::SocketBufferValueType *>(buf), length, flags, address, address_len);
+        if (ret < 0)
+            handleError(PTL_ERROR_REF(err), impl::getSocketError(), "recvfrom({}, ,{}) failed", fd, length);
+        else
+            clearError(PTL_ERROR_REF(err));
+        return ret;
+    }
+
+    #ifndef _WIN32
+    inline auto receiveSocket(SocketLike auto && socket, msghdr * message, int flags,
+                              PTL_ERROR_REF_ARG(err)) -> io_ssize_t 
+    requires(PTL_ERROR_REQ(err)) {
+        auto fd = c_socket(std::forward<decltype(socket)>(socket));
+        auto ret = ::recvmsg(fd, message, flags);
+        if (ret < 0)
+            handleError(PTL_ERROR_REF(err), impl::getSocketError(), "recvmsg({}) failed", fd);
+        else
+            clearError(PTL_ERROR_REF(err));
+        return ret;
+    }
+    #endif
+
+    inline auto sendSocket(SocketLike auto && socket, const void * buf, io_size_t length, int flags,
+                           PTL_ERROR_REF_ARG(err)) -> io_ssize_t 
+    requires(PTL_ERROR_REQ(err)) {
+        auto fd = c_socket(std::forward<decltype(socket)>(socket));
+        auto ret = ::send(fd, static_cast<const impl::SocketBufferValueType *>(buf), length, flags);
+        if (ret < 0)
+            handleError(PTL_ERROR_REF(err), impl::getSocketError(), "send({}, ,{}) failed", fd, length);
+        else
+            clearError(PTL_ERROR_REF(err));
+        return ret;
+    }
+
+    inline auto sendSocket(SocketLike auto && socket, const void * buf, io_size_t length, int flags,
+                           const sockaddr * dest_addr, socklen_t dest_len,
+                           PTL_ERROR_REF_ARG(err)) -> io_ssize_t 
+    requires(PTL_ERROR_REQ(err)) {
+        auto fd = c_socket(std::forward<decltype(socket)>(socket));
+        auto ret = ::sendto(fd, static_cast<const impl::SocketBufferValueType *>(buf), length, flags, dest_addr, dest_len);
+        if (ret < 0)
+            handleError(PTL_ERROR_REF(err), impl::getSocketError(), "sendto({}, ,{}) failed", fd, length);
+        else
+            clearError(PTL_ERROR_REF(err));
+        return ret;
+    }
+
+    #ifndef _WIN32
+    inline auto sendSocket(SocketLike auto && socket, const msghdr * message, int flags,
+                           PTL_ERROR_REF_ARG(err)) -> io_ssize_t 
+    requires(PTL_ERROR_REQ(err)) {
+        auto fd = c_socket(std::forward<decltype(socket)>(socket));
+        auto ret = ::sendmsg(fd, message, flags);
+        if (ret < 0)
+            handleError(PTL_ERROR_REF(err), impl::getSocketError(), "sendmsg({}) failed", fd);
+        else
+            clearError(PTL_ERROR_REF(err));
+        return ret;
+    }
+    #endif
 
     inline void setSocketOption(SocketLike auto && socket, 
                                 int level, int option_name, const void * option_value, socklen_t option_len,

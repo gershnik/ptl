@@ -23,7 +23,7 @@ if (NOT HAVE_STD_FORMAT)
 
     FetchContent_Declare(fmt
         GIT_REPOSITORY  https://github.com/fmtlib/fmt
-        GIT_TAG         9.1.0
+        GIT_TAG         10.0.0
         GIT_SHALLOW     TRUE
         GIT_SUBMODULES_RECURSE FALSE
     )
@@ -55,6 +55,7 @@ PRIVATE
     fmt::fmt
     Catch2::Catch2
     $<$<BOOL:${WIN32}>:ws2_32.lib>
+    $<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<NOT:$<BOOL:${ANDROID}>>>:pthread>
 )
 
 target_compile_options(test

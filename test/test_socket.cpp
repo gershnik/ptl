@@ -90,14 +90,14 @@ TEST_CASE( "read-write" , "[socket]") {
     ptl::socklen_t sent;
     std::error_code ec;
     std::thread sender([&](){
-        sent = sendSocket(sendSock, "hello", 5, 0, reinterpret_cast<sockaddr *>(&addr), addrLen, ec);
+        sent = sendSocket(sendSock, "hello", 6, 0, reinterpret_cast<sockaddr *>(&addr), addrLen, ec);
     });
     
     char buf[6];
     auto received = receiveSocket(recvSock, buf, sizeof(buf), 0);
     sender.join();
     CHECK(!ec);
-    CHECK(sent == 5);
-    CHECK(received == 5);
+    CHECK(sent == 6);
+    CHECK(received == 6);
     CHECK(strcmp(buf, "hello") == 0);
 }

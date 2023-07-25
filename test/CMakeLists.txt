@@ -55,6 +55,7 @@ PRIVATE
     fmt::fmt
     Catch2::Catch2
     $<$<BOOL:${WIN32}>:ws2_32.lib>
+    $<$<NOT:$<BOOL:${WIN32}>>:pthread>
 )
 
 target_compile_options(test

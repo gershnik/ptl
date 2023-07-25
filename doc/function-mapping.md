@@ -11,6 +11,7 @@
 [system.h]:     ../inc/ptl/system.h
 [users.h]:      ../inc/ptl/users.h
 
+[bind()]:           https://pubs.opengroup.org/onlinepubs/9699919799/functions/bind.html
 [chdir()]:          https://pubs.opengroup.org/onlinepubs/9699919799/functions/chdir.html
 [chmod()]:          https://pubs.opengroup.org/onlinepubs/9699919799/functions/chmod.html
 [chown()]:          https://pubs.opengroup.org/onlinepubs/9699919799/functions/chown.html
@@ -30,6 +31,7 @@
 [gethostname()]:    https://pubs.opengroup.org/onlinepubs/9699919799/functions/gethostname.html
 [getpwnam_r()]:     https://pubs.opengroup.org/onlinepubs/9699919799/functions/getpwnam_r.html
 [getpwuid_r()]:     https://pubs.opengroup.org/onlinepubs/9699919799/functions/getpwuid_r.html
+[getsockname()]:    https://pubs.opengroup.org/onlinepubs/9699919799/functions/getsockname.html
 [getsockopt()]:     https://pubs.opengroup.org/onlinepubs/9699919799/functions/getsockopt.html
 [kill()]:           https://pubs.opengroup.org/onlinepubs/9699919799/functions/kill.html
 [lchown()]:         https://pubs.opengroup.org/onlinepubs/9699919799/functions/lchown.html
@@ -52,6 +54,12 @@
 [posix_spawnp()]:   https://pubs.opengroup.org/onlinepubs/9699919799/functions/posix_spawnp.html
 [raise()]:          https://pubs.opengroup.org/onlinepubs/9699919799/functions/raise.html
 [read()]:           https://pubs.opengroup.org/onlinepubs/9699919799/functions/read.html
+[recv()]:           https://pubs.opengroup.org/onlinepubs/9699919799/functions/recv.html
+[recvfrom()]:       https://pubs.opengroup.org/onlinepubs/9699919799/functions/recvfrom.html
+[recvmsg()]:        https://pubs.opengroup.org/onlinepubs/9699919799/functions/recvmsg.html
+[send()]:           https://pubs.opengroup.org/onlinepubs/9699919799/functions/send.html
+[sendto()]:         https://pubs.opengroup.org/onlinepubs/9699919799/functions/sendto.html
+[sendmsg()]:        https://pubs.opengroup.org/onlinepubs/9699919799/functions/sendmsg.html
 [setgid()]:         https://pubs.opengroup.org/onlinepubs/9699919799/functions/setgid.html
 [setegid()]:        https://pubs.opengroup.org/onlinepubs/9699919799/functions/setegid.html
 [seteuid()]:        https://pubs.opengroup.org/onlinepubs/9699919799/functions/seteuid.html
@@ -96,6 +104,7 @@
 
 | Name           | Exposed by                   | Header       | Availability
 |----------------|------------------------------|--------------|--------------
+|[bind()]        | `bindSocket()`               | [socket.h]   | 
 |[chdir()]       | `changeDirectory()`          | [file.h]     | 
 |[chmod()]       | `changeMode()`               | [file.h]     | 
 |[chown()]       | `changeOwner()`              | [file.h]     | 
@@ -116,6 +125,7 @@
 |[gethostname()] | `getHostName()`              | [system.h]   |
 |[getpwnam_r()]  | `Passwd::getByName()`        | [users.h]    |
 |[getpwuid_r()]  | `Passwd::getById()`          | [users.h]    |
+|[getsockname()] | `getSocketName()`            | [socket.h]   |
 |[getsockopt()]  | `getSocketOption()`          | [socket.h]   |
 |[kill()]        | `sendSignal()`               | [signal.h]   | 
 |`lchmod()`      | `changeLinkMode()`           | [file.h]     | [Mac][mkostemps-mac], [BSD][mkostemps-bsd]
@@ -141,6 +151,12 @@
 |[posix_spawnp()]| `spawn()`                    | [spawn.h]    | Mapped to `_spawnp()` on Win32
 |[raise()]       | `raiseSignal()`              | [signal.h]   | 
 |[read()]        | `readFile()`                 | [file.h]     | 
+|[recv()]        | `receiveSocket()`            | [socket.h]   |
+|[recvfrom()]    | `receiveSocket()`            | [socket.h]   | 
+|[recvmsg()]     | `receiveSocket()`            | [socket.h]   | 
+|[send()]        | `sendSocket()`               | [socket.h]   |
+|[sendto()]      | `sendSocket()`               | [socket.h]   |
+|[sendmsg()]     | `sendSocket()`               | [socket.h]   |
 |[setgid()]      | `setGid()`                   | [identity.h] |
 |[setegid()]     | `setEffectiveGid()`          | [identity.h] |
 |[seteuid()]     | `setEffectiveUid()`          | [identity.h] |

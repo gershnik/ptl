@@ -89,7 +89,6 @@ jobs:
     - name: Configure
       shell: cmd
       run: |
-          cmake -E make_directory out
           PATH=C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin;%PATH%
           cmake -G "MinGW Makefiles" -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo 
 
@@ -115,7 +114,6 @@ jobs:
       shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
       run: |
           cd ${GITHUB_WORKSPACE}
-          cmake -E make_directory out
           cmake -GNinja -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo 
 
     - name: Build

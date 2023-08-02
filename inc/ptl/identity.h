@@ -7,6 +7,7 @@
 #include <ptl/core.h>
 
 #include <utility>
+#include <span>
 
 #ifndef _WIN32
 
@@ -43,6 +44,50 @@ namespace ptl::inline v0 {
         else
             clearError(PTL_ERROR_REF(err));
     }
+    
+    auto getGroups(PTL_ERROR_REF_ARG(err)) -> std::vector<gid_t>
+    requires(PTL_ERROR_REQ(err)) {
+        std::vector<gid_t> ret;
+        for ( ; ; ) {
+            int res = ::getgroups(0, nullptr);
+            if (res < 0) {
+                handleError(PTL_ERROR_REF(err), errno, "getgroups(0, NULL) failed");
+                break;
+            } 
+            if (res > 0) {
+                ret.resize(res);
+                res = ::getgroups(int(ret.size()), ret.data());
+                if (res < 0) {
+                    int code = errno;
+                    if (code == EINVAL) {//avoiding TOCTOU
+                        ret.clear();
+                        continue;
+                    }
+                    handleError(PTL_ERROR_REF(err), code, "getgroups({}) failed", int(ret.size()));
+                    break;
+                }
+                ret.resize(res);
+            }
+            clearError(PTL_ERROR_REF(err));
+            break;
+        }
+        return ret;
+    }
+
+    #if PTL_HAVE_SETGROUPS
+
+    void setGroups(std::span<gid_t> groups, PTL_ERROR_REF_ARG(err)) 
+    requires(PTL_ERROR_REQ(err)) {
+        if (groups.size() > size_t(std::numeric_limits<int>::max()))
+            throwErrorCode(EINVAL, "number of groups: {} exceeds int", groups.size());
+
+        if (::setgroups(int(groups.size()), groups.data()) != 0) 
+            handleError(PTL_ERROR_REF(err), errno, "setgroups() failed");
+        else
+            clearError(PTL_ERROR_REF(err));
+    }
+
+    #endif
 
 }
 

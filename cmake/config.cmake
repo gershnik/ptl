@@ -17,6 +17,9 @@ set(CONFIG_CONTENT
 check_cxx_symbol_exists(execvpe unistd.h PTL_HAVE_EXECVPE)
 string(APPEND CONFIG_CONTENT "#cmakedefine01 PTL_HAVE_EXECVPE\n")
 
+check_cxx_symbol_exists(setgroups unistd.h PTL_HAVE_SETGROUPS)
+string(APPEND CONFIG_CONTENT "#cmakedefine01 PTL_HAVE_SETGROUPS\n")
+
 check_cxx_symbol_exists(posix_spawn_file_actions_addinherit_np spawn.h PTL_HAVE_POSIX_SPAWN_FILE_ACTIONS_ADDINHERIT_NP)
 string(APPEND CONFIG_CONTENT "#cmakedefine01 PTL_HAVE_POSIX_SPAWN_FILE_ACTIONS_ADDINHERIT_NP\n")
 

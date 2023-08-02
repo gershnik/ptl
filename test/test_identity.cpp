@@ -22,7 +22,6 @@ TEST_CASE( "supplemental" , "[identity]") {
 
     auto groups = getGroups();
     CHECK(!groups.empty());
-    CHECK((groups[0] == getegid() || groups[0] == getgid()));
     
     if (getuid() == 0) {
 

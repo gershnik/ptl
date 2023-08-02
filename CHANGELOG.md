@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [0.5] - 2023-08-02
+
 ### Added
 - Support for `getgroups`/`setgroups`
 
@@ -30,3 +32,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [0.2]: https://github.com/gershnik/ptl/releases/v0.2
 [0.3]: https://github.com/gershnik/ptl/releases/v0.3
 [0.4]: https://github.com/gershnik/ptl/releases/v0.4
+[0.5]: https://github.com/gershnik/ptl/releases/v0.5

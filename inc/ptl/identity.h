@@ -11,6 +11,8 @@
 
 #ifndef _WIN32
 
+#include <grp.h>
+
 namespace ptl::inline v0 {
 
     void setUid(uid_t uid, PTL_ERROR_REF_ARG(err))

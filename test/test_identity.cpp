@@ -21,9 +21,9 @@ TEST_CASE( "basics" , "[identity]") {
 TEST_CASE( "supplemental" , "[identity]") {
 
     auto groups = getGroups();
-    REQUIRE(!groups.empty());
-    CHECK(groups[0] == getegid());
-
+    CHECK(!groups.empty());
+    CHECK(std::find(groups.begin(), groups.end(), getegid()) != groups.end());
+    
     if (getuid() == 0) {
 
         auto pipe = Pipe::create();

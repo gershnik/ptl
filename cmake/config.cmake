@@ -17,9 +17,6 @@ set(CONFIG_CONTENT
 check_cxx_symbol_exists(execvpe unistd.h PTL_HAVE_EXECVPE)
 string(APPEND CONFIG_CONTENT "#cmakedefine01 PTL_HAVE_EXECVPE\n")
 
-check_cxx_symbol_exists(setgroups unistd.h PTL_HAVE_SETGROUPS)
-string(APPEND CONFIG_CONTENT "#cmakedefine01 PTL_HAVE_SETGROUPS\n")
-
 check_cxx_symbol_exists(posix_spawn_file_actions_addinherit_np spawn.h PTL_HAVE_POSIX_SPAWN_FILE_ACTIONS_ADDINHERIT_NP)
 string(APPEND CONFIG_CONTENT "#cmakedefine01 PTL_HAVE_POSIX_SPAWN_FILE_ACTIONS_ADDINHERIT_NP\n")
 
@@ -98,6 +95,19 @@ check_cxx_source_compiles("
     }"
 PTL_HAVE_IP_MREQ)
 string(APPEND CONFIG_CONTENT "#cmakedefine01 PTL_HAVE_IP_MREQ\n")
+
+check_cxx_source_compiles("
+    #include <sys/types.h>
+    #include <unistd.h>
+    #include <grp.h>
+
+    int main() {
+        gid_t groups[] = {1};
+        setgroups(0, groups);
+    }"
+PTL_HAVE_SETGROUPS)
+string(APPEND CONFIG_CONTENT "#cmakedefine01 PTL_HAVE_SETGROUPS\n")
+
 
 
 string(APPEND CONFIG_CONTENT "

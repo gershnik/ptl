@@ -96,6 +96,19 @@ check_cxx_source_compiles("
 PTL_HAVE_IP_MREQ)
 string(APPEND CONFIG_CONTENT "#cmakedefine01 PTL_HAVE_IP_MREQ\n")
 
+check_cxx_source_compiles("
+    #include <sys/types.h>
+    #include <unistd.h>
+    #include <grp.h>
+
+    int main() {
+        gid_t groups[] = {1};
+        setgroups(0, groups);
+    }"
+PTL_HAVE_SETGROUPS)
+string(APPEND CONFIG_CONTENT "#cmakedefine01 PTL_HAVE_SETGROUPS\n")
+
+
 
 string(APPEND CONFIG_CONTENT "
 #endif

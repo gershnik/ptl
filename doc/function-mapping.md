@@ -27,6 +27,7 @@
 [fstat()]:          https://pubs.opengroup.org/onlinepubs/9699919799/functions/fstat.html
 [ftruncate()]:      https://pubs.opengroup.org/onlinepubs/9699919799/functions/ftruncate.html
 [getgrnam_r()]:     https://pubs.opengroup.org/onlinepubs/9699919799/functions/getgrnam_r.html
+[getgroups()]:      https://pubs.opengroup.org/onlinepubs/9699919799/functions/getgroups.html
 [getgruid_r()]:     https://pubs.opengroup.org/onlinepubs/9699919799/functions/getgruid_r.html
 [gethostname()]:    https://pubs.opengroup.org/onlinepubs/9699919799/functions/gethostname.html
 [getpwnam_r()]:     https://pubs.opengroup.org/onlinepubs/9699919799/functions/getpwnam_r.html
@@ -86,11 +87,13 @@
 [execvpe]:          https://man7.org/linux/man-pages/man3/execvpe.3.html
 [flock-lin]:        https://man7.org/linux/man-pages/man2/flock.2.html
 [mkostemps-lin]:    https://man7.org/linux/man-pages/man3/mkstemp.3.html
+[setgroups-lin]:    https://man7.org/linux/man-pages/man2/getgroups.2.html
 [sigabbrev_np()]:   https://man7.org/linux/man-pages/man3/sigabbrev_np.3.html
 
 [flock-mac]:        https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/flock.2.html
 [lchmod-mac]:       https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man3/lchmod.3.html
 [mkostemps-mac]:    https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man3/mkstemp.3.html
+[setgroups-mac]:    https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/setgroups.2.html
 
 [flock-bsd]:        https://man.freebsd.org/cgi/man.cgi?query=flock
 [lchmod-bsd]:       https://man.freebsd.org/cgi/man.cgi?query=lchmod
@@ -98,6 +101,7 @@
 [sys_signame]:      https://man.freebsd.org/cgi/man.cgi?query=sys_signame
 [posix_spawn_file_actions_addclosefrom_np]: https://man.freebsd.org/cgi/man.cgi?query=posix_spawn_file_actions_addclosefrom_np
 [posix_spawn_file_actions_addchdir_np]: https://man.freebsd.org/cgi/man.cgi?query=posix_spawn_file_actions_addchdir_np
+[setgroups-bsd]:    https://man.freebsd.org/cgi/man.cgi?query=setgroups
 
 <!-- Links -->
 
@@ -121,6 +125,7 @@
 |[fstat()]       | `getStatus()`                | [file.h]     |
 |[ftruncate()]   | `truncateFile()`             | [file.h]     |
 |[getgrnam_r()]  | `Group::getByName()`         | [users.h]    |
+|[getgroups()]   | `getGroups()`                | [identity.h] |
 |[getgruid_r()]  | `Group::getById()`           | [users.h]    |
 |[gethostname()] | `getHostName()`              | [system.h]   |
 |[getpwnam_r()]  | `Passwd::getByName()`        | [users.h]    |
@@ -160,6 +165,7 @@
 |[setgid()]      | `setGid()`                   | [identity.h] |
 |[setegid()]     | `setEffectiveGid()`          | [identity.h] |
 |[seteuid()]     | `setEffectiveUid()`          | [identity.h] |
+|[setgroups()]   | `setGroups()`                | [identity.h] | [Linux][setgroups-lin], [Mac][setgroups-mac], [BSD][setgroups-bsd]
 |[setpgid()]     | `setProcessGroupId()`        | [process.h]  |
 |[setsid()]      | `setSessionId()`             | [process.h]  |
 |[setsockopt()]  | `setSocketOption()`          | [socket.h]   |

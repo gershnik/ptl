@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
+
+## [0.6] - 2023-10-17
 ### Fixed
 - Portability fixes for usage with fmt lib
 
@@ -35,3 +37,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [0.3]: https://github.com/gershnik/ptl/releases/v0.3
 [0.4]: https://github.com/gershnik/ptl/releases/v0.4
 [0.5]: https://github.com/gershnik/ptl/releases/v0.5
+[0.6]: https://github.com/gershnik/ptl/releases/v0.6

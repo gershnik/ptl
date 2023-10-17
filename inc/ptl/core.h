@@ -103,7 +103,11 @@ namespace ptl::inline v0 {
         #else
             using ::fmt::format;
             using ::fmt::vformat;
-            using ::fmt::make_format_args;
+            template <typename Context = ::fmt::format_context, typename... T>
+            constexpr auto make_format_args(T&&... args)
+                -> ::fmt::format_arg_store<Context, std::remove_cvref_t<T>...> {
+                return {args...};
+            }
         #endif
     }
 

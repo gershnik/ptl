@@ -14,6 +14,10 @@
     #include <sys/wait.h>
 #endif
 
+#ifdef _WIN32
+#include <process.h>
+#endif
+
 namespace ptl::inline v0 {
 
     #if defined(_WIN32) && !defined(__MINGW32__)

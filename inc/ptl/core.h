@@ -161,7 +161,7 @@ namespace ptl::inline v0 {
                 throw std::system_error(makeErrorCode(err));
         #endif
         throw std::system_error(makeErrorCode(err),
-                                impl::vformat(format, impl::make_format_args(std::forward<T>(args)...)));
+                                impl::vformat(format, impl::make_format_args(args...)));
     }
 
     template<class... T>

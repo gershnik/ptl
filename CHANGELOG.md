@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.0] - 2024-04-20
+
 ### Fixed
 - Build break with GCC 14
 - Build Break with Visual Studio 17.9
@@ -45,3 +47,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [0.4]: https://github.com/gershnik/ptl/releases/v0.4
 [0.5]: https://github.com/gershnik/ptl/releases/v0.5
 [0.6]: https://github.com/gershnik/ptl/releases/v0.6
+[1.0]: https://github.com/gershnik/ptl/releases/v1.0

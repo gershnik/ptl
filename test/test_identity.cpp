@@ -5,20 +5,20 @@
 #include <ptl/spawn.h>
 #include <ptl/file.h>
 
-#include <catch2/catch_test_macros.hpp>
-
 #include "common.h"
 
 using namespace ptl;
 
 #ifndef _WIN32
 
-TEST_CASE( "basics" , "[identity]") {
+TEST_SUITE("identity") {
+
+TEST_CASE( "basics") {
 
     //Hmmm, how to test it...
 }
 
-TEST_CASE( "supplemental" , "[identity]") {
+TEST_CASE( "supplemental") {
 
     auto groups = getGroups();
     CHECK(!groups.empty());
@@ -53,6 +53,8 @@ TEST_CASE( "supplemental" , "[identity]") {
         child.wait();
         
     }
+}
+
 }
 
 #endif

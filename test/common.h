@@ -6,25 +6,18 @@
 
 #include <ptl/errors.h>
 
-#include <catch2/matchers/catch_matchers_templated.hpp>
+#include <doctest.h>
 
-struct SystemErrorMatcher : Catch::Matchers::MatcherGenericBase {
-    SystemErrorMatcher(std::errc code): m_code(code)
-    {}
+#define CHECK_THROWS_MATCHES(expr, err_code) \
+    try { \
+        expr; \
+        FAIL("expected exception not thrown"); \
+    } catch(std::system_error & ex) { \
+        CHECK(ptl::errorEquals(ex.code(), (err_code))); \
+    } catch (...) { \
+        FAIL("exception thrown of a wrong type"); \
+    } 
 
-    bool match(const std::system_error & ex) const 
-        { return ptl::errorEquals(ex.code(), m_code); }
-
-    std::string describe() const override 
-        { return "Equals: " + std::make_error_code(m_code).message(); }
-
-private:
-    std::errc m_code;
-};
-
-inline auto equalsSystemError(std::errc code) -> SystemErrorMatcher {
-    return SystemErrorMatcher(code);
-}
 
 auto readAll(const auto & readable) -> std::string {
     std::string res;

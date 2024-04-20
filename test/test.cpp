@@ -1,9 +1,12 @@
 // Copyright (c) 2023, Eugene Gershnik
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <catch2/catch_session.hpp>
+#define DOCTEST_CONFIG_IMPLEMENT
+
+#include <doctest.h>
 
 #ifdef _WIN32
+#include <winsock2.h>
 #include <windows.h>
 #include <io.h>
 #define umask _umask
@@ -28,5 +31,5 @@ int main(int argc, char ** argv)
         setSignalAction(SIGCHLD, act);
     #endif
 
-    return Catch::Session().run( argc, argv );
+    return doctest::Context(argc, argv).run();
 }

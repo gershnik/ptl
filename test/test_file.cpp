@@ -3,17 +3,18 @@
 
 #include <ptl/file.h>
 
-#include <catch2/catch_test_macros.hpp>
 
 #include "common.h"
 
 using namespace ptl;
 
-TEST_CASE( "open file" , "[file_descriptor]") {
+TEST_SUITE("file_descriptor") {
+
+TEST_CASE( "open file") {
 
     CHECK_THROWS_MATCHES([]() {
         auto fd = FileDescriptor::open("nonexistant", O_RDONLY);
-    }(), std::system_error, equalsSystemError(std::errc::no_such_file_or_directory));
+    }(), std::errc::no_such_file_or_directory);
 
     std::error_code ec;
     auto fd = FileDescriptor::open("nonexistant", O_RDONLY, ec);
@@ -28,7 +29,7 @@ TEST_CASE( "open file" , "[file_descriptor]") {
 
 #ifndef _WIN32
 
-TEST_CASE("chmod", "[file_descriptor]") {
+TEST_CASE("chmod") {
 
     std::error_code ec;
     std::filesystem::remove("test_file", ec);
@@ -65,5 +66,7 @@ TEST_CASE("chmod", "[file_descriptor]") {
     }
 }
 
+
 #endif
 
+}

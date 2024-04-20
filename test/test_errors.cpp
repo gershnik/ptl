@@ -4,13 +4,13 @@
 #include <ptl/errors.h>
 #include <ptl/file.h>
 
-#include <catch2/catch_test_macros.hpp>
-
 #include "common.h"
 
 using namespace ptl;
 
-TEST_CASE( "allowed" , "[errors]") {
+TEST_SUITE("errors") {
+
+TEST_CASE( "allowed" ) {
 
     {
         AllowedErrors<ENOENT, EDOM> ec;
@@ -22,6 +22,8 @@ TEST_CASE( "allowed" , "[errors]") {
         CHECK_THROWS_MATCHES([]() {
             AllowedErrors<EDOM> ec;
             auto fd = FileDescriptor::open("nonexistant", O_RDONLY, ec);
-        }(), std::system_error, equalsSystemError(std::errc::no_such_file_or_directory));
+        }(), std::errc::no_such_file_or_directory);
     }
+}
+
 }

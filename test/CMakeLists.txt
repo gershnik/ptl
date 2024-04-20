@@ -29,13 +29,12 @@ if (NOT HAVE_STD_FORMAT)
     )
     list(APPEND DECLARED_DEPENDENCIES fmt)
 
-    FetchContent_Declare(Catch2
-        GIT_REPOSITORY  https://github.com/catchorg/Catch2.git
-        GIT_TAG         v3.3.2
-        GIT_SHALLOW     TRUE
-        GIT_SUBMODULES_RECURSE FALSE
+    FetchContent_Declare(doctest
+        URL  https://raw.githubusercontent.com/doctest/doctest/v2.4.11/doctest/doctest.h
+        DOWNLOAD_NO_EXTRACT TRUE
     )
-    list(APPEND DECLARED_DEPENDENCIES Catch2)
+
+    list(APPEND DECLARED_DEPENDENCIES doctest)
 
     FetchContent_MakeAvailable(${DECLARED_DEPENDENCIES})
 
@@ -53,9 +52,13 @@ target_link_libraries(test
 PRIVATE
     ptl::ptl
     fmt::fmt
-    Catch2::Catch2
     $<$<BOOL:${WIN32}>:ws2_32.lib>
     $<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<NOT:$<BOOL:${ANDROID}>>>:pthread>
+)
+
+target_include_directories(test
+PRIVATE
+    ${doctest_SOURCE_DIR}
 )
 
 target_compile_options(test

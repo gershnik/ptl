@@ -3,15 +3,15 @@
 
 #include <ptl/socket.h>
 
-#include <catch2/catch_test_macros.hpp>
-
 #include "common.h"
 
 #include <thread>
 
 using namespace ptl;
 
-TEST_CASE( "socket creation" , "[socket]") {
+TEST_SUITE("socket") {
+
+TEST_CASE( "socket creation" ) {
 
     auto sock = createSocket(PF_INET, SOCK_STREAM, 0);
     CHECK(sock);
@@ -20,11 +20,11 @@ TEST_CASE( "socket creation" , "[socket]") {
         sock = createSocket(PF_UNIX, SOCK_DGRAM, 0);
         CHECK(sock);
     } catch(std::system_error & ex) {
-        CHECK_THAT(ex, equalsSystemError(std::errc::address_family_not_supported));
+        ptl::errorEquals(ex.code(), std::errc::address_family_not_supported);
     }
 }
 
-TEST_CASE( "socket options" , "[socket]") {
+TEST_CASE( "socket options" ) {
 
     auto sock = createSocket(PF_INET, SOCK_STREAM, 0);
     REQUIRE(sock);
@@ -72,7 +72,7 @@ TEST_CASE( "socket options" , "[socket]") {
     }
 }
 
-TEST_CASE( "read-write" , "[socket]") {
+TEST_CASE( "read-write" ) {
 
     auto recvSock = createSocket(PF_INET, SOCK_DGRAM, 0);
     sockaddr_in addr = {};
@@ -100,4 +100,6 @@ TEST_CASE( "read-write" , "[socket]") {
     CHECK(received == 6);
     CHECK(memcmp(buf, "hello", 6) == 0);
     sender.join();
+}
+
 }

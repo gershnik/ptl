@@ -5,24 +5,24 @@
 
 #include <limits.h>
 
-#include <catch2/catch_test_macros.hpp>
-
 #include "common.h"
 
 using namespace ptl;
 
 #ifndef _WIN32
 
-TEST_CASE( "sysconf" , "[system]") {
+TEST_SUITE("system") {
+
+TEST_CASE( "sysconf" ) {
 
     auto res = ptl::systemConfig(_SC_OPEN_MAX);
     REQUIRE(res);
     CHECK(*res >= _POSIX_OPEN_MAX);
 
-    CHECK_THROWS_MATCHES(ptl::systemConfig(32765), std::system_error, equalsSystemError(std::errc::invalid_argument));
+    CHECK_THROWS_MATCHES(ptl::systemConfig(32765), std::errc::invalid_argument);
 }
 
-TEST_CASE( "gethostname" , "[system]") {
+TEST_CASE( "gethostname" ) {
 
     auto hostname = shell({"hostname"});
 
@@ -45,5 +45,6 @@ TEST_CASE( "gethostname" , "[system]") {
     CHECK(str == hostname);
 }
 
+}
 
 #endif

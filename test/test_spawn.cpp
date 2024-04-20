@@ -4,48 +4,50 @@
 #include <ptl/spawn.h>
 #include <ptl/signal.h>
 
-#include <catch2/catch_test_macros.hpp>
-
 #include "common.h"
+
+#include <array>
 
 using namespace ptl;
 
+TEST_SUITE("spawn") {
+
 #if !defined(__ANDROID__) || (defined(__ANDROID__) && __ANDROID_API__ >= 28)
 
-TEST_CASE( "spawn signatures" , "[spawn]") {
+TEST_CASE( "spawn signatures" ) {
 
     const char * dummyArgs[] = {
        "abc"
     };
 
-    STATIC_CHECK(std::is_same_v<ChildProcess, decltype(spawn("abc", dummyArgs, SpawnSettings()))>);
-    STATIC_CHECK(std::is_same_v<ChildProcess, decltype(spawn("abc", dummyArgs))>);
-    STATIC_CHECK(std::is_same_v<ChildProcess, decltype(spawn(dummyArgs))>);
-    STATIC_CHECK(std::is_same_v<ChildProcess, decltype(spawn(dummyArgs, SpawnSettings()))>);
+    static_assert(std::is_same_v<ChildProcess, decltype(spawn("abc", dummyArgs, SpawnSettings()))>);
+    static_assert(std::is_same_v<ChildProcess, decltype(spawn("abc", dummyArgs))>);
+    static_assert(std::is_same_v<ChildProcess, decltype(spawn(dummyArgs))>);
+    static_assert(std::is_same_v<ChildProcess, decltype(spawn(dummyArgs, SpawnSettings()))>);
 
     std::vector<std::string> dummyVec = {"abc"};
 
-    STATIC_CHECK(std::is_same_v<ChildProcess, decltype(spawn("abc", dummyVec, SpawnSettings()))>);
-    STATIC_CHECK(std::is_same_v<ChildProcess, decltype(spawn("abc", dummyVec))>);
-    STATIC_CHECK(std::is_same_v<ChildProcess, decltype(spawn(dummyVec))>);
-    STATIC_CHECK(std::is_same_v<ChildProcess, decltype(spawn(dummyVec, SpawnSettings()))>);
+    static_assert(std::is_same_v<ChildProcess, decltype(spawn("abc", dummyVec, SpawnSettings()))>);
+    static_assert(std::is_same_v<ChildProcess, decltype(spawn("abc", dummyVec))>);
+    static_assert(std::is_same_v<ChildProcess, decltype(spawn(dummyVec))>);
+    static_assert(std::is_same_v<ChildProcess, decltype(spawn(dummyVec, SpawnSettings()))>);
 
     std::array dummyArr = {"abc"};
 
-    STATIC_CHECK(std::is_same_v<ChildProcess, decltype(spawn("abc", dummyArr, SpawnSettings()))>);
-    STATIC_CHECK(std::is_same_v<ChildProcess, decltype(spawn("abc", dummyArr))>);
-    STATIC_CHECK(std::is_same_v<ChildProcess, decltype(spawn(dummyArr))>);
-    STATIC_CHECK(std::is_same_v<ChildProcess, decltype(spawn(dummyArr, SpawnSettings()))>);
+    static_assert(std::is_same_v<ChildProcess, decltype(spawn("abc", dummyArr, SpawnSettings()))>);
+    static_assert(std::is_same_v<ChildProcess, decltype(spawn("abc", dummyArr))>);
+    static_assert(std::is_same_v<ChildProcess, decltype(spawn(dummyArr))>);
+    static_assert(std::is_same_v<ChildProcess, decltype(spawn(dummyArr, SpawnSettings()))>);
 
-    STATIC_CHECK(std::is_same_v<ChildProcess, decltype(spawn("abc", {"xyz"}, SpawnSettings()))>);
-    STATIC_CHECK(std::is_same_v<ChildProcess, decltype(spawn("abc", {"xyz"}))>);
-    STATIC_CHECK(std::is_same_v<ChildProcess, decltype(spawn({"xyz"}))>);
-    STATIC_CHECK(std::is_same_v<ChildProcess, decltype(spawn({"xyz"}, SpawnSettings()))>);
+    static_assert(std::is_same_v<ChildProcess, decltype(spawn("abc", {"xyz"}, SpawnSettings()))>);
+    static_assert(std::is_same_v<ChildProcess, decltype(spawn("abc", {"xyz"}))>);
+    static_assert(std::is_same_v<ChildProcess, decltype(spawn({"xyz"}))>);
+    static_assert(std::is_same_v<ChildProcess, decltype(spawn({"xyz"}, SpawnSettings()))>);
 
-    STATIC_CHECK(std::is_same_v<ChildProcess, decltype(spawn("abc", {"xyz"}, {"env1"}, SpawnSettings()))>);
-    STATIC_CHECK(std::is_same_v<ChildProcess, decltype(spawn("abc", {"xyz"}, {"env1"}))>);
-    STATIC_CHECK(std::is_same_v<ChildProcess, decltype(spawn({"xyz"}, {"env1"}))>);
-    STATIC_CHECK(std::is_same_v<ChildProcess, decltype(spawn({"xyz"}, {"env1"}, SpawnSettings()))>);
+    static_assert(std::is_same_v<ChildProcess, decltype(spawn("abc", {"xyz"}, {"env1"}, SpawnSettings()))>);
+    static_assert(std::is_same_v<ChildProcess, decltype(spawn("abc", {"xyz"}, {"env1"}))>);
+    static_assert(std::is_same_v<ChildProcess, decltype(spawn({"xyz"}, {"env1"}))>);
+    static_assert(std::is_same_v<ChildProcess, decltype(spawn({"xyz"}, {"env1"}, SpawnSettings()))>);
 
 }
 
@@ -55,7 +57,7 @@ TEST_CASE( "spawn signatures" , "[spawn]") {
 
 #if !defined(__ANDROID__) || (defined(__ANDROID__) && __ANDROID_API__ >= 28)
 
-TEST_CASE( "spawn" , "[spawn]") {
+TEST_CASE( "spawn" ) {
 
     #ifndef __ANDROID__ //Android doesn't error on invalid executable, it simply fork/execs so you can only wait on child and see
 
@@ -80,7 +82,7 @@ TEST_CASE( "spawn" , "[spawn]") {
         auto proc = spawn({exe.c_str(), args...}, ec);
     };
 
-    CHECK_THROWS_MATCHES(launch("no_such_exe", "-c", "ls"), std::system_error, equalsSystemError(std::errc::no_such_file_or_directory));
+    CHECK_THROWS_MATCHES(launch("no_such_exe", "-c", "ls"), std::errc::no_such_file_or_directory);
     CHECK_NOTHROW(launch("/bin/sh", "-c", "ls"));
     std::error_code ec;
     CHECK_NOTHROW(launchEc(ec, "no_such_exe", "-c", "ls"));
@@ -118,7 +120,7 @@ TEST_CASE( "spawn" , "[spawn]") {
 #endif //ANDROID version check
 
 
-TEST_CASE( "fork_exec" , "[spawn]") {
+TEST_CASE( "fork_exec" ) {
 
     auto [read, write] = Pipe::create();
 
@@ -151,7 +153,7 @@ TEST_CASE( "fork_exec" , "[spawn]") {
 
 #else
 
-TEST_CASE( "spawn" , "[spawn]") {
+TEST_CASE( "spawn" ) {
 
     auto launch = [](std::filesystem::path exe, auto && ...args) {
         auto proc = spawn({exe.string().c_str(), args...});
@@ -161,7 +163,7 @@ TEST_CASE( "spawn" , "[spawn]") {
         auto proc = spawn({exe.string().c_str(), args...}, ec);
     };
 
-    CHECK_THROWS_MATCHES(launch("no_such_exe", "/c", "dir"), std::system_error, equalsSystemError(std::errc::no_such_file_or_directory));
+    CHECK_THROWS_MATCHES(launch("no_such_exe", "/c", "dir"), std::errc::no_such_file_or_directory);
     CHECK_NOTHROW(launch("C:\\Windows\\System32\\cmd.exe", "/c", "dir >nul:"));
     std::error_code ec;
     CHECK_NOTHROW(launchEc(ec, "no_such_exe", "/c", "dir"));
@@ -192,3 +194,5 @@ TEST_CASE( "spawn" , "[spawn]") {
 }
 
 #endif
+
+}

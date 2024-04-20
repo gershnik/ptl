@@ -3,8 +3,6 @@
 
 #include <ptl/users.h>
 
-#include <catch2/catch_test_macros.hpp>
-
 #include "common.h"
 
 using namespace ptl;
@@ -31,7 +29,9 @@ static auto getMyself() -> const UserInfo & {
     return theInfo;
 }
 
-TEST_CASE( "user by name" , "[users]") {
+TEST_SUITE("users") {
+
+TEST_CASE( "user by name" ) {
 
     auto & myself = getMyself();
 
@@ -55,7 +55,7 @@ TEST_CASE( "user by name" , "[users]") {
     CHECK(!ec);
 }
 
-TEST_CASE( "user by id" , "[users]") {
+TEST_CASE( "user by id" ) {
 
     auto & myself = getMyself();
 
@@ -81,7 +81,7 @@ TEST_CASE( "user by id" , "[users]") {
 
 #if !defined(__ANDROID__) || (defined(__ANDROID__) && __ANDROID_API__ >= 24)
 
-TEST_CASE( "group by name and id" , "[users]") {
+TEST_CASE( "group by name and id" ) {
 
     auto & myself = getMyself();
 
@@ -123,5 +123,7 @@ TEST_CASE( "group by name and id" , "[users]") {
 }
 
 #endif //ANDROID check
+
+}
 
 #endif

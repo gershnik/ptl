@@ -3,13 +3,13 @@
 
 #include <ptl/signal.h>
 
-#include <catch2/catch_test_macros.hpp>
-
 #include "common.h"
 
 using namespace ptl;
 
-TEST_CASE( "signal name" , "[signal]") {
+TEST_SUITE("signal") {
+
+TEST_CASE( "signal name" ) {
     #ifndef _WIN32
         CHECK(signalName(SIGINT) == "INT");
         CHECK(signalName(SIGKILL) == "KILL");
@@ -21,7 +21,7 @@ TEST_CASE( "signal name" , "[signal]") {
 
 static int handledSig = 0;
 
-TEST_CASE( "simple handler", "[signal]") {
+TEST_CASE( "simple handler" ) {
     #ifndef _WIN32
         constexpr int signo = SIGUSR1;
     #else
@@ -42,7 +42,7 @@ TEST_CASE( "simple handler", "[signal]") {
 }
 
 #ifndef _WIN32
-TEST_CASE( "action handler", "[signal]") {
+TEST_CASE( "action handler" ) {
 
     auto handler = [](int sig, siginfo_t *, void *) {
         handledSig = sig;
@@ -64,3 +64,5 @@ TEST_CASE( "action handler", "[signal]") {
     }
 }
 #endif
+
+}

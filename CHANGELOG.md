@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Fixed
+- Build break with GCC 14
+- Build Break with Visual Studio 17.9
+
+### Changed
+- Unit tests now use Doctest instead of Catch2
+
 ## [0.6] - 2023-10-17
 ### Fixed
 - Portability fixes for usage with fmt lib

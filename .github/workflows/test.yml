@@ -56,15 +56,24 @@ jobs:
         - os: ubuntu-latest
           cc: gcc-13
           cxx: g++-13
-        - os: ubuntu-latest
-          cc: clang-13
-          cxx: clang++-13
-        - os: ubuntu-latest
-          cc: clang-14
-          cxx: clang++-14
+        # - os: ubuntu-latest
+        #   cc: gcc-14
+        #   cxx: g++-14
+        # - os: ubuntu-latest
+        #   cc: clang-13
+        #   cxx: clang++-13
+        # - os: ubuntu-latest
+        #   cc: clang-14
+        #   cxx: clang++-14
         - os: ubuntu-latest
           cc: clang-15
           cxx: clang++-15
+        - os: ubuntu-latest
+          cc: clang-16
+          cxx: clang++-16
+        - os: ubuntu-latest
+          cc: clang-17
+          cxx: clang++-17
     
     steps:
     - name: Checkout
@@ -79,9 +88,26 @@ jobs:
             sudo apt-get install -y clang-15 clang++-15
           fi
 
+          if [[ '${{ matrix.cc }}' == 'clang-16' ]]; then
+            wget https://apt.llvm.org/llvm.sh
+            chmod u+x llvm.sh
+            sudo ./llvm.sh 16
+          fi
+
+          if [[ '${{ matrix.cc }}' == 'clang-17' ]]; then
+            wget https://apt.llvm.org/llvm.sh
+            chmod u+x llvm.sh
+            sudo ./llvm.sh 17
+          fi
+
           if [[ '${{ matrix.cc }}' == 'gcc-13' ]]; then
             sudo apt-get update
             sudo apt-get install -y gcc-13 g++-13
+          fi
+
+          if [[ '${{ matrix.cc }}' == 'gcc-14' ]]; then
+            sudo apt-get update
+            sudo apt-get install -y gcc-14 g++-14
           fi
         fi
 

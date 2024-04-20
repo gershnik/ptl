@@ -84,7 +84,7 @@ include(FetchContent)
 ...
 FetchContent_Declare(ptl
     GIT_REPOSITORY  https://github.com/gershnik/ptl.git
-    GIT_TAG         v0.1  #use the tag, branch or sha you need
+    GIT_TAG         v1.0  #use the tag, branch or sha you need
     GIT_SHALLOW     TRUE
 )
 ...

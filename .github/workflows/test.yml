@@ -20,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        remote_host: [freebsd-13.1]
+        remote_host: [freebsd-13.1, freebsd-14]
         
     steps:
     - name: Run remote build

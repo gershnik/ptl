@@ -165,7 +165,7 @@
 |[setgid()]      | `setGid()`                   | [identity.h] |
 |[setegid()]     | `setEffectiveGid()`          | [identity.h] |
 |[seteuid()]     | `setEffectiveUid()`          | [identity.h] |
-|[setgroups()]   | `setGroups()`                | [identity.h] | [Linux][setgroups-lin], [Mac][setgroups-mac], [BSD][setgroups-bsd]
+|`setgroups()`   | `setGroups()`                | [identity.h] | [Linux][setgroups-lin], [Mac][setgroups-mac], [BSD][setgroups-bsd]
 |[setpgid()]     | `setProcessGroupId()`        | [process.h]  |
 |[setsid()]      | `setSessionId()`             | [process.h]  |
 |[setsockopt()]  | `setSocketOption()`          | [socket.h]   |

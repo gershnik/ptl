@@ -59,7 +59,9 @@ TEST_CASE( "spawn signatures" ) {
 
 TEST_CASE( "spawn" ) {
 
-    #ifndef __ANDROID__ //Android doesn't error on invalid executable, it simply fork/execs so you can only wait on child and see
+    //Android and OpenBSD don't error on invalid executable, 
+    //they simply fork/execs so you can only wait on child and "see"
+    #if !defined(__ANDROID__) && !defined(__OpenBSD__) 
 
     auto launch = [](std::filesystem::path exe, auto && ...args) {
         SpawnFileActions act;

@@ -38,7 +38,9 @@ namespace ptl::inline v0 {
         #else
             using ::open;
             using ::close;
-            using ::fileno;
+            #ifndef fileno
+                using ::fileno;
+            #endif
             using ::read;
             using ::write;
             using ::dup;
@@ -150,8 +152,13 @@ namespace ptl::inline v0 {
             { return fd.get();}
     };
     template<> struct FileDescriptorTraits<FILE *> {
-        [[gnu::always_inline]] static int c_fd(FILE * fp) noexcept
-            { return impl::fileno(fp);}
+        [[gnu::always_inline]] static int c_fd(FILE * fp) noexcept { 
+            #ifdef fileno
+                return fileno(fp);
+            #else
+                return impl::fileno(fp);
+            #endif
+        }
     };
 
     struct Pipe {

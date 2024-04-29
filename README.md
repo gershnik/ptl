@@ -29,7 +29,7 @@ A C++ library for Posix and related calls.
 <!-- /TOC -->
 
 ## Purpose
-Every time a C++ developer needs to issue some standard system call on Linux/Mac/FreeBSD he has to deal with the same old, same old annoying chores. You need to figure out its error reporting strategy (very often there are some peculiarities and gotchas to specific calls!) and adapt it to C++. You need to convert the arguments from C++ to the form required by the call and do the reverse for output. Sometimes it is as easy as `.c_str()`, sometimes much more convoluted. If there is a do/undo semantics one needs to create a RAII class yet again and figure out all the little details that go with it. 
+Every time a C++ developer needs to issue some standard system call on Linux/Mac/FreeBSD/OpenBSD he has to deal with the same old, same old annoying chores. You need to figure out its error reporting strategy (very often there are some peculiarities and gotchas to specific calls!) and adapt it to C++. You need to convert the arguments from C++ to the form required by the call and do the reverse for output. Sometimes it is as easy as `.c_str()`, sometimes much more convoluted. If there is a do/undo semantics one needs to create a RAII class yet again and figure out all the little details that go with it. 
 
 There is, unfortunately, nothing in C++ like Python's `os` module. The standard library steadfastly refuses to provide OS-specific calls and want everything to be fully portable. 
 This is extremely annoying, and, since I couldn't find an existing library that addressed this problem to my satisfaction, I've decided to create this one.

@@ -9,14 +9,19 @@
 #include <doctest.h>
 
 #define CHECK_THROWS_MATCHES(expr, err_code) \
-    try { \
-        expr; \
-        FAIL("expected exception not thrown"); \
-    } catch(std::system_error & ex) { \
-        CHECK(ptl::errorEquals(ex.code(), (err_code))); \
-    } catch (...) { \
-        FAIL("exception thrown of a wrong type"); \
-    } 
+    { \
+        bool succeeded = false; \
+        try { \
+            expr; \
+            succeeded = true; \
+        } catch(std::system_error & ex) { \
+            CHECK(ptl::errorEquals(ex.code(), (err_code))); \
+        } catch (...) { \
+            FAIL("exception thrown of a wrong type"); \
+        } \
+        if (succeeded) \
+            FAIL("expected exception not thrown"); \
+    }
 
 
 auto readAll(const auto & readable) -> std::string {

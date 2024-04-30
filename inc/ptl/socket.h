@@ -269,6 +269,13 @@ namespace ptl::inline v0 {
                                 PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
         if constexpr (std::is_same_v<T, bool>) {
+            #if defined(__OpenBSD__)
+                if (option_name == IP_MULTICAST_TTL || option_name == IP_MULTICAST_LOOP) {
+                    const u_char val = u_char(value);
+                    setSocketOption(std::forward<decltype(socket)>(socket), level, option_name, &val, socklen_t(sizeof(val)), PTL_ERROR_REF(err));
+                    return;
+                }
+            #endif
             const int val = value;
             setSocketOption(std::forward<decltype(socket)>(socket), level, option_name, &val, socklen_t(sizeof(val)), PTL_ERROR_REF(err));
         } else {

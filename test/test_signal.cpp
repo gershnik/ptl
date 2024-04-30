@@ -5,12 +5,28 @@
 
 #include "common.h"
 
+#if !defined(__CYGWIN__) && __has_include(<features.h>)
+#ifndef _GNU_SOURCE
+    #define _GNU_SOURCE
+    #include <features.h>
+    #ifndef __USE_GNU
+        #define __MUSL__
+    #endif
+    #undef _GNU_SOURCE 
+#else
+    #include <features.h>
+    #ifndef __USE_GNU
+        #define __MUSL__
+    #endif
+#endif
+#endif
+
 using namespace ptl;
 
 TEST_SUITE("signal") {
 
 TEST_CASE( "signal name" ) {
-    #ifndef _WIN32
+    #if !defined(_WIN32) && !defined(__MUSL__)
         CHECK(signalName(SIGINT) == "INT");
         CHECK(signalName(SIGKILL) == "KILL");
     #else

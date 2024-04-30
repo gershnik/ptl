@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Added
 - Support for OpenBSD
+- Support for Alpine Linux and musl libc
 
 ## [1.0] - 2024-04-20
 

@@ -39,6 +39,8 @@
     #include <ptl/config.h>
 #endif
 
+#include <sys/stat.h>
+
 namespace ptl::inline v0 {
 
     #if PTL_USE_STD_CONCEPTS

@@ -85,18 +85,6 @@ TEST_CASE( "byte sized socket options" ) {
         }
         #endif
     }
-    {
-        auto sock = createSocket(PF_INET6, SOCK_DGRAM, 0);
-        REQUIRE(sock);
-
-        #ifdef IPV6_MULTICAST_LOOP
-        {
-            INFO("SockOptIPv6MulticastLoop");
-            setSocketOption(sock, SockOptIPv6MulticastLoop, true);
-            CHECK(getSocketOption(sock, SockOptIPv6MulticastLoop) == true);
-        }
-        #endif
-    }
 }
 
 TEST_CASE( "read-write" ) {

@@ -54,6 +54,7 @@ PRIVATE
     fmt::fmt
     $<$<BOOL:${WIN32}>:ws2_32.lib>
     $<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<NOT:$<BOOL:${ANDROID}>>>:pthread>
+    $<$<PLATFORM_ID:SunOS>:socket>
 )
 
 target_include_directories(test

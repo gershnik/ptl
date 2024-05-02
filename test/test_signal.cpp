@@ -26,7 +26,7 @@ using namespace ptl;
 TEST_SUITE("signal") {
 
 TEST_CASE( "signal name" ) {
-    #if !defined(_WIN32) && !defined(__MUSL__)
+    #if !defined(_WIN32) && !defined(__MUSL__) && !defined(__sun)
         CHECK(signalName(SIGINT) == "INT");
         CHECK(signalName(SIGKILL) == "KILL");
     #else
@@ -52,8 +52,18 @@ TEST_CASE( "simple handler" ) {
     sendSignal(getpid(), signo);
     CHECK(handledSig == signo);
     #endif
+    
+    //... on SVID systems the signal handler is deinstalled after signal delivery. 
+    //On BSD systems the handler must be explicitly deinstalled.
+    #ifdef __sun
+    setSignalHandler(signo, [](int sig) {
+        handledSig = sig;
+    });
+    #endif
+
     raiseSignal(signo);
     CHECK(handledSig == signo);
+    
     setSignalHandler(signo, SIG_DFL);
 }
 

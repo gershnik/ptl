@@ -272,8 +272,7 @@ namespace ptl::inline v0 {
             const bool handleAsByte = 
             #if defined(__OpenBSD__) 
                 (
-                    option_name == IP_MULTICAST_LOOP ||
-                    option_name == IPV6_MULTICAST_LOOP
+                    option_name == IP_MULTICAST_LOOP
                 );
             #elif defined(__sun)
                 (
@@ -283,7 +282,7 @@ namespace ptl::inline v0 {
                 false;
             #endif
             if (handleAsByte) {
-                const u_char val = u_char(value);
+                const auto val = (unsigned char)value;
                 setSocketOption(std::forward<decltype(socket)>(socket), level, option_name, &val, socklen_t(sizeof(val)), PTL_ERROR_REF(err));
             } else {
                 const int val = value;

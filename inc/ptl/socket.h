@@ -270,13 +270,9 @@ namespace ptl::inline v0 {
     requires(PTL_ERROR_REQ(err)) {
         if constexpr (std::is_same_v<T, bool>) {
             const bool handleAsByte = 
-            #if defined(__OpenBSD__) 
+            #if defined(__OpenBSD__) || defined(__sun)
                 (
-                    option_name == IP_MULTICAST_LOOP
-                );
-            #elif defined(__sun)
-                (
-                    option_name == IP_MULTICAST_LOOP
+                    level == IPPROTO_IP && option_name == IP_MULTICAST_LOOP
                 );
             #else
                 false;

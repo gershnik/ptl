@@ -269,15 +269,26 @@ namespace ptl::inline v0 {
                                 PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
         if constexpr (std::is_same_v<T, bool>) {
-            #if defined(__OpenBSD__) || defined(__sun)
-                if (option_name == IP_MULTICAST_TTL || option_name == IP_MULTICAST_LOOP) {
-                    const u_char val = u_char(value);
-                    setSocketOption(std::forward<decltype(socket)>(socket), level, option_name, &val, socklen_t(sizeof(val)), PTL_ERROR_REF(err));
-                    return;
-                }
+            const bool handleAsByte = 
+            #if defined(__OpenBSD__) 
+                (
+                    option_name == IP_MULTICAST_LOOP ||
+                    option_name == IPV6_MULTICAST_LOOP
+                );
+            #elif defined(__sun)
+                (
+                    option_name == IP_MULTICAST_LOOP
+                );
+            #else
+                false;
             #endif
-            const int val = value;
-            setSocketOption(std::forward<decltype(socket)>(socket), level, option_name, &val, socklen_t(sizeof(val)), PTL_ERROR_REF(err));
+            if (handleAsByte) {
+                const u_char val = u_char(value);
+                setSocketOption(std::forward<decltype(socket)>(socket), level, option_name, &val, socklen_t(sizeof(val)), PTL_ERROR_REF(err));
+            } else {
+                const int val = value;
+                setSocketOption(std::forward<decltype(socket)>(socket), level, option_name, &val, socklen_t(sizeof(val)), PTL_ERROR_REF(err));
+            }
         } else {
             setSocketOption(std::forward<decltype(socket)>(socket), level, option_name, &value, socklen_t(sizeof(value)), PTL_ERROR_REF(err));
         }
@@ -297,12 +308,10 @@ namespace ptl::inline v0 {
                 value = val;
                 return;
             }
-            #ifdef _WIN32
-                if (len == 1) { //Windows is moronic this way 
-                    value = *((const unsigned char *)&val) != 0;
-                    return;
-                }
-            #endif
+            if (len == 1) { 
+                value = *((const unsigned char *)&val) != 0;
+                return;
+            }
         } else {
             len = socklen_t(sizeof(value));
             getSocketOption(std::forward<decltype(socket)>(socket), level, option_name, &value, &len, PTL_ERROR_REF(err));

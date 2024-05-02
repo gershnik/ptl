@@ -72,6 +72,33 @@ TEST_CASE( "socket options" ) {
     }
 }
 
+TEST_CASE( "byte sized socket options" ) {
+    {
+        auto sock = createSocket(PF_INET, SOCK_DGRAM, 0);
+        REQUIRE(sock);
+
+        #ifdef IP_MULTICAST_LOOP
+        {
+            INFO("SockOptIPv4MulticastLoop");
+            setSocketOption(sock, SockOptIPv4MulticastLoop, true);
+            CHECK(getSocketOption(sock, SockOptIPv4MulticastLoop) == true);
+        }
+        #endif
+    }
+    {
+        auto sock = createSocket(PF_INET6, SOCK_DGRAM, 0);
+        REQUIRE(sock);
+
+        #ifdef IPV6_MULTICAST_LOOP
+        {
+            INFO("SockOptIPv6MulticastLoop");
+            setSocketOption(sock, SockOptIPv6MulticastLoop, true);
+            CHECK(getSocketOption(sock, SockOptIPv6MulticastLoop) == true);
+        }
+        #endif
+    }
+}
+
 TEST_CASE( "read-write" ) {
 
     auto recvSock = createSocket(PF_INET, SOCK_DGRAM, 0);

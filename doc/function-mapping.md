@@ -103,6 +103,10 @@
 [posix_spawn_file_actions_addchdir_np]: https://man.freebsd.org/cgi/man.cgi?query=posix_spawn_file_actions_addchdir_np
 [setgroups-bsd]:    https://man.freebsd.org/cgi/man.cgi?query=setgroups
 
+[flock-ill]:        https://illumos.org/man/3C/flock
+[mkostemps-ill]:    https://illumos.org/man/3C/mkostemp
+[setgroups-ill]:    https://illumos.org/man/2/setgroups
+
 <!-- Links -->
 
 
@@ -120,7 +124,7 @@
 |[fchdir()]      | `changeDirectory()`          | [file.h]     | 
 |[fchmod()]      | `changeMode()`               | [file.h]     | 
 |[fchown()]      | `changeOwner()`              | [file.h]     | 
-|`flock()`       | `lockFile()`, `tryLockFile()`, `unlockFile()` | [file.h] | [Linux][flock-lin], [Mac][flock-mac], [BSD][flock-bsd]
+|`flock()`       | `lockFile()`, `tryLockFile()`, `unlockFile()` | [file.h] | [Linux][flock-lin], [Mac][flock-mac], [BSD][flock-bsd], [Illumos][flock-ill]
 |[fork()]        | `forkProcess()`              | [spawn.h]    |
 |[fstat()]       | `getStatus()`                | [file.h]     |
 |[ftruncate()]   | `truncateFile()`             | [file.h]     |
@@ -133,10 +137,10 @@
 |[getsockname()] | `getSocketName()`            | [socket.h]   |
 |[getsockopt()]  | `getSocketOption()`          | [socket.h]   |
 |[kill()]        | `sendSignal()`               | [signal.h]   | 
-|`lchmod()`      | `changeLinkMode()`           | [file.h]     | [Mac][mkostemps-mac], [BSD][mkostemps-bsd]
+|`lchmod()`      | `changeLinkMode()`           | [file.h]     | [Mac][lchmod-mac], [BSD][lchmod-bsd]
 |[lchown()]      | `changeLinkOwner()`          | [file.h]     | 
 |[lstat()]       | `getLinkStatus()`            | [file.h]     | 
-|`mkostemps()`   | `FileDescriptor::openTemp()` | [file.h]     | [Linux][mkostemps-lin], [Mac][mkostemps-mac], [BSD][mkostemps-bsd]
+|`mkostemps()`   | `FileDescriptor::openTemp()` | [file.h]     | [Linux][mkostemps-lin], [Mac][mkostemps-mac], [BSD][mkostemps-bsd], [Illumos][mkostemps-ill]
 |[mkdir()]       | `makeDirectory()`            | [file.h]     | 
 |[mkdirat()]     | `makeDirectoryAt()`          | [file.h]     | 
 |[open()]        | `FileDescriptor::open()`     | [file.h]     | 
@@ -165,7 +169,7 @@
 |[setgid()]      | `setGid()`                   | [identity.h] |
 |[setegid()]     | `setEffectiveGid()`          | [identity.h] |
 |[seteuid()]     | `setEffectiveUid()`          | [identity.h] |
-|`setgroups()`   | `setGroups()`                | [identity.h] | [Linux][setgroups-lin], [Mac][setgroups-mac], [BSD][setgroups-bsd]
+|`setgroups()`   | `setGroups()`                | [identity.h] | [Linux][setgroups-lin], [Mac][setgroups-mac], [BSD][setgroups-bsd], [Illumos][setgroups-ill]
 |[setpgid()]     | `setProcessGroupId()`        | [process.h]  |
 |[setsid()]      | `setSessionId()`             | [process.h]  |
 |[setsockopt()]  | `setSocketOption()`          | [socket.h]   |

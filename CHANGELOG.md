@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## Added
+- Support for illumos derived systems
+
+## Fixed
+- Incorrect handling of IPV6_MULTICAST_LOOP socket option on some platforms
+
 ## [1.1] - 2024-04-30
 
 ## Added

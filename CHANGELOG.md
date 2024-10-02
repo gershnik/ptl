@@ -5,17 +5,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Fixed
+- Compilation break when using with `fmt` library version 11
+
 ## [1.2] - 2024-05-02
 
-## Added
+### Added
 - Support for illumos derived systems
 
-## Fixed
+### Fixed
 - Incorrect handling of IPV6_MULTICAST_LOOP socket option on some platforms
 
 ## [1.1] - 2024-04-30
 
-## Added
+### Added
 - Support for OpenBSD
 - Support for Alpine Linux and musl libc
 

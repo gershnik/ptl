@@ -15,11 +15,16 @@
 
 #ifndef PTL_USE_STD_FORMAT
     #if (__cpp_lib_format >= 202110L || (defined(_LIBCPP_VERSION) && _LIBCPP_VERSION >= 170000)) && __has_include(<format>)
-        #include <format>
         #define PTL_USE_STD_FORMAT 1
     #else
-        #include <fmt/format.h>
+        #define PTL_USE_STD_FORMAT 0
     #endif
+#endif
+
+#if PTL_USE_STD_FORMAT
+    #include <format>
+#elif !defined(FMT_VERSION)
+    #include <fmt/format.h>
 #endif
 
 #if __cpp_lib_concepts >=  202002L

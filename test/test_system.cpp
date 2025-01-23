@@ -22,6 +22,8 @@ TEST_CASE( "sysconf" ) {
     CHECK_THROWS_MATCHES(ptl::systemConfig(32765), std::errc::invalid_argument);
 }
 
+#if !defined(__EMSCRIPTEN__)
+
 TEST_CASE( "gethostname" ) {
 
     auto hostname = shell({"hostname"});
@@ -44,6 +46,7 @@ TEST_CASE( "gethostname" ) {
     str.resize(strlen(str.c_str()));
     CHECK(str == hostname);
 }
+#endif
 
 }
 

@@ -59,6 +59,12 @@ PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>:/utf-8 /Zc:preprocessor /W4 /WX /EHsc
         /wd5030 #attribute 'x' is not recognized
     >
+    $<$<BOOL:${EMSCRIPTEN}>:-sNO_DISABLE_EXCEPTION_CATCHING>
+)
+
+target_link_options(test 
+PRIVATE
+    $<$<BOOL:${EMSCRIPTEN}>:-sNO_DISABLE_EXCEPTION_CATCHING>
 )
 
 target_compile_definitions(test
@@ -85,7 +91,7 @@ set(TEST_DEPS "")
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL Android)
 
-    set(ANDROID_TEST_DIR /data/local/tmp/sys_string_test)
+    set(ANDROID_TEST_DIR /data/local/tmp/ptl_test)
     set(ANDROID_SDK_DIR ${CMAKE_ANDROID_NDK}/../..)
     set(ADB ${ANDROID_SDK_DIR}/platform-tools/adb)
 
@@ -96,12 +102,16 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL Android)
     endif()
 
     list(APPEND TEST_COMMAND COMMAND ${ADB} shell mkdir -p ${ANDROID_TEST_DIR}/data)
-    list(APPEND TEST_COMMAND COMMAND ${ADB} push test ${ANDROID_TEST_DIR})
-    list(APPEND TEST_COMMAND COMMAND ${ADB} shell \"cd ${ANDROID_TEST_DIR} && LD_LIBRARY_PATH=${ANDROID_LD_LIBRARY_PATH} ./test\")
+    list(APPEND TEST_COMMAND COMMAND ${ADB} push "$<TARGET_FILE:test>" ${ANDROID_TEST_DIR})
+    list(APPEND TEST_COMMAND COMMAND ${ADB} shell \"cd ${ANDROID_TEST_DIR} && LD_LIBRARY_PATH=${ANDROID_LD_LIBRARY_PATH} ./test -ni\")
+
+elseif (DEFINED EMSCRIPTEN)
+
+    list(APPEND TEST_COMMAND COMMAND node $<TARGET_FILE:test> -ni)
 
 else()
 
-    list(APPEND TEST_COMMAND COMMAND test)
+    list(APPEND TEST_COMMAND COMMAND test -ni)
     
 endif()
 

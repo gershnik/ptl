@@ -10,6 +10,8 @@
 
 using namespace ptl;
 
+#if !defined(__EMSCRIPTEN__)
+
 TEST_SUITE("spawn") {
 
 #if !defined(__ANDROID__) || (defined(__ANDROID__) && __ANDROID_API__ >= 28)
@@ -198,3 +200,5 @@ TEST_CASE( "spawn" ) {
 #endif
 
 }
+
+#endif

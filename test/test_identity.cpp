@@ -9,7 +9,7 @@
 
 using namespace ptl;
 
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__EMSCRIPTEN__)
 
 TEST_SUITE("identity") {
 

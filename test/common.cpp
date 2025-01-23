@@ -7,7 +7,7 @@
 
 using namespace ptl;
 
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__EMSCRIPTEN__)
 
 std::string shell(const StringRefArray & args) {
     auto [readPipe, writePipe] = Pipe::create();

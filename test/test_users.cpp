@@ -8,7 +8,7 @@
 using namespace ptl;
 using namespace std::literals;
 
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__EMSCRIPTEN__)
 
 struct UserInfo {
     std::string user;

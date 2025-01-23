@@ -9,6 +9,8 @@
 
 using namespace ptl;
 
+#if !defined(__EMSCRIPTEN__)
+
 TEST_SUITE("socket") {
 
 TEST_CASE( "socket creation" ) {
@@ -130,3 +132,5 @@ TEST_CASE( "read-write" ) {
 }
 
 }
+
+#endif 

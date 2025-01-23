@@ -6,7 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## Unreleased
 
 ### Fixed
-- Small fixes to to tests CMake project 
+- `std::format` presence is now detected better on libc++
+- Various fixes to to tests. In particular tests now run on Emscripten 
 
 ## [1.3] - 2024-10-02
 

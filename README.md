@@ -14,6 +14,7 @@ A C++ library for Posix and related calls.
 - [Naming](#naming)
 - [Extensions](#extensions)
 - [Android compatibility](#android-compatibility)
+- [Emscripten/Wasm compatibility](#emscriptenwasm-compatibility)
 - [Win32/MinGW compatibility](#win32mingw-compatibility)
 - [Error Handling](#error-handling)
 - [Integration](#integration)
@@ -59,6 +60,12 @@ In addition to portable Posix functionality PTL also includes support for some c
 
 PTL can be used on Android. However, note that some functionality may not be available based on what Posix calls are provided on given Android API level. Generally, all things should work above API level 30. Also note that Android often deviates from exact Posix semantics of many calls even if the calls themselves are available. In some cases, where the deviation can affect safety (e.g. `gethostname` not null terminating truncated output)
 or is especially annoying (`getpwnam_r` producing hard error when username is not found) PTL 'fixes' the issue. In other cases (like `posix_spawn` not reporting error when executable is not found) you will need to deal with differences in your own code. 
+
+## Emscripten/Wasm compatibility
+
+PTL can be used on Wasm (at least with Emscripten, possibly with other toolchains too). Note that Emscripten often "provides" many Posix calls
+it doesn't implement in its headers and makes them either not link or fail at compile time. PTL cannot detect this during configuration and thus
+you will need to deal with such cases in your own code. 
 
 ## Win32/MinGW compatibility
 

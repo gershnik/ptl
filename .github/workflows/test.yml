@@ -10,7 +10,8 @@ on:
       - '.gitignore'
       - 'LICENSE'
       - 'CHANGELOG.md'
-      - 'tools/**'
+      - '.tools/**'
+      - 'doc/**'
 
 
 jobs:

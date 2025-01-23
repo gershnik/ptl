@@ -2,12 +2,16 @@
 
 <!-- TOC depthfrom:2 -->
 
+- [Basics](#basics)
 - [Naming](#naming)
 - [Error Handling](#error-handling)
 - [Examples](#examples)
     - [FileDescriptor objects and file operations](#filedescriptor-objects-and-file-operations)
+    - [Pipes](#pipes)
 
 <!-- /TOC -->
+
+## Basics
 
 To access PTL you will need to either include individual `ptl/foo.h` headers (see [Function Mapping](doc/function-mapping.md) for which header provides what functionality) or simply include an umbrella header `ptl/ptl.h`.
 
@@ -31,6 +35,8 @@ Some calls - those that can only legitimately fail if there is a logic error in 
 PTL does not use, nor plans to use `std::expected` or `outcome`. This is partly because the first is not commonly available yet and the second will bring another library dependency. More importantly `outcome` style of programming unconditionally penalizes people who want to use exceptions - they pay for what they don't use both in terms of mental burden (don't forget to dereference that outcome) and also in generated code (whether the compiler could always see through `outcome` manipulations and inline them out is unclear).
 
 ## Examples
+
+The following sections demonstrate main PTL usage concepts. This is not an extensive reference of all available functionality. See [Function Mapping](doc/function-mapping.md) for full list of available APIs.
 
 ### FileDescriptor objects and file operations
 
@@ -108,4 +114,43 @@ try {
     //something bad and unexpected happened
 }
 ```
+
+In the examples above the filename was given as a simple string literal. Any PTL method that takes a path actually accepts a variety of types: `std::string_view`, `std::filesystem::path`, `std::string` and more. (You can even make your own types acceptable by specializing some traits)
+
+```cpp
+std::string filename_str = "some_file";
+auto fd1 = FileDescriptor::open(filename_str, O_RDONLY);
+
+std::filesystem::path filename_path = "some_file";
+auto fd2 = FileDescriptor::open(filename_path, O_RDONLY);
+
+std::string_view dir_str = "/some/dir";
+makeDirectory(dir_str, S_IRWXU | S_IRWXG);
+
+std::filesystem::path dir_path = "/another/dir";
+makeDirectory(dir_path, S_IRWXU | S_IRWXG);
+
+```
+
+### Pipes
+
+Pipes are represented by `Pipe` struct with two `FileDescriptor` members: `readEnd` and `writeEnd`.
+
+```cpp
+#include <ptl/file.h>
+using namespace ptl;
+
+Pipe p = Pipe::create();
+auto rcount = readFile(p.readEnd, buf, size);
+...
+auto wcount = writeFile(p.writeEnd, buf, size);
+```
+
+Since `Pipe` is a struct you can use structural bindings to get the ends directly:
+
+```cpp
+auto [readEnd, writeEnd] = Pipe::create();
+```
+
+
 

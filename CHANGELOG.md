@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.5] - 2025-01-23
+
 ### Added
 - Ability for the user to override format library detection
 
@@ -80,3 +82,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [1.2]: https://github.com/gershnik/ptl/releases/v1.2
 [1.3]: https://github.com/gershnik/ptl/releases/v1.3
 [1.4]: https://github.com/gershnik/ptl/releases/v1.4
+[1.5]: https://github.com/gershnik/ptl/releases/v1.5

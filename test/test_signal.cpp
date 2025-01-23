@@ -76,7 +76,12 @@ TEST_CASE( "action handler" ) {
     
     setSignalAction(SIGUSR1, SignalAction(handler));
     handledSig = 0;
+#ifndef __CYGWIN__
     sendSignal(getpid(), SIGUSR1);
+#else
+    AllowedErrors<ENOSYS> ec;
+    sendSignal(getpid(), SIGUSR1, ec);
+#endif
     CHECK(handledSig == SIGUSR1);
     {
         SignalAction ret;

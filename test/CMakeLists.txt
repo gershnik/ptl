@@ -6,6 +6,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
+include(FetchContent)
+
+set(DECLARED_DEPENDENCIES "")
+
+FetchContent_Declare(doctest
+    URL  https://raw.githubusercontent.com/doctest/doctest/v2.4.11/doctest/doctest.h
+    DOWNLOAD_NO_EXTRACT TRUE
+)
+
+list(APPEND DECLARED_DEPENDENCIES doctest)
+
 include(CheckCXXSourceCompiles)
 
 check_cxx_source_compiles("
@@ -15,12 +26,7 @@ check_cxx_source_compiles("
 HAVE_STD_FORMAT)
 
 if (NOT HAVE_STD_FORMAT)
-
-    include(FetchContent)
-    include(ExternalProject)
-
-    set(DECLARED_DEPENDENCIES "")
-
+    
     FetchContent_Declare(fmt
         GIT_REPOSITORY  https://github.com/fmtlib/fmt
         GIT_TAG         11.0.2
@@ -29,16 +35,9 @@ if (NOT HAVE_STD_FORMAT)
     )
     list(APPEND DECLARED_DEPENDENCIES fmt)
 
-    FetchContent_Declare(doctest
-        URL  https://raw.githubusercontent.com/doctest/doctest/v2.4.11/doctest/doctest.h
-        DOWNLOAD_NO_EXTRACT TRUE
-    )
-
-    list(APPEND DECLARED_DEPENDENCIES doctest)
-
-    FetchContent_MakeAvailable(${DECLARED_DEPENDENCIES})
-
 endif()
+
+FetchContent_MakeAvailable(${DECLARED_DEPENDENCIES})
 
 add_executable(test)
 

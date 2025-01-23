@@ -13,7 +13,7 @@
 #include <iterator>
 
 
-#if __cpp_lib_format >= 202110L
+#if (__cpp_lib_format >= 202110L || (defined(_LIBCPP_VERSION) && _LIBCPP_VERSION >= 170000)) && __has_include(<format>)
     #include <format>
     #define PTL_USE_STD_FORMAT 1
 #else

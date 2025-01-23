@@ -17,25 +17,13 @@ FetchContent_Declare(doctest
 
 list(APPEND DECLARED_DEPENDENCIES doctest)
 
-include(CheckCXXSourceCompiles)
-
-check_cxx_source_compiles("
-    #if __cpp_lib_format < 202110L
-        #error std::format not sufficiently supported
-    #endif" 
-HAVE_STD_FORMAT)
-
-if (NOT HAVE_STD_FORMAT)
-    
-    FetchContent_Declare(fmt
-        GIT_REPOSITORY  https://github.com/fmtlib/fmt
-        GIT_TAG         11.0.2
-        GIT_SHALLOW     TRUE
-        GIT_SUBMODULES_RECURSE FALSE
-    )
-    list(APPEND DECLARED_DEPENDENCIES fmt)
-
-endif()
+FetchContent_Declare(fmt
+    GIT_REPOSITORY  https://github.com/fmtlib/fmt
+    GIT_TAG         11.1.2
+    GIT_SHALLOW     TRUE
+    GIT_SUBMODULES_RECURSE FALSE
+)
+list(APPEND DECLARED_DEPENDENCIES fmt)
 
 FetchContent_MakeAvailable(${DECLARED_DEPENDENCIES})
 

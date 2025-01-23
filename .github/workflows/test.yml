@@ -20,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        remote_host: [freebsd-13.1, freebsd-14, openbsd-7-5, alpine-3, archlinux]
+        remote_host: [freebsd-13.1, freebsd-14, openbsd-7-5, alpine-3, archlinux, omnios, debian-11-armhf]
         
     steps:
     - name: Run remote build
@@ -45,38 +45,25 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - os: macos-latest
-        - os: windows-latest
-        - os: ubuntu-latest
-          compiler: gcc
-          version: 11
-        - os: ubuntu-latest
-          compiler: gcc
-          version: 12
-        - os: ubuntu-latest
-          compiler: gcc
-          version: 13
-        - os: ubuntu-24.04
-          compiler: gcc
-          version: 14
-        - os: ubuntu-latest
-          compiler: clang
-          version: 13
-        - os: ubuntu-latest
-          compiler: clang
-          version: 14
-        - os: ubuntu-latest
-          compiler: clang
-          version: 15
-        - os: ubuntu-latest
-          compiler: clang
-          version: 16
-        - os: ubuntu-latest
-          compiler: clang
-          version: 17
-        - os: ubuntu-latest
-          compiler: clang
-          version: 18
+          - {os: macos-13, version: "14.3.1" }
+          - {os: macos-14, version: "15.4" }
+          - {os: macos-15, version: "16.2" }
+          
+          - {os: windows-latest, platform: "x64" }
+          - {os: windows-latest, platform: "Win32" }
+          
+          - {os: ubuntu-20.04, compiler: gcc, version: 10 }
+          - {os: ubuntu-22.04, compiler: gcc, version: 11 }
+          - {os: ubuntu-22.04, compiler: gcc, version: 12 }
+          - {os: ubuntu-22.04, compiler: gcc, version: 13 }
+          - {os: ubuntu-24.04, compiler: gcc, version: 14 }
+          
+          - {os: ubuntu-22.04, compiler: clang, version: 13 }
+          - {os: ubuntu-22.04, compiler: clang, version: 14 }
+          - {os: ubuntu-22.04, compiler: clang, version: 15 }
+          - {os: ubuntu-22.04, compiler: clang, version: 16 }
+          - {os: ubuntu-latest, compiler: clang, version: 17 }
+          - {os: ubuntu-latest, compiler: clang, version: 18 }
     
     steps:
     - name: Checkout
@@ -90,9 +77,10 @@ jobs:
             wget https://apt.llvm.org/llvm.sh
             chmod u+x llvm.sh
             sudo ./llvm.sh ${{ matrix.version }} 
-            sudo apt-get install -y clang-tools-${{ matrix.version }}
+            sudo apt-get install -y clang-tools-${{ matrix.version }} libc++-${{ matrix.version }}-dev libc++abi-${{ matrix.version }}-dev
             echo "CC=clang-${{ matrix.version }}" >> $GITHUB_ENV
             echo "CXX=clang++-${{ matrix.version }}" >> $GITHUB_ENV
+            echo "CXXFLAGS=-stdlib=libc++" >> $GITHUB_ENV
           fi
 
           if [[ '${{ matrix.compiler }}' == 'gcc' ]]; then
@@ -104,10 +92,17 @@ jobs:
           fi
         fi
 
+        if [[ '${{ matrix.os }}' == macos-* ]]; then
+            echo "DEVELOPER_DIR=/Applications/Xcode_${{ matrix.version }}.app" >> $GITHUB_ENV
+        fi
+
     - name: Configure
       shell: bash
       run: |
-          cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo 
+          if [[ '${{ matrix.platform }}' != "" ]]; then
+              export EXTRA_FLAGS=-DCMAKE_GENERATOR_PLATFORM=${{ matrix.platform }}
+          fi
+          cmake -S . -B out $EXTRA_FLAGS -DCMAKE_BUILD_TYPE=RelWithDebInfo 
 
     - name: Build
       run: |
@@ -209,4 +204,28 @@ jobs:
         script: |
             cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_TOOLCHAIN_FILE:FILEPATH=$ANDROID_SDK_ROOT/ndk/${{ matrix.version }}/build/cmake/android.toolchain.cmake -DANDROID_ABI:STRING=${{ matrix.arch }} -DANDROID_PLATFORM:STRING=${{ matrix.api }} -DANDROID_STL:STRING=c++_static
             cmake --build out --target run-test
+            killall -INT crashpad_handler || true
+
+  emscripten:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Set Up Emscripten
+      uses: mymindstorm/setup-emsdk@v14
+      with:
+        version: 3.1.70
+        actions-cache-folder: 'emsdk-cache'
+
+    - name: Configure
+      shell: bash
+      run: cmake -S . -B out -DCMAKE_TOOLCHAIN_FILE=$EMSDK/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DCMAKE_BUILD_TYPE=Release
+
+
+    - name: Build and Test
+      shell: bash
+      run: cmake --build out --target run-test
+
 

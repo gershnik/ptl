@@ -11,6 +11,8 @@ string(STRIP ${PTL_VERSION} PTL_VERSION)
 
 project(ptl VERSION ${PTL_VERSION} LANGUAGES CXX)
 
+option(PTL_NO_TESTS "disables tests configuration and build" OFF)
+
 include(cmake/config.cmake)
 
 set(INCDIR ${CMAKE_CURRENT_SOURCE_DIR}/inc)
@@ -71,6 +73,8 @@ if (PROJECT_IS_TOP_LEVEL)
 
     include(cmake/install.cmake)
 
-    add_subdirectory(test)
+    if (NOT PTL_NO_TESTS)
+        add_subdirectory(test)
+    endif()
 
 endif()

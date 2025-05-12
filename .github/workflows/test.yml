@@ -95,7 +95,7 @@ jobs:
 
           #macOS
           for cxx_standard in cxx_standards:
-            for runon, xcode in macos_map:
+            for runon, xcode in macos_map.items():
               hosts.append({'os': runon, 'version': xcode, 'cxx_standard': cxx_standard, 'jobname': f'macOS - Xcode{xcode} -- C++{cxx_standard}'})
           
           #windows

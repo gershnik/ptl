@@ -8,6 +8,7 @@
 #include <ptl/process.h>
 
 #include <signal.h>
+#include <string.h>
 
 #if PTL_HAVE_SYS_SIGABBREV_UNDECLARED
     extern "C" {

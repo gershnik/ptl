@@ -30,7 +30,7 @@ TEST_CASE( "supplemental") {
         auto child = forkProcess();
         if (!child) {
             pipe.readEnd.close();
-            setGroups({});
+            setGroups({1});
             setGid(1);
             setUid(1);
             auto newGroups = getGroups();

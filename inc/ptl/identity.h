@@ -78,7 +78,7 @@ namespace ptl::inline v0 {
 
     #if PTL_HAVE_SETGROUPS
 
-    void setGroups(std::span<gid_t> groups, PTL_ERROR_REF_ARG(err)) 
+    void setGroups(std::span<const gid_t> groups, PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
         if (auto size = groups.size(); size > size_t(std::numeric_limits<int>::max())) 
             throwErrorCode(EINVAL, "number of groups: {} exceeds int", size);
@@ -87,6 +87,11 @@ namespace ptl::inline v0 {
             handleError(PTL_ERROR_REF(err), errno, "setgroups() failed");
         else
             clearError(PTL_ERROR_REF(err));
+    }
+
+    void setGroups(std::initializer_list<const gid_t> groups, PTL_ERROR_REF_ARG(err)) 
+    requires(PTL_ERROR_REQ(err)) {
+        setGroups(std::span<const gid_t>(groups), PTL_ERROR_REF(err));
     }
 
     #endif

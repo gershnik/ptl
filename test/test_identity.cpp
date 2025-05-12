@@ -15,7 +15,30 @@ TEST_SUITE("identity") {
 
 TEST_CASE( "basics") {
 
-    //Hmmm, how to test it...
+    if (getuid() == 0) {
+
+        auto pipe = Pipe::create();
+
+        auto child = forkProcess();
+        if (!child) {
+            pipe.readEnd.close();
+            setGid(1);
+            setUid(1);
+            auto newGid = getgid();
+            auto newUid = getuid();
+            writeFile(pipe.writeEnd, &newGid, sizeof(newGid));
+            writeFile(pipe.writeEnd, &newUid, sizeof(newUid));
+            exit(0);
+        }
+        pipe.writeEnd.close();
+        gid_t gid;
+        uid_t uid;
+        readFile(pipe.readEnd, &gid, sizeof(gid));
+        readFile(pipe.readEnd, &uid, sizeof(uid));
+        CHECK(gid == 1);
+        CHECK(uid == 1);
+        child.wait();
+    }
 }
 
 TEST_CASE( "supplemental") {
@@ -30,7 +53,7 @@ TEST_CASE( "supplemental") {
         auto child = forkProcess();
         if (!child) {
             pipe.readEnd.close();
-            setGroups({});
+            setGroups({1});
             setGid(1);
             setUid(1);
             auto newGroups = getGroups();

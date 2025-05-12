@@ -4,6 +4,7 @@
 #include <ptl/socket.h>
 
 #include "common.h"
+#include <string.h>
 
 #include <thread>
 

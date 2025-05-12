@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.6] - 2025-05-12
+
 ### Fixed
 - Added missing includes reported by GCC 15 in C++23 mode
 - Fixed interface to `setGroups`. It now accepts `span<const gid_t>` and `std::initializer_list<gid_t>`
@@ -87,3 +89,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [1.3]: https://github.com/gershnik/ptl/releases/v1.3
 [1.4]: https://github.com/gershnik/ptl/releases/v1.4
 [1.5]: https://github.com/gershnik/ptl/releases/v1.5
+[1.6]: https://github.com/gershnik/ptl/releases/v1.6

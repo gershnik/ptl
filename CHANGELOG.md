@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Fixed
+- Added missing includes reported by GCC 15 in C++23 mode
+- Fixed interface to `setGroups`. It now accepts `span<const gid_t>` and `std::initializer_list<gid_t>`
+
 ## [1.5] - 2025-01-23
 
 ### Added

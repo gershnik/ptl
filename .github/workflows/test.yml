@@ -53,7 +53,6 @@ jobs:
           - {os: windows-latest, platform: "x64" }
           - {os: windows-latest, platform: "Win32" }
           
-          - {os: ubuntu-20.04, compiler: gcc, version: 10 }
           - {os: ubuntu-22.04, compiler: gcc, version: 11 }
           - {os: ubuntu-22.04, compiler: gcc, version: 12 }
           - {os: ubuntu-22.04, compiler: gcc, version: 13 }
@@ -65,6 +64,8 @@ jobs:
           - {os: ubuntu-22.04, compiler: clang, version: 16 }
           - {os: ubuntu-latest, compiler: clang, version: 17 }
           - {os: ubuntu-latest, compiler: clang, version: 18 }
+          - {os: ubuntu-latest, compiler: clang, version: 19 }
+          - {os: ubuntu-latest, compiler: clang, version: 20 }
     
     steps:
     - name: Checkout

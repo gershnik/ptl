@@ -108,6 +108,36 @@ jobs:
     - name: Build
       run: |
           cmake --build out --target run-test
+  
+  container:
+    runs-on: ubuntu-latest
+    name: ${{ matrix.name }}
+    container: ${{ matrix.container }}
+    strategy:
+      fail-fast: false
+      matrix: 
+        include:
+        - {container: gcc:15.1, module: true, name: 'GCC 15'}
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: System Setup
+      shell: bash
+      run: |
+        apt-get update 
+        apt-get install -y ninja-build cmake
+        
+    - name: Configure
+      shell: bash
+      run: |
+        cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo 
+  
+    - name: Build and Test
+      shell: bash
+      run: |
+        cmake --build out --target run-test
 
   mingw:
     runs-on: windows-latest
@@ -188,7 +218,7 @@ jobs:
         target: google_apis
         ndk: ${{ matrix.version }}
         force-avd-creation: false
-        emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+        emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-metrics
         disable-animations: false
         script: echo "Generated AVD snapshot for caching."
 
@@ -200,7 +230,7 @@ jobs:
         target: google_apis
         ndk: ${{ matrix.version }}
         force-avd-creation: false
-        emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+        emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-metrics
         disable-animations: true
         script: |
             cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_TOOLCHAIN_FILE:FILEPATH=$ANDROID_SDK_ROOT/ndk/${{ matrix.version }}/build/cmake/android.toolchain.cmake -DANDROID_ABI:STRING=${{ matrix.arch }} -DANDROID_PLATFORM:STRING=${{ matrix.api }} -DANDROID_STL:STRING=c++_static
@@ -209,16 +239,23 @@ jobs:
 
   emscripten:
     runs-on: ubuntu-latest
+    container: emscripten/emsdk:3.1.70
 
     steps:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Set Up Emscripten
-      uses: mymindstorm/setup-emsdk@v14
-      with:
-        version: 3.1.70
-        actions-cache-folder: 'emsdk-cache'
+    - name: Install pre-requisites
+      run: |
+        apt-get update
+        apt-get install -y ninja-build
+        
+        export CMAKE_VERSION=3.27.1
+        wget https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-Linux-x86_64.sh \
+          -q -O /tmp/cmake-install.sh
+        chmod u+x /tmp/cmake-install.sh
+        /tmp/cmake-install.sh --skip-license --prefix=/usr
+        rm -f /tmp/cmake-install.sh
 
     - name: Configure
       shell: bash

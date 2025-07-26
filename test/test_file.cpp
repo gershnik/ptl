@@ -6,6 +6,8 @@
 
 #include "common.h"
 
+#include <cstring>
+
 using namespace ptl;
 
 TEST_SUITE("file_descriptor") {

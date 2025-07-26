@@ -39,6 +39,8 @@
 [lstat()]:          https://pubs.opengroup.org/onlinepubs/9699919799/functions/lstat.html
 [mkdir()]:          https://pubs.opengroup.org/onlinepubs/9699919799/functions/mkdir.html
 [mkdirat()]:        https://pubs.opengroup.org/onlinepubs/9699919799/functions/mkdirat.html
+[mmap()]:           https://pubs.opengroup.org/onlinepubs/9699919799/functions/mmap.html
+[munmap()]:         https://pubs.opengroup.org/onlinepubs/9699919799/functions/munmap.html
 [open()]:           https://pubs.opengroup.org/onlinepubs/9699919799/functions/open.html
 [pipe()]:           https://pubs.opengroup.org/onlinepubs/9699919799/functions/pipe.html
 [posix_spawn_file_actions_addclose()]:  https://pubs.opengroup.org/onlinepubs/9699919799/functions/posix_spawn_file_actions_addclose.html
@@ -143,6 +145,8 @@
 |`mkostemps()`   | `FileDescriptor::openTemp()` | [file.h]     | [Linux][mkostemps-lin], [Mac][mkostemps-mac], [BSD][mkostemps-bsd], [Illumos][mkostemps-ill]
 |[mkdir()]       | `makeDirectory()`            | [file.h]     | 
 |[mkdirat()]     | `makeDirectoryAt()`          | [file.h]     | 
+|[mmap()]        | `MemoryMap`                  | [file.h]     | 
+|[munmap()]      | `MemoryMap`                  | [file.h]     | 
 |[open()]        | `FileDescriptor::open()`     | [file.h]     | 
 |[pipe()]        | `Pipe::create()`             | [file.h]     | 
 |`posix_spawn_file_actions_addchdir_np()`     | `SpawnFileActions::addChdirNp()`     | [spawn.h] | Mac (see local man page), [BSD][posix_spawn_file_actions_addchdir_np]

@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Added
+- `MemoryMap` wrapper for `mmap`/`munmap`
+
 ## [1.6] - 2025-05-12
 
 ### Fixed

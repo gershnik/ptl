@@ -15,6 +15,9 @@
 #if __has_include(<sys/file.h>)
     #include <sys/file.h>
 #endif
+#if __has_include(<sys/mman.h>)
+    #include <sys/mman.h>
+#endif
 
 namespace ptl::inline v0 {
 
@@ -178,6 +181,86 @@ namespace ptl::inline v0 {
         FileDescriptor readEnd;
         FileDescriptor writeEnd;
     };
+
+    #if !defined(_WIN32)
+    class MemoryMap {
+    public:
+        MemoryMap() noexcept = default;
+
+        MemoryMap(void * addr, size_t length, 
+                  int prot, int flags,
+                  FileDescriptorLike auto && desc,
+                  off_t offset,
+                  PTL_ERROR_REF_ARG(err)) requires(PTL_ERROR_REQ(err)) :
+            m_ptr(::mmap(addr, length, prot, flags, c_fd(std::forward<decltype(desc)>(desc)), offset)) 
+        {
+
+            if (m_ptr == MAP_FAILED) {
+                handleError(PTL_ERROR_REF(err), errno, "mmap({}, {}, {}, {}, {}, {}) failed", 
+                            addr, length, prot, flags, c_fd(std::forward<decltype(desc)>(desc)), offset);
+            } else {
+                m_size = length;
+                clearError(PTL_ERROR_REF(err));
+            }
+        }
+        MemoryMap(void * addr, size_t length, 
+                  int prot, int flags,
+                  FileDescriptorLike auto && desc,
+                  PTL_ERROR_REF_ARG(err)) requires(PTL_ERROR_REQ(err)):
+            MemoryMap(addr, length, prot, flags, std::forward<decltype(desc)>(desc), 0, PTL_ERROR_REF(err))
+        {}
+        MemoryMap(size_t length, 
+                  int prot, int flags,
+                  FileDescriptorLike auto && desc,
+                  off_t offset,
+                  PTL_ERROR_REF_ARG(err)) requires(PTL_ERROR_REQ(err)):
+            MemoryMap(nullptr, length, prot, flags, std::forward<decltype(desc)>(desc), offset, PTL_ERROR_REF(err))
+        {}
+        MemoryMap(size_t length, 
+                  int prot, int flags,
+                  FileDescriptorLike auto && desc,
+                  PTL_ERROR_REF_ARG(err)) requires(PTL_ERROR_REQ(err)):
+            MemoryMap(nullptr, length, prot, flags, std::forward<decltype(desc)>(desc), 0, PTL_ERROR_REF(err))
+        {}
+
+        ~MemoryMap() {
+            if (m_ptr != MAP_FAILED)
+                munmap(m_ptr, m_size);
+        }
+        MemoryMap(const MemoryMap &) = delete;
+        
+        MemoryMap(MemoryMap && src) :
+            m_ptr(std::exchange(src.m_ptr, MAP_FAILED)),
+            m_size(std::exchange(src.m_size, 0))
+        {}
+
+        MemoryMap & operator=(MemoryMap src) noexcept {
+            swap(src, *this);
+            return *this;
+        }
+
+        explicit operator bool() const noexcept {
+            return m_ptr != MAP_FAILED;
+        }
+
+        void close() noexcept {
+            *this = MemoryMap();
+        }
+
+        friend void swap(MemoryMap & lhs, MemoryMap & rhs) noexcept {
+            std::swap(lhs.m_ptr, rhs.m_ptr);
+            std::swap(lhs.m_size, rhs.m_size);
+        }
+
+        auto data() const -> void *
+            { return m_ptr; }
+        auto size() const -> size_t
+            { return m_size; }
+    private:
+        void * m_ptr = MAP_FAILED;
+        size_t m_size = 0;
+    };
+    #endif
 
     inline auto duplicate(FileDescriptorLike auto && desc) -> FileDescriptor {
         auto fd = c_fd(std::forward<decltype(desc)>(desc));

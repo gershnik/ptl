@@ -66,6 +66,28 @@ TEST_CASE("chmod") {
     }
 }
 
+TEST_CASE("mmap") {
+
+    std::error_code ec;
+    std::filesystem::remove("test_file", ec);
+
+
+    {
+        auto fd = FileDescriptor::open("test_file", O_WRONLY | O_CREAT, S_IRWXU | S_IRWXG | S_IRWXO);
+        writeFile(fd, "hello", 5);
+    }
+    {
+        auto fd = FileDescriptor::open("test_file", O_RDONLY);
+        struct ::stat st;
+        getStatus(fd, st);
+        MemoryMap map(nullptr, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+        REQUIRE(map.size() == 5);
+        REQUIRE(map.data());
+        CHECK(map);
+        CHECK(memcmp(map.data(), "hello", 5) == 0);
+    }
+
+}
 
 #endif
 

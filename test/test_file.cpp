@@ -88,6 +88,47 @@ TEST_CASE("mmap") {
         CHECK(map);
         CHECK(memcmp(map.data(), "hello", 5) == 0);
     }
+    {
+        auto fd = FileDescriptor::open("test_file", O_RDONLY);
+        struct ::stat st;
+        getStatus(fd, st);
+        MemoryMap map(st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+        REQUIRE(map.size() == 5);
+        REQUIRE(map.data());
+        CHECK(map);
+        CHECK(memcmp(map.data(), "hello", 5) == 0);
+    }
+    {
+        auto fd = FileDescriptor::open("test_file", O_RDONLY);
+        struct ::stat st;
+        getStatus(fd, st);
+        MemoryMap map(nullptr, st.st_size, PROT_READ, MAP_PRIVATE, fd);
+        REQUIRE(map.size() == 5);
+        REQUIRE(map.data());
+        CHECK(map);
+        CHECK(memcmp(map.data(), "hello", 5) == 0);
+    }
+    {
+        auto fd = FileDescriptor::open("test_file", O_RDONLY);
+        struct ::stat st;
+        getStatus(fd, st);
+        MemoryMap map(st.st_size, PROT_READ, MAP_PRIVATE, fd);
+        REQUIRE(map.size() == 5);
+        REQUIRE(map.data());
+        CHECK(map);
+        CHECK(memcmp(map.data(), "hello", 5) == 0);
+    }
+    {
+        auto fd = FileDescriptor::open("test_file", O_RDONLY);
+        struct ::stat st;
+        getStatus(fd, st);
+        MemoryMap map(nullptr, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0, ec);
+        CHECK(!ec);
+        REQUIRE(map.size() == 5);
+        REQUIRE(map.data());
+        CHECK(map);
+        CHECK(memcmp(map.data(), "hello", 5) == 0);
+    }
 
 }
 

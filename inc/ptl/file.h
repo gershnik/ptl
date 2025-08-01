@@ -223,7 +223,7 @@ namespace ptl::inline v0 {
             MemoryMap(nullptr, length, prot, flags, std::forward<decltype(desc)>(desc), 0, PTL_ERROR_REF(err))
         {}
 
-        ~MemoryMap() {
+        ~MemoryMap() noexcept {
             if (m_ptr != MAP_FAILED)
                 munmap(m_ptr, m_size);
         }
@@ -252,9 +252,9 @@ namespace ptl::inline v0 {
             std::swap(lhs.m_size, rhs.m_size);
         }
 
-        auto data() const -> void *
+        auto data() const noexcept -> void *
             { return m_ptr; }
-        auto size() const -> size_t
+        auto size() const noexcept -> size_t
             { return m_size; }
     private:
         void * m_ptr = MAP_FAILED;

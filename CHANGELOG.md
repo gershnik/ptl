@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.7] - 2025-08-01
+
 ### Added
 - `MemoryMap` wrapper for `mmap`/`munmap`
 
@@ -93,3 +95,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [1.4]: https://github.com/gershnik/ptl/releases/v1.4
 [1.5]: https://github.com/gershnik/ptl/releases/v1.5
 [1.6]: https://github.com/gershnik/ptl/releases/v1.6
+[1.7]: https://github.com/gershnik/ptl/releases/v1.7

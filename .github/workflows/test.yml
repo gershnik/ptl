@@ -217,11 +217,36 @@ jobs:
       shell: bash
       run: |
         export EXTRA_FLAGS="-DCMAKE_CXX_STANDARD=${{ matrix.cxx_standard }} -DCMAKE_CXX_STANDARD_REQUIRED=ON"
-        cmake -S . -B out $EXTRA_FLAGS -DCMAKE_BUILD_TYPE=RelWithDebInfo 
+        cmake -GNinja -S . -B out $EXTRA_FLAGS -DCMAKE_BUILD_TYPE=RelWithDebInfo 
   
     - name: Build and Test
       shell: bash
       run: |
+        cmake --build out --target run-test
+
+  big-endian:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ninja-build gcc-powerpc-linux-gnu g++-powerpc-linux-gnu qemu-user-binfmt
+
+    - name: Configure
+      run: |
+        export CC=powerpc-linux-gnu-gcc
+        export CXX=powerpc-linux-gnu-g++
+        export QEMU_LD_PREFIX=/usr/powerpc-linux-gnu/
+        cmake -GNinja -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_SYSTEM_PROCESSOR=powerpc
+
+    - name: Build and Test
+      shell: bash
+      run: |
+        export QEMU_LD_PREFIX=/usr/powerpc-linux-gnu/
         cmake --build out --target run-test
 
   mingw:
@@ -292,13 +317,13 @@ jobs:
         path: |
           ~/.android/avd/*
           ~/.android/adb*
-        key: avd-${{ matrix.version }}-${{ matrix.arch }}-30
+        key: avd-${{ matrix.version }}-${{ matrix.arch }}-${{ matrix.api }}
 
     - name: Create AVD and generate snapshot for caching
       if: steps.avd-cache.outputs.cache-hit != 'true'
       uses: reactivecircus/android-emulator-runner@v2
       with:
-        api-level: 30
+        api-level: ${{ matrix.api }}
         arch: ${{matrix.arch}}
         target: google_apis
         ndk: ${{ matrix.version }}
@@ -310,7 +335,7 @@ jobs:
     - name: Run tests
       uses: reactivecircus/android-emulator-runner@v2
       with:
-        api-level: 30
+        api-level: ${{ matrix.api }}
         arch: ${{matrix.arch}}
         target: google_apis
         ndk: ${{ matrix.version }}

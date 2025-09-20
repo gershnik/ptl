@@ -61,38 +61,44 @@ TEST_CASE( "spawn signatures" ) {
 
 TEST_CASE( "spawn" ) {
 
-    //Android and OpenBSD don't error on invalid executable, 
+    //Android and OpenBSD don't error on invalid executable,
     //they simply fork/execs so you can only wait on child and "see"
-    #if !defined(__ANDROID__) && !defined(__OpenBSD__) 
+    #if !defined(__ANDROID__) && !defined(__OpenBSD__)
 
-    auto launch = [](std::filesystem::path exe, auto && ...args) {
-        SpawnFileActions act;
-        act.addOpen(stdout, "/dev/null", O_WRONLY, 0);
-        SpawnAttr spawnAttr;
-        spawnAttr.setFlags(POSIX_SPAWN_SETSIGDEF);
-        #ifndef __CYGWIN__
-            spawnAttr.setSigDefault(SignalSet::all());
-        #else
-            auto sigs = SignalSet::all();
-            sigs.del(SIGKILL);
-            sigs.del(SIGSTOP);
-            spawnAttr.setSigDefault(sigs);
-        #endif
+    //QEMU user emulation also doesn't check path existence
+    if (getenv("QEMU_LD_PREFIX") == nullptr) {
+        printf("BLUB\n");
 
-        auto proc = spawn({exe.c_str(), args...}, SpawnSettings().attr(spawnAttr).fileActions(act));
-    };
+        auto launch = [](std::filesystem::path exe, auto && ...args) {
+            SpawnFileActions act;
+            act.addOpen(stdout, "/dev/null", O_WRONLY, 0);
+            SpawnAttr spawnAttr;
+            spawnAttr.setFlags(POSIX_SPAWN_SETSIGDEF);
+            #ifndef __CYGWIN__
+                spawnAttr.setSigDefault(SignalSet::all());
+            #else
+                auto sigs = SignalSet::all();
+                sigs.del(SIGKILL);
+                sigs.del(SIGSTOP);
+                spawnAttr.setSigDefault(sigs);
+            #endif
 
-    auto launchEc = [](std::error_code & ec, std::filesystem::path exe, auto && ...args) {
-        auto proc = spawn({exe.c_str(), args...}, ec);
-    };
+            auto proc = spawn({exe.c_str(), args...}, SpawnSettings().attr(spawnAttr).fileActions(act));
+        };
 
-    CHECK_THROWS_MATCHES(launch("no_such_exe", "-c", "ls"), std::errc::no_such_file_or_directory);
-    CHECK_NOTHROW(launch("/bin/sh", "-c", "ls"));
-    std::error_code ec;
-    CHECK_NOTHROW(launchEc(ec, "no_such_exe", "-c", "ls"));
-    CHECK(errorEquals(ec, std::errc::no_such_file_or_directory));
-    CHECK_NOTHROW(launchEc(ec, "no_such_exe", "-c", "ls", (const char *)nullptr));
-    CHECK(errorEquals(ec, std::errc::no_such_file_or_directory));
+        auto launchEc = [](std::error_code & ec, std::filesystem::path exe, auto && ...args) {
+            auto proc = spawn({exe.c_str(), args...}, ec);
+        };
+
+        CHECK_THROWS_MATCHES(launch("no_such_exe", "-c", "ls"), std::errc::no_such_file_or_directory);
+        CHECK_NOTHROW(launch("/bin/sh", "-c", "ls"));
+        std::error_code ec;
+        CHECK_NOTHROW(launchEc(ec, "no_such_exe", "-c", "ls"));
+        CHECK(errorEquals(ec, std::errc::no_such_file_or_directory));
+        CHECK_NOTHROW(launchEc(ec, "no_such_exe", "-c", "ls", (const char *)nullptr));
+        CHECK(errorEquals(ec, std::errc::no_such_file_or_directory));
+
+    }
 
     #endif
 

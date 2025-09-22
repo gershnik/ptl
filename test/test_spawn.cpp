@@ -67,8 +67,7 @@ TEST_CASE( "spawn" ) {
 
     //QEMU user emulation also doesn't check path existence
     if (getenv("QEMU_LD_PREFIX") == nullptr) {
-        printf("BLUB\n");
-
+        
         auto launch = [](std::filesystem::path exe, auto && ...args) {
             SpawnFileActions act;
             act.addOpen(stdout, "/dev/null", O_WRONLY, 0);

@@ -20,7 +20,9 @@ TEST_CASE( "sysconf" ) {
     REQUIRE(res);
     CHECK(*res >= _POSIX_OPEN_MAX);
 
+#if !defined(__ANDROID__) || (defined(__ANDROID__) && __ANDROID_API__ >= 28)
     CHECK_THROWS_MATCHES(ptl::systemConfig(32765), std::errc::invalid_argument);
+#endif
 }
 
 #if !defined(__EMSCRIPTEN__)
@@ -41,6 +43,8 @@ TEST_CASE( "gethostname" ) {
     ptl::getHostName(str, ec);
     CHECK((errorEquals(ec, std::errc::filename_too_long) || str[str.size() - 1] == 0));
 
+    if (len > 65546)
+        len = 1024;
     str.resize(len + 1);
     ptl::getHostName(str, ec);
     CHECK(!ec);

@@ -64,8 +64,10 @@ TEST_CASE( "user by id" ) {
     CHECK(res->pw_uid == myself.uid);
     CHECK(res->pw_name == myself.user);
 
+#if !defined(__ANDROID__) || (defined(__ANDROID__) && __ANDROID_API__ >= 28)
     res = Passwd::getById(65536);
     REQUIRE(!res);
+#endif
 
     std::error_code ec;
     res = Passwd::getById(myself.uid, ec);
@@ -74,9 +76,11 @@ TEST_CASE( "user by id" ) {
     CHECK(res->pw_uid == myself.uid);
     CHECK(res->pw_name == myself.user);
 
+#if !defined(__ANDROID__) || (defined(__ANDROID__) && __ANDROID_API__ >= 28)
     res = Passwd::getById(65536, ec);
     REQUIRE(!res);
     CHECK(!ec);
+#endif
 }
 
 #if !defined(__ANDROID__) || (defined(__ANDROID__) && __ANDROID_API__ >= 24)

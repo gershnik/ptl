@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/badge/license-BSD-brightgreen.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
 
-A C++ library for Posix and related calls.
+A C++ wrapper library for Posix and related calls.
 
 ## Purpose
 Every time a C++ developer needs to issue some standard system call on Linux/Mac/{Free|Open|Net}BSD/Illumos he has to deal with the same old, same old annoying chores. You need to figure out its error reporting strategy (very often there are some peculiarities and gotchas to specific calls!) and adapt it to C++. You need to convert the arguments from C++ to the form required by the call and do the reverse for output. Sometimes it is as easy as `.c_str()`, sometimes much more convoluted. If there is a do/undo semantics one needs to create a RAII class yet again and figure out all the little details that go with it. 

@@ -83,7 +83,9 @@ jobs:
             17: 'ubuntu-latest', 
             18: 'ubuntu-latest', 
             19: 'ubuntu-latest', 
-            20: 'ubuntu-latest'
+            20: 'ubuntu-latest',
+            21: 'ubuntu-latest',
+            22: 'ubuntu-latest'
           }
           emscripten_versions = [
             '3.1.70'
@@ -150,7 +152,7 @@ jobs:
     
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: System Setup
       shell: bash
@@ -205,7 +207,7 @@ jobs:
     
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: System Setup
       shell: bash
@@ -229,7 +231,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Setup
       run: |
@@ -254,7 +256,7 @@ jobs:
     
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Configure
       shell: cmd
@@ -273,7 +275,7 @@ jobs:
     
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Install Cygwin
       uses: egor-tensin/setup-cygwin@v4
@@ -302,7 +304,7 @@ jobs:
         arch: [x86_64]
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Enable KVM
       run: |
@@ -311,7 +313,7 @@ jobs:
         sudo udevadm trigger --name-match=kvm
 
     - name: AVD cache
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       id: avd-cache
       with:
         path: |
@@ -359,7 +361,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Install pre-requisites
       run: |

@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        remote_host: [freebsd-13.1, freebsd-14, openbsd-7-5, alpine-3, archlinux, omnios, debian-11-armhf]
+        remote_host: [freebsd-14, freebsd-15, openbsd-7-5, alpine-3, archlinux, omnios, debian-11-armhf]
         
     steps:
     - name: Run remote build
@@ -59,9 +59,9 @@ jobs:
           cxx_standards = [20, 23]
 
           macos_map = {
-            'macos-13': "14.3.1",
             'macos-14': "15.4",
-            'macos-15': "16.2"
+            'macos-15': "16.4",
+            'macos-15': "26.3",
           }
 
           win_paltforms = ["x64", "Win32"]

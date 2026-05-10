@@ -1,5 +1,11 @@
 # PTL usage guide
 
+<!-- 
+ Notes to AI grammar checkers: 
+   - this document uses Posix in preference to POSIX.
+   - this document does not require pedantic comma after e.g.
+-->
+
 <!-- TOC depthfrom:2 -->
 
 - [Basics](#basics)
@@ -20,34 +26,34 @@
 
 ## Basics
 
-To access PTL you will need to either include individual `ptl/foo.h` headers (see [Function Mapping](doc/function-mapping.md) for which header provides what functionality) or simply include an umbrella header `ptl/ptl.h`.
+To access PTL, you will need to either include individual `ptl/foo.h` headers (see [Function Mapping](doc/function-mapping.md) for which header provides what functionality) or simply include an umbrella header `ptl/ptl.h`.
 
 Everything in the library is under `namespace ptl`. 
 
 ## Naming
 
-PTL uses `CamelCase` for types and `lowerUpper` case for methods. It also mostly avoids method names that would be identical to raw Posix calls. This is done for a reason. Two reasons actually.
-1. Some Posix calls can actually be implemented as macros (on _some platforms_ to make it worse). You can imagine the resulting havoc if a `foo` method name in PTL clashed with a macro. While there are ways around it that can be used in the library, the problem usually leaks to library users too.
-2. Even without macros you should be able to say `using namespace ptl` and then call its methods without `ptl::` prefix and not have to deal with "ambiguous call" errors when the name and argument types match the raw Posix calls. Or worse having the raw method being called when you thought you called a safe wrapper. Using a different naming convention and making names more elaborate (e.g. `duplicate` for `dup` or `makeDirectory` for `mkdir`) avoids this issue. 
+PTL uses `CamelCase` for types and `lowerUpper` case for methods. It also mostly avoids method names that would be identical to raw Posix calls. This is done for a reason. Two reasons, actually.
+1. Some Posix calls can actually be implemented as macros (on _some platforms_, to make it worse). You can imagine the resulting havoc if a `foo` method name in PTL clashed with a macro. While there are ways around it that can be used in the library, the problem usually leaks to library users too.
+2. Even without macros, you should be able to say `using namespace ptl` and then call its methods without the `ptl::` prefix and not have to deal with "ambiguous call" errors when the name and argument types match the raw Posix calls. Or worse, having the raw method being called when you thought you called a safe wrapper. Using a different naming convention and making names more elaborate (e.g. `duplicate` for `dup` or `makeDirectory` for `mkdir`) avoids this issue. 
 
 
 ## Error Handling
 
-PTL uses the strategy similar (but not identical!) to one popularized by `std::filesystem` (and `boost::filesystem` before).
+PTL uses a strategy similar (but not identical!) to one popularized by `std::filesystem` (and `boost::filesystem` before).
 
-Most methods that can fail can be called in two ways: `foo(<arguments>)` or `foo(<arguments>, ec)`. The first form throws an exception of failure. By default, it is `std::exception` but this can be globally overridden with another exception type or replaced with program termination. The second form returns the error in output parameter `ec` or clears it on success. This parameter type is by default `std::error_code` but you make any call accept `boost::error_code` or your own class by specializing some traits. Unlike typical implementation of `std::filesystem` this is done without code duplication via some template magic. 
+Most methods that can fail can be called in two ways: `foo(<arguments>)` or `foo(<arguments>, ec)`. The first form throws an exception on failure. By default, it is `std::exception`, but this can be globally overridden with another exception type or replaced with program termination. The second form returns the error in the output parameter `ec` or clears it on success. This parameter type is by default `std::error_code`, but you can change it to `boost::error_code` or your own class by specializing some traits. Unlike the typical implementation of `std::filesystem`, this is done without code duplication via some template magic. 
 
-Some calls - those that can only legitimately fail if there is a logic error in your code (e.g. `EINVAL`) or if "the world is falling apart" always throw exceptions and do not allow error code form. The thinking is that even in exception-free code the only reasonable response to such errors is to terminate the application so there is no point in increasing client complexity here.
+Some calls - those that can only legitimately fail if there is a logic error in your code (e.g. `EINVAL`) or if "the world is falling apart" - always throw exceptions and do not allow the error code form. The thinking is that even in exception-free code the only reasonable response to such errors is to terminate the application, so there is no point in increasing client complexity here.
 
-PTL does not use, nor plans to use `std::expected` or `outcome`. This is partly because the first is not commonly available yet and the second will bring another library dependency. More importantly `outcome` style of programming unconditionally penalizes people who want to use exceptions - they pay for what they don't use both in terms of mental burden (don't forget to dereference that outcome) and also in generated code (whether the compiler could always see through `outcome` manipulations and inline them out is unclear).
+PTL neither uses, nor does it plan to use `std::expected` or `outcome`. This is partly because the first is not commonly available yet, and the second will bring another library dependency. More importantly, the `outcome` style of programming unconditionally penalizes people who want to use exceptions - they pay for what they don't use both in terms of mental burden (don't forget to dereference that outcome) and in generated code (whether the compiler could always see through `outcome` manipulations and optimize them out is unclear).
 
 ## Examples
 
-The following sections demonstrate main PTL usage concepts. This is not an extensive reference of all available functionality. See [Function Mapping](doc/function-mapping.md) for full list of available APIs.
+The following sections demonstrate the main PTL usage concepts. This is not an extensive reference of all available functionality. See [Function Mapping](doc/function-mapping.md) for a full list of available APIs.
 
 ### FileDescriptor objects and file operations
 
-`FileDescriptor` is a RAII wrapper over Posix file descriptor. 
+`FileDescriptor` is an RAII wrapper over a Posix file descriptor. 
 
 PTL methods that work on `FileDescriptor` objects also usually work on plain C `int` file descriptors as well as on 
 `FILE *` C wrappers.
@@ -80,7 +86,7 @@ try {
 
 ```
 
-Here is the same but using `std::error_code` (you can use other types of error codes too).
+Here is the same, but using `std::error_code` (you can use other types of error codes too).
 
 ```cpp
 #include <ptl/file.h>
@@ -106,12 +112,12 @@ bool foo(std::error_code & ec) {
 }
 ```
 
-When using exceptions sometimes you want to **not** have an exception be thrown on certain errors because they are _expected_. The classical example is opening a file. Sometimes the file _must_ be there and sometimes the file not existing is completely fine. PTL lets you handle this cleanly:
+When using exceptions, sometimes you want to **not** have an exception be thrown on certain errors because they are _expected_. The classic example is opening a file. Sometimes the file _must_ be there, and sometimes the file not existing is completely fine. PTL lets you handle this cleanly:
 
 ```cpp
 try {
     AllowedErrors<ENOENT, EDOM> ec;
-    auto fd = FileDescriptor::open("maybe_nonexistant", O_RDONLY, ec);
+    auto fd = FileDescriptor::open("maybe_nonexistent", O_RDONLY, ec);
     if (ec) {
         //either ENOENT or EDOM
         //other errors will throw
@@ -122,7 +128,7 @@ try {
 }
 ```
 
-In the examples above the filename was given as a simple string literal. Any PTL method that takes a path actually accepts a variety of types: `std::string_view`, `std::filesystem::path`, `std::string` and more. (You can even make your own types acceptable by specializing some traits)
+In the examples above, the filename was given as a simple string literal. Any PTL method that takes a path actually accepts a variety of types: `std::string_view`, `std::filesystem::path`, `std::string` and more. (You can even make your own types acceptable by specializing some traits.)
 
 ```cpp
 std::string filename_str = "some_file";
@@ -141,24 +147,24 @@ makeDirectory(dir_path, S_IRWXU | S_IRWXG);
 
 #### Duplicating file descriptors
 
-You can duplicate File-like objects' descriptors via `duplicate` and `duplicateTo` methods. These wrap
-`dup` and `dup2` Posix calls.
+You can duplicate File-like objects' descriptors via the `duplicate` and `duplicateTo` methods. These wrap
+the `dup` and `dup2` Posix calls.
 
 ```cpp
 auto fd1 = FileDescriptor::open("some_file", O_RDONLY);
 //create a new descriptor to the same file
 auto fd2 = duplicate(fd1);
 
-//duplicate into existing file-like object, closing the original destination
+//duplicate into an existing file-like object, closing the original destination
 duplicateTo(fd1, stdout);
 ```
 
 Note that these methods always throw exceptions on failure and there is no ability to pass an error code.
-(This is because the possible failures in `dup`/`dup2` are always of a "bug in logic" variety)
+(This is because the possible failures in `dup`/`dup2` are always of a "bug in logic" variety.)
 
 #### Reading and writing files
 
-You can read and write from File-like objects via `readFile` and `writeFile`. These wrap `read` and `write`
+You can read from and write to File-like objects via `readFile` and `writeFile`. These wrap `read` and `write`
 Posix calls.
 
 ```cpp
@@ -174,7 +180,7 @@ As usual, you can add an error-code argument for noexcept behavior.
 
 #### Advisory file locking
 
-The `flock` family of Posix calls is wrapped by `lockFile`, `tryLockFile` and `unlockFile` functions.
+The `flock` family of Posix calls is wrapped by the `lockFile`, `tryLockFile` and `unlockFile` functions.
 
 The semantics and names of the functions are deliberately made to make it easy to implement a [_Lockable_](https://en.cppreference.com/w/cpp/named_req/Lockable.html) and related concepts on top of them.
 
@@ -187,8 +193,8 @@ enum class FileLock : int {
 };
 ```
 
-As usual these functions operate on any File-like objects, not just FileDescriptor. You can use either exceptions or error codes
-with them. Here is an example that implements a file based mutex using these functions.
+As usual, these functions operate on any File-like objects, not just FileDescriptor ones. You can use either exceptions or error codes
+with them. Here is an example that implements a file-based mutex using these functions.
 
 ```cpp
 
@@ -228,11 +234,11 @@ void foo() {
 PTL provides the expected functions to set and query file ownership and mode as well as to query file status. These
 methods operate on either File-like objects or paths and have variants that operate on symbolic links.
 
-Arguably the functions that operate on paths aren't strictly necessary since `std::filesystem` provides this functionality
-in a portable fashion. However, portability has a downside. Some OS specific extensions might not be available via 
-`std::filesystem` calls whereas PTL methods do expose them.
+Arguably, the functions that operate on paths aren't strictly necessary since `std::filesystem` provides this functionality
+in a portable fashion. However, portability has a downside. Some OS-specific extensions might not be available via 
+`std::filesystem` calls, whereas PTL methods do expose them.
 
-As usual, all these functions can operate in either exceptions or error-code modes.
+As usual, all these functions can operate in either exception or error-code mode.
 
 ```cpp
 FileDescriptor fd = ...;
@@ -258,7 +264,7 @@ getLinkStatus("some_symlink", st);
 #### Truncating files
 
 You can also truncate files either via File-like objects or paths. The `truncateFile` call wraps 
-`ftruncate`/`truncate` Posix calls and can operate in exceptions or error-codes mode.
+the `ftruncate`/`truncate` Posix calls and can operate in exception or error-code mode.
 
 ```cpp
 FileDescriptor fd = ...;
@@ -269,7 +275,7 @@ truncateFile("some_file", 5);
 
 ### Pipes
 
-Pipes are represented by `Pipe` struct with two `FileDescriptor` members: `readEnd` and `writeEnd`.
+Pipes are represented by the `Pipe` struct with two `FileDescriptor` members: `readEnd` and `writeEnd`.
 
 ```cpp
 #include <ptl/file.h>
@@ -281,7 +287,7 @@ auto rcount = readFile(p.readEnd, buf, size);
 auto wcount = writeFile(p.writeEnd, buf, size);
 ```
 
-Since `Pipe` is a struct you can use structural bindings to get the ends directly:
+Since `Pipe` is a struct, you can use structural bindings to get the ends directly:
 
 ```cpp
 auto [readEnd, writeEnd] = Pipe::create();
@@ -289,7 +295,7 @@ auto [readEnd, writeEnd] = Pipe::create();
 
 ### Memory Maps
 
-Memory maps (e.g. the thing you get out of `mmap` call) are represented by a `MemoryMap` RAII wrapper object.
+Memory maps (e.g. the thing you get out of an `mmap` call) are represented by a `MemoryMap` RAII wrapper object.
 You can create them like this:
 
 ```cpp
@@ -309,16 +315,16 @@ try {
 }
 ```
 
-The arguments to the `MemoryMap` constructor are essentially the same as to `mmap` call.
-As usual you can pass any File-like object, not just a `FileDescriptor`. You can also omit
-the usually defaults initial pointer and offset arguments. For example the above constructor
+The arguments to the `MemoryMap` constructor are essentially the same as to the `mmap` call.
+As usual, you can pass any File-like object, not just a `FileDescriptor`. You can also omit
+the usually defaulted initial pointer and offset arguments. For example, the above constructor
 could be called like this:
 
 ```cpp
 MemoryMap map(st.st_size, PROT_READ, MAP_PRIVATE, fd);
 ```
 
-Also as usual you can pass an error code object as the last argument:
+Also as usual, you can pass an error code object as the last argument:
 ```cpp
 std::error_code ec;
 MemoryMap map(st.st_size, PROT_READ, MAP_PRIVATE, fd, ec);
@@ -327,7 +333,7 @@ if (ec) {
 }
 ```
 
-The `MemoryMap` object itself is convertible to a `bool`. It is false for an invalid object so you could also write
+The `MemoryMap` object itself is convertible to a `bool`. It is false for an invalid object, so you could also write
 the above as:
 ```cpp
 std::error_code ec;
@@ -343,15 +349,13 @@ The `data()` and `size()` methods return the mapping beginning (as a `void *`) a
 
 ### Directory operations
 
-PTL provides wrappers for various common directory related operations. 
+PTL provides wrappers for various common directory-related operations. 
 
-As usual, all these functions can operate in either exceptions or error-code modes.
+As usual, all these functions can operate in either exception or error-code mode.
 
 ```cpp
 #include <ptl/file.h>
 using namespace ptl;
-
-FileDescriptor fdparent = ...;
 
 //wrappers for mkdir/mkdirat
 makeDirectory("somedir", S_IRUSR | S_IWUSR | S_IXUSR);
@@ -363,7 +367,7 @@ changeDirectory("somedir");
 FileDescriptor fddir = ...;
 changeDirectory(fddir);
 
-//wrapper chroot
+//wrapper for chroot
 changeRoot("somedir");
 ```
 

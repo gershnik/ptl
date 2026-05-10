@@ -22,7 +22,7 @@ list(APPEND DECLARED_DEPENDENCIES doctest)
 
 FetchContent_Declare(fmt
     GIT_REPOSITORY  https://github.com/fmtlib/fmt
-    GIT_TAG         11.1.2
+    GIT_TAG         12.1.0
     GIT_SHALLOW     TRUE
     GIT_SUBMODULES_RECURSE FALSE
 )

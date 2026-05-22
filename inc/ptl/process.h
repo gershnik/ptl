@@ -157,7 +157,7 @@ namespace ptl::inline v0 {
                                   PTL_ERROR_REF_ARG(err))
     requires(PTL_ERROR_REQ(err)) {
         auto pid = c_pid(std::forward<decltype(proc)>(proc));
-        if (::setpgid(pid, pgid != 0))
+        if (::setpgid(pid, pgid) != 0)
             handleError(PTL_ERROR_REF(err), errno, "setpgid({}, {}) failed", pid, pgid);
         else
             clearError(PTL_ERROR_REF(err));

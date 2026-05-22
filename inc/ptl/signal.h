@@ -96,7 +96,7 @@ namespace ptl::inline v0 {
     #ifndef __MINGW32__
     inline void sendSignal(ProcessLike auto && proc, int sig, PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
-        clearError();
+        clearError(PTL_ERROR_REF(err));
         auto pid = c_pid(std::forward<decltype(proc)>(proc));
         int res = ::kill(pid, sig);
         if (res != 0)
@@ -109,7 +109,7 @@ namespace ptl::inline v0 {
         if (::raise(sig) != 0)
             handleError(PTL_ERROR_REF(err), errno, "raise({}) failed", sig);
         else
-            clearError();
+            clearError(PTL_ERROR_REF(err));
     }
 
     inline auto setSignalHandler(int signo, void (* handler)(int)) -> void (*)(int) {

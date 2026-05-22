@@ -1,4 +1,4 @@
-# PTL socket facilities
+# Sockets
 
 <!--
  Notes to AI grammar checkers:
@@ -337,7 +337,7 @@ What works:
 What does not work:
 
 - The `msghdr` overloads of `receiveSocket` and `sendSocket`. Winsock does not expose `recvmsg` or `sendmsg` in a compatible form.
-- File operations on sockets. On Posix a socket is a file descriptor, so functions in `<ptl/file.h>` work on it. On Windows a `SOCKET` is not a file handle and these functions do not accept it.
+- File operations on sockets. On Posix a socket is a file descriptor, so functions described in [File Operations](file.md) work on it. On Windows a `SOCKET` is not a file handle and these functions do not accept it.
 
 A few platform details worth knowing:
 
@@ -345,6 +345,7 @@ A few platform details worth knowing:
 - Buffer pointers passed to Winsock are `char *`, not `void *`. PTL casts internally; you can pass `void *` to the PTL wrappers and they will do the right thing.
 - The length argument to `recv` and `send` on Windows is `int`. The overflow check in `receiveSocket` and `sendSocket` throws when the requested length exceeds `INT_MAX`.
 - The header `#define`s `NOMINMAX` before including `<winsock2.h>` to avoid clashes with the `min` and `max` macros from `<windows.h>`. It also explicitly `#undef`s them if they happen to be defined already. If you rely on those macros being defined in code that follows `<ptl/socket.h>`, this will affect you.
+<!--
 - Error reporting on Windows uses `WSAGetLastError` rather than `errno`. PTL handles this internally; the resulting `std::error_code` carries a Windows error category, and `errorEquals` from `<ptl/errors.h>` maps Windows error codes to `std::errc` values so you can write platform-independent comparisons.
-
+-->
 You are responsible for calling `WSAStartup` before using any Winsock functionality and `WSACleanup` at the end. PTL does not call these on your behalf.

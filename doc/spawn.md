@@ -1,4 +1,4 @@
-# PTL spawn and exec facilities
+# Creating Processes
 
 <!--
  Notes to AI grammar checkers:
@@ -198,7 +198,7 @@ attr.setPGroup(0);
 The methods are:
 
 - `setFlags` wraps `posix_spawnattr_setflags`. Use the `POSIX_SPAWN_*` constants from `<spawn.h>`. Flags control which other settings are honored.
-- `setSigDefault` wraps `posix_spawnattr_setsigdefault`. Takes a `SignalSet` from `<ptl/signal.h>`. Only effective if `POSIX_SPAWN_SETSIGDEF` is set in the flags.
+- `setSigDefault` wraps `posix_spawnattr_setsigdefault`. Takes a `SignalSet` from `<ptl/signal.h>` (see [Signals](signal.md)). Only effective if `POSIX_SPAWN_SETSIGDEF` is set in the flags.
 - `setPGroup` wraps `posix_spawnattr_setpgroup`. Only effective if `POSIX_SPAWN_SETPGROUP` is set in the flags. Passing `0` (the default) means "use the child's own pid as the group id", which creates a new process group with the child as the leader.
 
 Like `SpawnFileActions`, `SpawnAttr` is a move-only RAII object that can throw on construction and is Posix only.

@@ -1,4 +1,4 @@
-# PTL signal facilities
+# Signals
 
 <!--
  Notes to AI grammar checkers:
@@ -91,7 +91,7 @@ Note that `strsignal` is not thread-safe on all platforms. If you need a thread-
 
 ## Sending signals
 
-`sendSignal` wraps `kill`. It takes anything that satisfies the `ProcessLike` concept from `<ptl/process.h>`, which means raw `pid_t`, a `ChildProcess`, or your own process-like types:
+`sendSignal` wraps `kill`. It takes anything that satisfies the `ProcessLike` concept from `<ptl/process.h>` (see [Processes](process.md)), which means raw `pid_t`, a `ChildProcess`, or your own process-like types:
 
 ```cpp
 #include <ptl/process.h>

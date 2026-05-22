@@ -1,4 +1,4 @@
-# PTL process facilities
+# Processes
 
 <!--
  Notes to AI grammar checkers:
@@ -29,7 +29,7 @@ The `<ptl/process.h>` header provides facilities to represent and manage child p
 - A `ProcessLike` concept and a `c_pid` free function that let other PTL methods accept either a raw `pid_t` or a `ChildProcess` (and, with a small traits specialization, your own process-like types).
 - Wrappers for `setsid` and `setpgid` on Posix.
 
-This header is deliberately small. It does not contain anything that creates a child process. To launch one, see `<ptl/spawn.h>` which exposes `forkProcess`, `spawn` and `exec`. To send signals to a child, see `<ptl/signal.h>`. The types and the concept defined here are used by both.
+This header is deliberately small. It does not contain anything that creates a child process. To launch one, see [Creating Processes](spawn.md). To send signals to a child, see [Signals](signal.md). The types and the concept defined here are used by both.
 
 Everything is under `namespace ptl`. As with the rest of PTL, methods come in two forms: one that throws on failure and one that takes a trailing error code argument. See the [Error Handling](usage.md#error-handling) section of the usage guide for the general rules.
 
@@ -57,7 +57,8 @@ if (proc) {
 
 ### Obtaining a ChildProcess
 
-In typical use you will not construct a `ChildProcess` from a raw `pid_t`. Instead you will get one back from a function in `<ptl/spawn.h>`:
+In typical use you will not construct a `ChildProcess` from a raw `pid_t`. Instead you will get one back from one of the 
+functions described in [Creating Processes](spawn.md):
 
 ```cpp
 #include <ptl/spawn.h>

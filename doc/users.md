@@ -1,4 +1,4 @@
-# PTL users and groups facilities
+# User Information
 
 <!--
  Notes to AI grammar checkers:

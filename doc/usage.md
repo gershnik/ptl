@@ -9,15 +9,15 @@
 <!-- TOC depthfrom:2 -->
 
 - [Basics](#basics)
-- [Naming](#naming)
-- [Error handling](#error-handling)
-    - [Throwing form](#throwing-form)
-    - [Error code form](#error-code-form)
-    - [Whitelisting expected errors](#whitelisting-expected-errors)
+    - [Naming](#naming)
+    - [Error handling](#error-handling)
+        - [Throwing form](#throwing-form)
+        - [Error code form](#error-code-form)
+        - [Whitelisting expected errors](#whitelisting-expected-errors)
     - [Calls that always throw](#calls-that-always-throw)
     - [No std::expected or outcome](#no-stdexpected-or-outcome)
-- [Path arguments](#path-arguments)
-- [Per-header guides](#per-header-guides)
+    - [Path arguments](#path-arguments)
+- [Functionality areas](#functionality-areas)
 
 <!-- /TOC -->
 
@@ -29,7 +29,7 @@ Everything in the library is under `namespace ptl`.
 
 The library targets C++20. It is header only. It depends only on the standard library, except that if your standard library is missing `std::format` it will use `{fmt}` instead.
 
-## Naming
+### Naming
 
 PTL uses `CamelCase` for types and `lowerUpper` for methods. It also mostly avoids method names that would be identical to raw Posix calls. This is done for a reason. Two reasons, actually.
 
@@ -37,11 +37,11 @@ PTL uses `CamelCase` for types and `lowerUpper` for methods. It also mostly avoi
 2. Even without macros, you should be able to say `using namespace ptl` and then call PTL methods without the `ptl::` prefix, and not have to deal with "ambiguous call" errors when names and argument types overlap with raw Posix calls. Or worse, have the raw call invoked when you thought you called the safe wrapper. Using a different convention and slightly more elaborate names (e.g. `duplicate` for `dup`, `makeDirectory` for `mkdir`) avoids this entirely.
 
 
-## Error handling
+### Error handling
 
 PTL uses a strategy similar to (but not identical with) the one popularized by `std::filesystem`, and `boost::filesystem` before it.
 
-### Throwing form
+#### Throwing form
 
 Most methods that can fail can be called in two ways. The first form throws on failure:
 
@@ -60,7 +60,7 @@ try {
 
 By default the thrown type is `std::system_error`. This can be globally overridden with another exception type or replaced with program termination if you do not use exceptions in your codebase.
 
-### Error code form
+#### Error code form
 
 The second form returns the error in an output parameter:
 
@@ -84,7 +84,7 @@ bool foo(std::error_code & ec) {
 
 The parameter is cleared on success, set on failure. Its type defaults to `std::error_code` but can be `boost::error_code` or your own error type by specializing some traits. Unlike the typical `std::filesystem` implementation, this is done without code duplication via some template machinery.
 
-### Whitelisting expected errors
+#### Whitelisting expected errors
 
 When using exceptions, sometimes you want certain errors to be returned rather than thrown because they are _expected_. The classic example is opening a file that might or might not be there. The `AllowedErrors` template in `<ptl/errors.h>` lets you do this cleanly:
 
@@ -115,7 +115,7 @@ Some PTL calls are throw-only and do not offer the error code form. These are ca
 
 PTL does not use, and does not plan to use, `std::expected` or `outcome`. This is partly because the first is not yet commonly available. More importantly, the `outcome` style unconditionally penalizes people who want to use exceptions: they pay for what they do not use both in mental burden (do not forget to dereference that outcome) and in generated code (whether the compiler can always see through outcome manipulations and optimize them out is unclear).
 
-## Path arguments
+### Path arguments
 
 Any PTL method that takes a path accepts a variety of types: `std::filesystem::path`, `std::string`, `const char *`, and more. You can make your own types acceptable by specializing the `CPathTraits` template in `<ptl/core.h>`.
 
@@ -132,18 +132,18 @@ makeDirectory(std::filesystem::path("/some/dir"), S_IRWXU | S_IRWXG);
 
 Note that `std::string_view` is not accepted, because the type carries no guarantee of being null-terminated and PTL refuses to copy silently.
 
-## Per-header guides
+## Functionality areas
 
-Detailed coverage of each major header is split into its own document:
+Detailed coverage of each major area is split into its own document:
 
-- [file.md](file.md): `<ptl/file.h>`. `FileDescriptor` objects, reading and writing, locking, mode and ownership, pipes, memory maps, directory operations.
-- [process.md](process.md): `<ptl/process.h>`. The `ChildProcess` RAII wrapper, waiting for children, sessions and process groups.
-- [spawn.md](spawn.md): `<ptl/spawn.h>`. Creating child processes via `forkProcess`, the `spawn` family, and the `exec` family.
-- [socket.md](socket.md): `<ptl/socket.h>`. The `Socket` wrapper, sending and receiving, type-checked socket options.
-- [signal.md](signal.md): `<ptl/signal.h>`. The `SignalSet` and `SignalAction` classes, sending and raising signals, installing handlers, process signal mask.
-- [identity.md](identity.md): `<ptl/identity.h>`. Setting real and effective user and group ids, managing supplementary groups.
-- [users.md](users.md): `<ptl/users.h>`. Looking up entries in the user and group databases.
-- [system.md](system.md): `<ptl/system.h>`. System configuration queries and host name.
+- [File Operations](file.md): `FileDescriptor` objects, reading and writing, locking, mode and ownership, pipes, memory maps, directory operations.
+- [Processes](process.md): The `ChildProcess` RAII wrapper, waiting for children, sessions and process groups.
+- [Creating Processes](spawn.md): Creating child processes via `forkProcess`, the `spawn` family, and the `exec` family.
+- [Sockets](socket.md): The `Socket` wrapper, sending and receiving, type-checked socket options.
+- [Signals](signal.md): The `SignalSet` and `SignalAction` classes, sending and raising signals, installing handlers, process signal mask.
+- [User Identity](identity.md): Setting real and effective user and group ids, managing supplementary groups.
+- [User Information](users.md): Looking up entries in the user and group databases.
+- [System Information](system.md): System configuration queries and host name.
 
 For an exhaustive list of which Posix call is wrapped by which PTL function, see [function-mapping.md](function-mapping.md).
 

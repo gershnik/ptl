@@ -14,8 +14,9 @@
         - [Throwing form](#throwing-form)
         - [Error code form](#error-code-form)
         - [Whitelisting expected errors](#whitelisting-expected-errors)
-    - [Calls that always throw](#calls-that-always-throw)
-    - [No std::expected or outcome](#no-stdexpected-or-outcome)
+        - [Calls that always throw](#calls-that-always-throw)
+        - [No std::expected or outcome](#no-stdexpected-or-outcome)
+    - [Thread safety](#thread-safety)
     - [Path arguments](#path-arguments)
 - [Functionality areas](#functionality-areas)
 
@@ -105,15 +106,24 @@ try {
 }
 ```
 
-### Calls that always throw
+#### Calls that always throw
 
 Some PTL calls are throw-only and do not offer the error code form. These are calls that can only legitimately fail due to a logic error (e.g. `EINVAL`, "you passed me an invalid argument") or due to truly catastrophic conditions ("the world is falling apart"). The thinking is that even in exception-free code the only reasonable response to such failures is to terminate, so there is no point in increasing client complexity.
 
 `duplicate` and `duplicateTo` are examples of throw-only calls. Overflow precondition checks at wrapper boundaries (such as in `readFile` and `writeFile` on platforms where the underlying count type is narrower than `size_t`) also always throw.
 
-### No std::expected or outcome
+#### No std::expected or outcome
 
 PTL does not use, and does not plan to use, `std::expected` or `outcome`. This is partly because the first is not yet commonly available. More importantly, the `outcome` style unconditionally penalizes people who want to use exceptions: they pay for what they do not use both in mental burden (do not forget to dereference that outcome) and in generated code (whether the compiler can always see through outcome manipulations and optimize them out is unclear).
+
+### Thread safety
+
+In general, PTL's wrappers of Posix functionality follow whatever thread-safety policy the wrapped function provides.
+
+When PTL introduces its own helper classes they follow the standard thread-safety policy. 
+Simultaneously calling "read" (i.e. const) methods on any class from multiple-threads is safe. 
+Simultaneously calling "write" (i.e. non-const) methods with other "read" or "write" methods requires
+external synchronization.
 
 ### Path arguments
 
@@ -130,7 +140,7 @@ makeDirectory("some_dir", S_IRWXU | S_IRWXG);
 makeDirectory(std::filesystem::path("/some/dir"), S_IRWXU | S_IRWXG);
 ```
 
-Note that `std::string_view` is not accepted, because the type carries no guarantee of being null-terminated and PTL refuses to copy silently.
+Note that `std::string_view` is not accepted, because the type carries no guarantee of being null-terminated.
 
 ## Functionality areas
 

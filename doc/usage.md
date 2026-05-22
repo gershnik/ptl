@@ -128,7 +128,7 @@ try {
 }
 ```
 
-In the examples above, the filename was given as a simple string literal. Any PTL method that takes a path actually accepts a variety of types: `std::string_view`, `std::filesystem::path`, `std::string` and more. (You can even make your own types acceptable by specializing some traits.)
+In the examples above, the filename was given as a simple string literal. Any PTL method that takes a path actually accepts a variety of types: `std::filesystem::path`, `std::string`, `const char *` and more. (You can even make your own types acceptable by specializing some traits.)
 
 ```cpp
 std::string filename_str = "some_file";

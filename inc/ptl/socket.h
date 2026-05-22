@@ -296,7 +296,7 @@ namespace ptl::inline v0 {
     requires(PTL_ERROR_REQ(err)) {
         socklen_t len;
         if constexpr (std::is_same_v<T, bool>) {
-            int val;
+            int val = 0;
             len = socklen_t(sizeof(val));
             getSocketOption(std::forward<decltype(socket)>(socket), level, option_name, &val, &len, PTL_ERROR_REF(err));
             if (len == socklen_t(sizeof(val))) {
@@ -370,7 +370,7 @@ namespace ptl::inline v0 {
     constexpr auto SockOptRcvBuf             = SockOptDesc<unsigned, int>   {SOL_SOCKET, SO_RCVBUF};
     constexpr auto SockOptDontRoute          = SockOptDesc<bool>            {SOL_SOCKET, SO_DONTROUTE};
     constexpr auto SockOptRcvLowWatermark    = SockOptDesc<unsigned, int>   {SOL_SOCKET, SO_RCVLOWAT};
-    constexpr auto SockOptRcvTimeout         = SockOptDesc<::timeval>       {SOL_SOCKET, SO_RCVLOWAT};
+    constexpr auto SockOptRcvTimeout         = SockOptDesc<::timeval>       {SOL_SOCKET, SO_RCVTIMEO};
     constexpr auto SockOptSndLowWatermark    = SockOptDesc<unsigned, int>   {SOL_SOCKET, SO_SNDLOWAT};
     constexpr auto SockOptSndTimeout         = SockOptDesc<::timeval>       {SOL_SOCKET, SO_SNDTIMEO};
 

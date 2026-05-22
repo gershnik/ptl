@@ -137,7 +137,7 @@ namespace ptl::inline v0 {
             { return pid;}
     };
     template<> struct ProcessTraits<ChildProcess> {
-        [[gnu::always_inline]] static pid_t c_fd(const ChildProcess & proc) noexcept
+        [[gnu::always_inline]] static pid_t c_pid(const ChildProcess & proc) noexcept
             { return proc.get();}
     };
 

@@ -47,7 +47,7 @@ namespace ptl::inline v0 {
     };
 
     template<ProcessLike T>
-    [[gnu::always_inline]] inline int c_pid(T && obj)
+    [[gnu::always_inline]] inline pid_t c_pid(T && obj)
         { return ProcessTraits<std::remove_cvref_t<T>>::c_pid(std::forward<T>(obj)); }
 
 

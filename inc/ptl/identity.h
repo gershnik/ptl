@@ -5,6 +5,7 @@
 #define PTL_HEADER_IDENTITY_H_INCLUDED
 
 #include <ptl/core.h>
+#include <ptl/util.h>
 
 #include <utility>
 #include <span>
@@ -57,7 +58,7 @@ namespace ptl::inline v0 {
                 break;
             } 
             if (res > 0) {
-                ret.resize(res);
+                ret.resize(size_t(res));
                 res = ::getgroups(int(ret.size()), ret.data());
                 if (res < 0) {
                     int code = errno;
@@ -68,7 +69,7 @@ namespace ptl::inline v0 {
                     handleError(PTL_ERROR_REF(err), code, "getgroups({}) failed", int(ret.size()));
                     break;
                 }
-                ret.resize(res);
+                ret.resize(size_t(res));
             }
             clearError(PTL_ERROR_REF(err));
             break;
@@ -80,10 +81,12 @@ namespace ptl::inline v0 {
 
     void setGroups(std::span<const gid_t> groups, PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
-        if (auto size = groups.size(); size > size_t(std::numeric_limits<int>::max())) 
-            throwErrorCode(EINVAL, "number of groups: {} exceeds int", size);
+        using SetgroupsArgType = PTL_DETECT_ARG_TYPE(0, ::setgroups);
+        constexpr auto maxGroups = std::numeric_limits<SetgroupsArgType>::max();
+        if (auto size = groups.size(); size > size_t(maxGroups)) 
+            throwErrorCode(EINVAL, "number of groups: {} exceeds maximum {}", size, maxGroups);
 
-        if (::setgroups(int(groups.size()), groups.data()) != 0) 
+        if (::setgroups(SetgroupsArgType(groups.size()), groups.data()) != 0) 
             handleError(PTL_ERROR_REF(err), errno, "setgroups() failed");
         else
             clearError(PTL_ERROR_REF(err));

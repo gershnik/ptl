@@ -115,7 +115,7 @@ TEST_CASE( "spawn" ) {
             constexpr size_t chunk = 5;
             res.resize(offset + chunk);
             auto readCount = readFile(read, res.data() + offset, chunk);
-            res.resize(offset + readCount);
+            res.resize(offset + size_t(readCount));
             if (readCount == 0)
                 break;
         }
@@ -143,7 +143,7 @@ TEST_CASE( "fork_exec" ) {
             constexpr size_t chunk = 5;
             res.resize(offset + chunk);
             auto readCount = readFile(read, res.data() + offset, chunk);
-            res.resize(offset + readCount);
+            res.resize(offset + size_t(readCount));
             if (readCount == 0)
                 break;
         }
@@ -192,7 +192,7 @@ TEST_CASE( "spawn" ) {
             constexpr size_t chunk = 5;
             res.resize(offset + chunk);
             auto readCount = readFile(read, res.data() + offset, chunk);
-            res.resize(offset + readCount);
+            res.resize(offset + size_t(readCount));
             if (readCount == 0)
                 break;
         }

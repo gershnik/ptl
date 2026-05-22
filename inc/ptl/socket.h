@@ -17,8 +17,17 @@
 #endif
 
 #ifdef _WIN32
+    #ifndef NOMINMAX
+        #define NOMINMAX
+    #endif
     #include <winsock2.h>
     #include <ws2tcpip.h>
+    #ifdef min
+        #undef min
+    #endif
+    #ifdef max
+        #undef max
+    #endif
 #else
     #include <sys/time.h>
 #endif
@@ -41,6 +50,7 @@ namespace ptl::inline v0 {
         namespace impl {
             using SocketOptionValueType = void;
             using SocketBufferValueType = void;
+            using SocketSizeValueType = io_size_t;
         }
 
     #else
@@ -114,11 +124,15 @@ namespace ptl::inline v0 {
         namespace impl {
             using SocketOptionValueType = char;
             using SocketBufferValueType = char;
+            using SocketSizeValueType = int;
         }
 
     #endif
 
     namespace impl {
+        constexpr auto SocketSizeMaxValue = std::numeric_limits<impl::SocketSizeValueType>::max();
+        constexpr bool IOSizeBiggerThanSocketSize = IsNumericallyBigger<io_size_t, SocketSizeValueType>;
+
         inline auto getSocketError() -> Error {
             #ifndef _WIN32
                 return errno;
@@ -164,8 +178,13 @@ namespace ptl::inline v0 {
     inline auto receiveSocket(SocketLike auto && socket, void * buf, io_size_t length, int flags,
                               PTL_ERROR_REF_ARG(err)) -> io_ssize_t 
     requires(PTL_ERROR_REQ(err)) {
+        if constexpr (impl::IOSizeBiggerThanSocketSize) {
+            if (length > io_size_t(impl::SocketSizeMaxValue))
+                throwErrorCode(EINVAL, "requested recv size {} exceeds maximum supported {}", length, impl::SocketSizeMaxValue);
+        }
+
         auto fd = c_socket(std::forward<decltype(socket)>(socket));
-        auto ret = ::recv(fd, static_cast<impl::SocketBufferValueType *>(buf), length, flags);
+        auto ret = ::recv(fd, static_cast<impl::SocketBufferValueType *>(buf), impl::SocketSizeValueType(length), flags);
         if (ret < 0)
             handleError(PTL_ERROR_REF(err), impl::getSocketError(), "recv({}, ,{}) failed", fd, length);
         else
@@ -177,8 +196,14 @@ namespace ptl::inline v0 {
                               sockaddr * address, socklen_t * address_len,
                               PTL_ERROR_REF_ARG(err)) -> io_ssize_t 
     requires(PTL_ERROR_REQ(err)) {
+        
+        if constexpr (impl::IOSizeBiggerThanSocketSize) {
+            if (length > io_size_t(impl::SocketSizeMaxValue))
+                throwErrorCode(EINVAL, "requested recvfrom size {} exceeds maximum supported {}", length, impl::SocketSizeMaxValue);
+        }
+
         auto fd = c_socket(std::forward<decltype(socket)>(socket));
-        auto ret = ::recvfrom(fd, static_cast<impl::SocketBufferValueType *>(buf), length, flags, address, address_len);
+        auto ret = ::recvfrom(fd, static_cast<impl::SocketBufferValueType *>(buf), impl::SocketSizeValueType(length), flags, address, address_len);
         if (ret < 0)
             handleError(PTL_ERROR_REF(err), impl::getSocketError(), "recvfrom({}, ,{}) failed", fd, length);
         else
@@ -203,8 +228,14 @@ namespace ptl::inline v0 {
     inline auto sendSocket(SocketLike auto && socket, const void * buf, io_size_t length, int flags,
                            PTL_ERROR_REF_ARG(err)) -> io_ssize_t 
     requires(PTL_ERROR_REQ(err)) {
+        
+        if constexpr (impl::IOSizeBiggerThanSocketSize) {
+            if (length > io_size_t(impl::SocketSizeMaxValue))
+                throwErrorCode(EINVAL, "requested send size {} exceeds maximum supported {}", length, impl::SocketSizeMaxValue);
+        }
+
         auto fd = c_socket(std::forward<decltype(socket)>(socket));
-        auto ret = ::send(fd, static_cast<const impl::SocketBufferValueType *>(buf), length, flags);
+        auto ret = ::send(fd, static_cast<const impl::SocketBufferValueType *>(buf), impl::SocketSizeValueType(length), flags);
         if (ret < 0)
             handleError(PTL_ERROR_REF(err), impl::getSocketError(), "send({}, ,{}) failed", fd, length);
         else
@@ -216,8 +247,14 @@ namespace ptl::inline v0 {
                            const sockaddr * dest_addr, socklen_t dest_len,
                            PTL_ERROR_REF_ARG(err)) -> io_ssize_t 
     requires(PTL_ERROR_REQ(err)) {
+        
+        if constexpr (impl::IOSizeBiggerThanSocketSize) {
+            if (length > io_size_t(impl::SocketSizeMaxValue))
+                throwErrorCode(EINVAL, "requested sendto size {} exceeds maximum supported {}", length, impl::SocketSizeMaxValue);
+        }
+
         auto fd = c_socket(std::forward<decltype(socket)>(socket));
-        auto ret = ::sendto(fd, static_cast<const impl::SocketBufferValueType *>(buf), length, flags, dest_addr, dest_len);
+        auto ret = ::sendto(fd, static_cast<const impl::SocketBufferValueType *>(buf), impl::SocketSizeValueType(length), flags, dest_addr, dest_len);
         if (ret < 0)
             handleError(PTL_ERROR_REF(err), impl::getSocketError(), "sendto({}, ,{}) failed", fd, length);
         else

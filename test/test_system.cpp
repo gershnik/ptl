@@ -32,7 +32,7 @@ TEST_CASE( "gethostname" ) {
     auto hostname = shell({"hostname"});
 
 
-    auto len = ptl::systemConfig(_SC_HOST_NAME_MAX).value_or(_POSIX_HOST_NAME_MAX);
+    auto len = size_t(ptl::systemConfig(_SC_HOST_NAME_MAX).value_or(_POSIX_HOST_NAME_MAX));
 
     std::string str(1, 'A');
     std::error_code ec;

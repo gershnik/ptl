@@ -30,6 +30,15 @@ list(APPEND DECLARED_DEPENDENCIES fmt)
 
 FetchContent_MakeAvailable(${DECLARED_DEPENDENCIES})
 
+if ("${CMAKE_CXX_COMPILER_FRONTEND_VARIANT}" STREQUAL "MSVC")
+    set(FRONT_MSVC True)
+else()
+    set(FRONT_MSVC False)
+endif()
+
+set (CLANG_CL "$<AND:$<BOOL:${FRONT_MSVC}>,$<CXX_COMPILER_ID:Clang>>")
+set (CLANG_NORMAL "$<AND:$<NOT:$<BOOL:${FRONT_MSVC}>>,$<CXX_COMPILER_ID:Clang>>")
+
 add_executable(test)
 
 set_target_properties(test PROPERTIES 
@@ -54,9 +63,11 @@ PRIVATE
 
 target_compile_options(test
 PRIVATE
-    $<$<CXX_COMPILER_ID:AppleClang,Clang>:-Wall -Wextra -Wpedantic> 
+    $<$<CXX_COMPILER_ID:AppleClang,Clang>:-Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion> 
+    $<${CLANG_NORMAL}:-Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion> 
+    $<${CLANG_CL}:/W4 /WX -Wpedantic -Wconversion -Wsign-conversion> 
     
-    $<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra -Wpedantic
+    $<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion
         -Wno-unknown-pragmas  #the whole point of pragmas it to be potentially unknown!
     >
     $<$<CXX_COMPILER_ID:MSVC>:/utf-8 /Zc:preprocessor /W4 /WX /EHsc

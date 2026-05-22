@@ -82,7 +82,7 @@ TEST_CASE("mmap") {
         auto fd = FileDescriptor::open("test_file", O_RDONLY);
         struct ::stat st;
         getStatus(fd, st);
-        MemoryMap map(nullptr, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+        MemoryMap map(nullptr, size_t(st.st_size), PROT_READ, MAP_PRIVATE, fd, 0);
         REQUIRE(map.size() == 5);
         REQUIRE(map.data());
         CHECK(map);
@@ -92,7 +92,7 @@ TEST_CASE("mmap") {
         auto fd = FileDescriptor::open("test_file", O_RDONLY);
         struct ::stat st;
         getStatus(fd, st);
-        MemoryMap map(st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+        MemoryMap map(size_t(st.st_size), PROT_READ, MAP_PRIVATE, fd, 0);
         REQUIRE(map.size() == 5);
         REQUIRE(map.data());
         CHECK(map);
@@ -102,7 +102,7 @@ TEST_CASE("mmap") {
         auto fd = FileDescriptor::open("test_file", O_RDONLY);
         struct ::stat st;
         getStatus(fd, st);
-        MemoryMap map(nullptr, st.st_size, PROT_READ, MAP_PRIVATE, fd);
+        MemoryMap map(nullptr, size_t(st.st_size), PROT_READ, MAP_PRIVATE, fd);
         REQUIRE(map.size() == 5);
         REQUIRE(map.data());
         CHECK(map);
@@ -112,7 +112,7 @@ TEST_CASE("mmap") {
         auto fd = FileDescriptor::open("test_file", O_RDONLY);
         struct ::stat st;
         getStatus(fd, st);
-        MemoryMap map(st.st_size, PROT_READ, MAP_PRIVATE, fd);
+        MemoryMap map(size_t(st.st_size), PROT_READ, MAP_PRIVATE, fd);
         REQUIRE(map.size() == 5);
         REQUIRE(map.data());
         CHECK(map);
@@ -122,7 +122,7 @@ TEST_CASE("mmap") {
         auto fd = FileDescriptor::open("test_file", O_RDONLY);
         struct ::stat st;
         getStatus(fd, st);
-        MemoryMap map(nullptr, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0, ec);
+        MemoryMap map(nullptr, size_t(st.st_size), PROT_READ, MAP_PRIVATE, fd, 0, ec);
         CHECK(!ec);
         REQUIRE(map.size() == 5);
         REQUIRE(map.data());

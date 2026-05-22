@@ -74,7 +74,7 @@ namespace ptl::inline v0 {
     #elif PTL_HAVE_SYS_SIGNAME
         if (sig > 0 && sig < NSIG) {
             std::string str = sys_signame[sig];
-            for (auto & c: str) c = std::toupper(c);
+            for (auto & c: str) c = (char)std::toupper((unsigned char)c);
             return str;
         }
     #elif PTL_HAVE_SYS_SIGABBREV

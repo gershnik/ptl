@@ -5,6 +5,7 @@
 #define PTL_HEADER_FILE_H_INCLUDED
 
 #include <ptl/core.h>
+#include <ptl/util.h>
 
 
 #if defined(_WIN32)
@@ -281,8 +282,16 @@ namespace ptl::inline v0 {
     inline auto readFile(FileDescriptorLike auto && desc, void * buf, io_size_t nbyte, 
                          PTL_ERROR_REF_ARG(err)) -> io_ssize_t 
     requires(PTL_ERROR_REQ(err)) {
+        using ReadRetType = decltype(impl::read(0, buf, 1));
+        using SizeArgType = std::make_unsigned_t<ReadRetType>;
+        
+        if constexpr (IsNumericallyBigger<io_size_t, SizeArgType>) {
+            if (nbyte > io_size_t(std::numeric_limits<SizeArgType>::max()))
+                throwErrorCode(EINVAL, "requested read size {} exceeds maximum supported {}", nbyte, std::numeric_limits<SizeArgType>::max());
+        }
+
         auto fd = c_fd(std::forward<decltype(desc)>(desc));
-        auto ret = impl::read(fd, buf, nbyte);
+        auto ret = impl::read(fd, buf, SizeArgType(nbyte));
         if (ret < 0)
             handleError(PTL_ERROR_REF(err), errno, "read({}, ,{}) failed", fd, nbyte);
         else
@@ -293,8 +302,16 @@ namespace ptl::inline v0 {
     inline auto writeFile(FileDescriptorLike auto && desc, const void * buf, io_size_t nbyte, 
                           PTL_ERROR_REF_ARG(err)) -> io_ssize_t 
     requires(PTL_ERROR_REQ(err)) {
+        using WriteRetType = decltype(impl::write(0, buf, 1));
+        using SizeArgType = std::make_unsigned_t<WriteRetType>;
+
+        if constexpr (IsNumericallyBigger<io_size_t, SizeArgType>) {
+            if (nbyte > io_size_t(std::numeric_limits<SizeArgType>::max()))
+                throwErrorCode(EINVAL, "requested write size {} exceeds maximum supported {}", nbyte, std::numeric_limits<SizeArgType>::max());
+        }
+
         auto fd = c_fd(std::forward<decltype(desc)>(desc));
-        auto ret = impl::write(fd, buf, nbyte);
+        auto ret = impl::write(fd, buf, SizeArgType(nbyte));
         if (ret < 0)
             handleError(PTL_ERROR_REF(err), errno, "write({}, ,{}) failed", fd, nbyte);
         else

@@ -46,7 +46,7 @@ namespace ptl::inline v0 {
         UserInfoImpl(size_t buflen): m_buf(buflen) {}
 
         static auto startBufSize() -> size_t {
-            static size_t theSize = systemConfig(Traits::MaxSizeConf).value_or(4096);
+            static auto theSize = size_t(systemConfig(Traits::MaxSizeConf).value_or(4096));
             return theSize;
         }
 

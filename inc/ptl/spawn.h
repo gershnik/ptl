@@ -273,7 +273,6 @@ namespace ptl::inline v0 {
                      PTL_ERROR_REF_ARG(err)) -> void
     requires(PTL_ERROR_REQ(err)) {
 
-        clearError(PTL_ERROR_REF(err));
         auto path = c_path(std::forward<decltype(exe)>(exe));
         execve(path, args.data(), env.data());
         handleError(PTL_ERROR_REF(err), errno, "cannot exec {}", path);

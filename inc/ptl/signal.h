@@ -20,7 +20,6 @@ namespace ptl::inline v0 {
 
     #ifndef _WIN32
     class SignalSet {
-    enum Init { Emtpy, All };
     public:
         SignalSet() noexcept {
             sigemptyset(&m_set);

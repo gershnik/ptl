@@ -258,7 +258,7 @@ namespace ptl::inline v0 {
         auto fd = c_socket(std::forward<decltype(socket)>(socket));
         int res = ::getsockopt(fd, level, option_name, static_cast<impl::SocketOptionValueType *>(option_value), option_len);
         if (res != 0)
-            handleError(PTL_ERROR_REF(err), impl::getSocketError(), "setsockopt({}, {}, {}) failed", fd, level, option_name);
+            handleError(PTL_ERROR_REF(err), impl::getSocketError(), "getsockopt({}, {}, {}) failed", fd, level, option_name);
         else
             clearError(PTL_ERROR_REF(err));
     }

@@ -16,6 +16,7 @@
         - [Whitelisting expected errors](#whitelisting-expected-errors)
         - [Calls that always throw](#calls-that-always-throw)
         - [No std::expected or outcome](#no-stdexpected-or-outcome)
+        - [Going further](#going-further)
     - [Thread safety](#thread-safety)
     - [Path arguments](#path-arguments)
 - [Functionality areas](#functionality-areas)
@@ -115,6 +116,10 @@ Some PTL calls are throw-only and do not offer the error code form. These are ca
 #### No std::expected or outcome
 
 PTL does not use, and does not plan to use, `std::expected` or `outcome`. This is partly because the first is not yet commonly available. More importantly, the `outcome` style unconditionally penalizes people who want to use exceptions: they pay for what they do not use both in mental burden (do not forget to dereference that outcome) and in generated code (whether the compiler can always see through outcome manipulations and optimize them out is unclear).
+
+#### Going further
+
+For comparing error codes against `std::errc` values portably across platforms, and for plugging your own error type (such as `boost::system::error_code`) into PTL via `ErrorTraits`, see [Advanced Error Handling](advanced-errors.md).
 
 ### Thread safety
 

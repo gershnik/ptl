@@ -5,6 +5,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Fixed
+- `setProcessGroupId` now works properly. It was broken previously due to a typo.
+- `c_pid` is now defined for `ChildProcess`.
+- The return type for `c_pid` is now properly `pid_t` rather than `int`.
+- `SockOptRcvTimeout` definition is now correct. 
+- Error message for `getSocketOption` now names the function correctly.
+- `sendSignal` and `raiseSignal` now properly clear error code on success.
+
+### Added
+
+- `readFile`, `writeFile` and socket functions for sending and receiving now all
+  throw exceptions on overflow of the length argument on platforms where the
+  underlying syscalls have length type that is smaller than `io_size_t`.
+
+### Changed
+- The library should now compile cleanly with `-Wconversion` and `-Wsign-conversion`
+  compiler options enabled.
+
 ## [1.7] - 2025-08-01
 
 ### Added

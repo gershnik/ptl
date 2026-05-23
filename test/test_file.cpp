@@ -191,8 +191,6 @@ TEST_CASE("mmap") {
 
 }
 
-#endif
-
 TEST_CASE("FILE * as file-like") {
     FILE * fp = std::fopen("test_file", "w");
     REQUIRE(fp);
@@ -230,7 +228,7 @@ TEST_CASE("makeDirectoryAt") {
     std::filesystem::remove_all("ptl_test_subdir");
 }
 
-#ifndef _WIN32
+#if !defined(__EMSCRIPTEN__)
 TEST_CASE("flock") {
     auto fd = FileDescriptor::open("test_file", O_WRONLY | O_CREAT, 0644);
 
@@ -246,6 +244,8 @@ TEST_CASE("flock") {
     
     std::filesystem::remove("test_file");
 }
+#endif
+
 #endif
 
 }

@@ -94,6 +94,63 @@ TEST_CASE( "action handler" ) {
         CHECK(ret.sa_sigaction == handler);
     }
 }
+
+TEST_CASE("SignalSet") {
+    SignalSet empty;
+    CHECK(!empty.isMember(SIGINT));
+
+    auto all = SignalSet::all();
+    CHECK(all.isMember(SIGINT));
+    CHECK(all.isMember(SIGUSR1));
+
+    auto none = SignalSet::none();
+    CHECK(!none.isMember(SIGINT));
+
+    SignalSet set;
+    set.add(SIGINT);
+    set.add(SIGTERM);
+    CHECK(set.isMember(SIGINT));
+    CHECK(set.isMember(SIGTERM));
+    CHECK(!set.isMember(SIGUSR1));
+
+    set.del(SIGINT);
+    CHECK(!set.isMember(SIGINT));
+    CHECK(set.isMember(SIGTERM));
+
+    // construct from raw sigset_t
+    sigset_t raw;
+    sigemptyset(&raw);
+    sigaddset(&raw, SIGUSR1);
+    SignalSet fromRaw(raw);
+    CHECK(fromRaw.isMember(SIGUSR1));
+    CHECK(!fromRaw.isMember(SIGINT));
+}
+
+TEST_CASE("signal process mask") {
+    SignalSet original;
+    getSignalProcessMask(original);
+
+    SignalSet block;
+    block.add(SIGUSR1);
+
+    SignalSet previous;
+    setSignalProcessMask(SIG_BLOCK, block, previous);
+
+    SignalSet current;
+    getSignalProcessMask(current);
+    CHECK(current.isMember(SIGUSR1));
+
+    // restore
+    setSignalProcessMask(SIG_SETMASK, original);
+    getSignalProcessMask(current);
+    CHECK(current.isMember(SIGUSR1) == original.isMember(SIGUSR1));
+}
+
+TEST_CASE("signalMessage") {
+    auto msg = signalMessage(SIGINT);
+    CHECK(!msg.empty());   // every platform returns something
+}
+
 #endif
 
 }

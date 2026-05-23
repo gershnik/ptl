@@ -126,6 +126,23 @@ TEST_CASE( "group by name and id" ) {
     CHECK(!ec);
 }
 
+TEST_CASE("Passwd move preserves pointers") {
+    auto & myself = getMyself();
+    auto p1 = Passwd::getByName(myself.user);
+    REQUIRE(p1);
+    
+    const char * name1 = p1->pw_name;
+    auto p2 = std::move(*p1);
+    
+    // pointers in the moved-to object must remain valid
+    CHECK(p2.pw_name != nullptr);
+    CHECK(std::string(p2.pw_name) == myself.user);
+    // pointer captured before move now belongs to p2's buffer (vector move
+    // does not relocate), but this is a brittle assertion; safer to
+    // verify by content
+    CHECK(p2.pw_uid == myself.uid);
+}
+
 #endif //ANDROID check
 
 }

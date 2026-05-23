@@ -7,6 +7,8 @@
 #include "common.h"
 
 #include <array>
+#include <thread>
+#include <chrono>
 
 using namespace ptl;
 
@@ -126,6 +128,67 @@ TEST_CASE( "spawn" ) {
     }
 }
 
+TEST_CASE("ChildProcess lifecycle") {
+    ChildProcess empty;
+    CHECK(!empty);
+    CHECK(empty.get() == 0);
+
+    auto proc = spawn({"true"}, SpawnSettings().usePath());
+    CHECK(proc);
+    pid_t raw = proc.get();
+    CHECK(raw > 0);
+
+    pid_t detached = proc.detach();
+    CHECK(!proc);
+    CHECK(detached == raw);
+    
+    int stat;
+    REQUIRE(::waitpid(detached, &stat, 0) == detached);   // no wait, true is gone
+    CHECK(WIFEXITED(stat));
+    CHECK(WEXITSTATUS(stat) == 0);
+}
+
+TEST_CASE("wait with WNOHANG") {
+    auto proc = spawn({"tail", "-f", "/dev/null"},
+                      SpawnSettings().usePath());
+    
+    auto immediate = proc.wait(WNOHANG);
+    CHECK(!immediate.has_value());            // still running
+    CHECK(proc);
+
+    sendSignal(proc, SIGTERM);
+
+    while (true) {
+        auto stat = proc.wait(WNOHANG);
+        if (stat) {
+            CHECK(WIFSIGNALED(*stat));
+            CHECK(WTERMSIG(*stat) == SIGTERM);
+            break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    CHECK(!proc);
+}
+
+TEST_CASE("ProcessLike concept") {
+    // pid_t and ChildProcess interchangeable
+    auto proc = spawn({"true"}, SpawnSettings().usePath());
+    
+    sendSignal(proc, 0);              // ChildProcess
+    sendSignal(proc.get(), 0);        // raw pid_t
+
+    sendSignal(proc, SIGTERM);
+    proc.wait();
+}
+
+TEST_CASE("c_pid") {
+    auto proc = spawn({"true"}, SpawnSettings().usePath());
+    CHECK(c_pid(proc) == proc.get());
+    CHECK(c_pid(pid_t(1234)) == 1234);
+    sendSignal(proc, SIGTERM);
+    proc.wait();
+}
+
 #endif //ANDROID version check
 
 
@@ -158,6 +221,23 @@ TEST_CASE( "fork_exec" ) {
         duplicateTo(write, stdout);
         execp({"sh", "-c", "echo hoho"});
     }
+}
+
+TEST_CASE("setProcessGroupId") {
+    auto pipe = Pipe::create();
+    auto child = forkProcess();
+    if (!child) {
+        pipe.readEnd.close();
+        setProcessGroupId(::getpid(), 0);  // make self a group leader
+        pid_t pgid = ::getpgrp();
+        writeFile(pipe.writeEnd, &pgid, sizeof(pgid));
+        ::_exit(0);
+    }
+    pipe.writeEnd.close();
+    pid_t childPgid;
+    readFile(pipe.readEnd, &childPgid, sizeof(childPgid));
+    CHECK(childPgid == child.get());
+    child.wait();
 }
 
 #else

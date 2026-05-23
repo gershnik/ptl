@@ -132,6 +132,35 @@ TEST_CASE( "read-write" ) {
     sender.join();
 }
 
+TEST_CASE("low-level socket options") {
+    auto sock = createSocket(PF_INET, SOCK_STREAM, 0);
+    int yes = 1;
+    setSocketOption(sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
+    int out = 0;
+    ptl::socklen_t len = sizeof(out);
+    getSocketOption(sock, SOL_SOCKET, SO_REUSEADDR, &out, &len);
+    CHECK(out != 0);
+    CHECK(len == sizeof(out));
+}
+
+#ifndef _WIN32
+
+TEST_CASE("connected socket send/recv") {
+    int rawPair[2];
+    REQUIRE(::socketpair(AF_UNIX, SOCK_STREAM, 0, rawPair) == 0);
+    FileDescriptor a(rawPair[0]), b(rawPair[1]);
+    
+    auto sent = sendSocket(a, "hello", 5, 0);
+    CHECK(sent == 5);
+    
+    char buf[5];
+    auto received = receiveSocket(b, buf, sizeof(buf), 0);
+    CHECK(received == 5);
+    CHECK(memcmp(buf, "hello", 5) == 0);
+}
+
+#endif
+
 }
 
 #endif 

@@ -131,15 +131,12 @@ TEST_CASE("Passwd move preserves pointers") {
     auto p1 = Passwd::getByName(myself.user);
     REQUIRE(p1);
     
-    const char * name1 = p1->pw_name;
+    const char * nameBefore = p1->pw_name;
+    REQUIRE(nameBefore);
     auto p2 = std::move(*p1);
     
-    // pointers in the moved-to object must remain valid
-    CHECK(p2.pw_name != nullptr);
+    CHECK(p2.pw_name == nameBefore);
     CHECK(std::string(p2.pw_name) == myself.user);
-    // pointer captured before move now belongs to p2's buffer (vector move
-    // does not relocate), but this is a brittle assertion; safer to
-    // verify by content
     CHECK(p2.pw_uid == myself.uid);
 }
 

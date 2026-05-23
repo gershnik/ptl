@@ -53,7 +53,7 @@ TEST_CASE("FileDescriptor lifecycle") {
     int detached = fd2.detach();
     CHECK(!fd2);
     CHECK(detached >= 0);
-    ::close(detached);
+    impl::close(detached);
 
     // close
     auto fd3 = FileDescriptor::open("test_file", O_RDONLY);

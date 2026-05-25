@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.8] - 2026-05-25
+
 ### Fixed
 - `setProcessGroupId` now works properly. It was broken previously due to a typo.
 - `c_pid` is now defined for `ChildProcess`.
@@ -114,3 +116,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [1.5]: https://github.com/gershnik/ptl/releases/v1.5
 [1.6]: https://github.com/gershnik/ptl/releases/v1.6
 [1.7]: https://github.com/gershnik/ptl/releases/v1.7
+[1.8]: https://github.com/gershnik/ptl/releases/v1.8

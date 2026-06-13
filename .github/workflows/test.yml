@@ -38,7 +38,7 @@ jobs:
         rm -rf out
         cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo 
         cmake --build out --target tests
-        ctest --test-dir out -C RelWithDebInfo --output-on-failure -VV -R 
+        ctest --test-dir out -C RelWithDebInfo --output-on-failure -VV 
         EOF
 
   define-matrix:
@@ -74,7 +74,8 @@ jobs:
             14: 'ubuntu-24.04'
           }
           gcc_cont_map = {
-            15: 'gcc:15.1'
+            15: 'gcc:15.1',
+            16: 'gcc:16.1'
           }
           clang_map = {
             13: 'ubuntu-22.04', 
@@ -196,7 +197,7 @@ jobs:
       run: cmake --build out --target tests
 
     - name: Test
-      run: ctest --test-dir out -C RelWithDebInfo --output-on-failure -VV -R 
+      run: ctest --test-dir out -C RelWithDebInfo --output-on-failure -VV 
   
   container:
     needs: define-matrix
@@ -230,7 +231,7 @@ jobs:
 
     - name: Test
       shell: bash
-      run: ctest --test-dir out -C RelWithDebInfo --output-on-failure -VV -R 
+      run: ctest --test-dir out -C RelWithDebInfo --output-on-failure -VV 
 
   big-endian:
     runs-on: ubuntu-latest
@@ -259,7 +260,7 @@ jobs:
     - name: Test
       run: |
         export QEMU_LD_PREFIX=/usr/powerpc-linux-gnu/
-        ctest --test-dir out -C RelWithDebInfo --output-on-failure -VV -R 
+        ctest --test-dir out -C RelWithDebInfo --output-on-failure -VV 
 
   mingw:
     runs-on: windows-latest
@@ -284,7 +285,7 @@ jobs:
       shell: cmd
       run: |
           PATH=C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin;%PATH%
-          ctest --test-dir out -C RelWithDebInfo --output-on-failure -VV -R 
+          ctest --test-dir out -C RelWithDebInfo --output-on-failure -VV 
 
   cygwin:
     runs-on: windows-latest
@@ -314,7 +315,7 @@ jobs:
       shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
       run: |
         cd ${GITHUB_WORKSPACE}
-        ctest --test-dir out -C RelWithDebInfo --output-on-failure -VV -R 
+        ctest --test-dir out -C RelWithDebInfo --output-on-failure -VV 
 
   android:
     runs-on: ubuntu-latest
@@ -369,7 +370,7 @@ jobs:
         script: |
             cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_TOOLCHAIN_FILE:FILEPATH=$ANDROID_SDK_ROOT/ndk/${{ matrix.version }}/build/cmake/android.toolchain.cmake -DANDROID_ABI:STRING=${{ matrix.arch }} -DANDROID_PLATFORM:STRING=${{ matrix.api }} -DANDROID_STL:STRING=c++_static
             cmake --build out --target tests
-            ctest --test-dir out -C RelWithDebInfo --output-on-failure -VV -R 
+            ctest --test-dir out -C RelWithDebInfo --output-on-failure -VV 
             killall -INT crashpad_handler || true
 
   emscripten:
@@ -410,6 +411,6 @@ jobs:
       run: cmake --build out --target tests
 
     - name: Test
-      run: ctest --test-dir out -C Release --output-on-failure -VV -R 
+      run: ctest --test-dir out -C Release --output-on-failure -VV 
 
 

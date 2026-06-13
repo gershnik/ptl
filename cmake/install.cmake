@@ -5,14 +5,18 @@ include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
 install(TARGETS ptl EXPORT ptl FILE_SET HEADERS DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-install(EXPORT ptl NAMESPACE ptl:: FILE ptl-exports.cmake DESTINATION ${CMAKE_INSTALL_LIBDIR}/ptl)
+install(EXPORT ptl NAMESPACE ptl:: FILE ptl-exports.cmake DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/ptl)
+
+# Clean the old CMAKE_INSTALL_LIBDIR location where things were previously put
+# on older versions
+install(CODE "file(REMOVE_RECURSE \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/ptl\")")
 
 
 configure_package_config_file(
         ${CMAKE_CURRENT_LIST_DIR}/ptl-config.cmake.in
         ${CMAKE_CURRENT_BINARY_DIR}/ptl-config.cmake
     INSTALL_DESTINATION
-        ${CMAKE_INSTALL_LIBDIR}/ptl
+        ${CMAKE_INSTALL_DATAROOTDIR}/ptl
 )
 
 write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/ptl-config-version.cmake
@@ -25,7 +29,7 @@ install(
         ${CMAKE_CURRENT_BINARY_DIR}/ptl-config.cmake
         ${CMAKE_CURRENT_BINARY_DIR}/ptl-config-version.cmake
     DESTINATION
-        ${CMAKE_INSTALL_LIBDIR}/ptl
+        ${CMAKE_INSTALL_DATAROOTDIR}/ptl
 )
 
 file(RELATIVE_PATH FROM_PCFILEDIR_TO_PREFIX ${CMAKE_INSTALL_FULL_DATAROOTDIR}/ptl ${CMAKE_INSTALL_PREFIX})

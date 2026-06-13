@@ -5,6 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Changed
+- Building tests is now gated behind `-DBUILD_TESTING=ON`.
+- Build now supports `ctest`
+
+### Fixed
+- CMake install now puts the *.cmake files and .cppm module under `share/ptl` rather than `/lib/{.../}ptl` as it
+  should always have done, since they aren't architecture dependent. This should be completely transparent to clients 
+  unless you hardcode the paths into the install location for some reason.
+- CMake install no longer erroneously installs `fmt` library
+
 ## [1.8] - 2026-05-25
 
 ### Fixed

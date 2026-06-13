@@ -37,7 +37,8 @@ jobs:
         git reset --hard ${{ github.sha }}
         rm -rf out
         cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo 
-        cmake --build out --target run-test
+        cmake --build out --target tests
+        ctest --test-dir out -C RelWithDebInfo --output-on-failure -VV -R 
         EOF
 
   define-matrix:
@@ -64,7 +65,7 @@ jobs:
             "26.3": 'macos-15',
           }
 
-          win_paltforms = ["x64", "Win32"]
+          win_platforms = ["x64", "Win32"]
 
           gcc_map = {
             11: 'ubuntu-latest', 
@@ -102,7 +103,7 @@ jobs:
           
           #windows
           for cxx_standard in cxx_standards:
-            for platform in win_paltforms:
+            for platform in win_platforms:
               hosts.append({'os': 'windows-latest', 'platform': platform, 'cxx_standard': cxx_standard, 'jobname': f'Windows - {platform} - C++{cxx_standard}'})
           
           #gcc hosts
@@ -192,8 +193,10 @@ jobs:
           cmake -S . -B out $EXTRA_FLAGS -DCMAKE_BUILD_TYPE=RelWithDebInfo 
 
     - name: Build
-      run: |
-          cmake --build out --target run-test
+      run: cmake --build out --target tests
+
+    - name: Test
+      run: ctest --test-dir out -C RelWithDebInfo --output-on-failure -VV -R 
   
   container:
     needs: define-matrix
@@ -221,10 +224,13 @@ jobs:
         export EXTRA_FLAGS="-DCMAKE_CXX_STANDARD=${{ matrix.cxx_standard }} -DCMAKE_CXX_STANDARD_REQUIRED=ON"
         cmake -GNinja -S . -B out $EXTRA_FLAGS -DCMAKE_BUILD_TYPE=RelWithDebInfo 
   
-    - name: Build and Test
+    - name: Build
       shell: bash
-      run: |
-        cmake --build out --target run-test
+      run: cmake --build out --target tests
+
+    - name: Test
+      shell: bash
+      run: ctest --test-dir out -C RelWithDebInfo --output-on-failure -VV -R 
 
   big-endian:
     runs-on: ubuntu-latest
@@ -245,11 +251,15 @@ jobs:
         export QEMU_LD_PREFIX=/usr/powerpc-linux-gnu/
         cmake -GNinja -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_SYSTEM_PROCESSOR=powerpc
 
-    - name: Build and Test
-      shell: bash
+    - name: Build
       run: |
         export QEMU_LD_PREFIX=/usr/powerpc-linux-gnu/
-        cmake --build out --target run-test
+        cmake --build out --target tests
+
+    - name: Test
+      run: |
+        export QEMU_LD_PREFIX=/usr/powerpc-linux-gnu/
+        ctest --test-dir out -C RelWithDebInfo --output-on-failure -VV -R 
 
   mingw:
     runs-on: windows-latest
@@ -268,7 +278,13 @@ jobs:
       shell: cmd
       run: |
           PATH=C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin;%PATH%
-          cmake --build out --target run-test
+          cmake --build out --target tests
+
+    - name: Test
+      shell: cmd
+      run: |
+          PATH=C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin;%PATH%
+          ctest --test-dir out -C RelWithDebInfo --output-on-failure -VV -R 
 
   cygwin:
     runs-on: windows-latest
@@ -292,7 +308,13 @@ jobs:
       shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
       run: |
           cd ${GITHUB_WORKSPACE}
-          cmake --build out --target run-test
+          cmake --build out --target tests
+
+    - name: Test
+      shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+      run: |
+        cd ${GITHUB_WORKSPACE}
+        ctest --test-dir out -C RelWithDebInfo --output-on-failure -VV -R 
 
   android:
     runs-on: ubuntu-latest
@@ -346,7 +368,8 @@ jobs:
         disable-animations: true
         script: |
             cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_TOOLCHAIN_FILE:FILEPATH=$ANDROID_SDK_ROOT/ndk/${{ matrix.version }}/build/cmake/android.toolchain.cmake -DANDROID_ABI:STRING=${{ matrix.arch }} -DANDROID_PLATFORM:STRING=${{ matrix.api }} -DANDROID_STL:STRING=c++_static
-            cmake --build out --target run-test
+            cmake --build out --target tests
+            ctest --test-dir out -C RelWithDebInfo --output-on-failure -VV -R 
             killall -INT crashpad_handler || true
 
   emscripten:
@@ -382,8 +405,11 @@ jobs:
         cmake -S . -B out $EXTRA_FLAGS -DCMAKE_TOOLCHAIN_FILE=$EMSDK/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DCMAKE_BUILD_TYPE=Release
 
 
-    - name: Build and Test
+    - name: Build
       shell: bash
-      run: cmake --build out --target run-test
+      run: cmake --build out --target tests
+
+    - name: Test
+      run: ctest --test-dir out -C Release --output-on-failure -VV -R 
 
 

@@ -11,7 +11,12 @@ string(STRIP ${PTL_VERSION} PTL_VERSION)
 
 project(ptl VERSION ${PTL_VERSION} LANGUAGES CXX)
 
-option(PTL_NO_TESTS "disables tests configuration and build" OFF)
+option(BUILD_TESTING "Enable testing" ${PROJECT_IS_TOP_LEVEL})
+if (BUILD_TESTING)
+    option(PTL_NO_TESTS "(deprecated) disables testing" OFF)
+else()
+    option(PTL_NO_TESTS "(deprecated) disables testing" ON)
+endif()
 
 include(cmake/config.cmake)
 
@@ -73,8 +78,9 @@ if (PROJECT_IS_TOP_LEVEL)
 
     include(cmake/install.cmake)
 
-    if (NOT PTL_NO_TESTS)
-        add_subdirectory(test)
-    endif()
+endif()
 
+if (NOT PTL_NO_TESTS)
+    enable_testing()
+    add_subdirectory(test)
 endif()

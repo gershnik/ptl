@@ -39,15 +39,15 @@ endif()
 set (CLANG_CL "$<AND:$<BOOL:${FRONT_MSVC}>,$<CXX_COMPILER_ID:Clang>>")
 set (CLANG_NORMAL "$<AND:$<NOT:$<BOOL:${FRONT_MSVC}>>,$<CXX_COMPILER_ID:Clang>>")
 
-add_executable(test)
+add_executable(tests)
 
-set_target_properties(test PROPERTIES 
+set_target_properties(tests PROPERTIES 
     CXX_VISIBILITY_PRESET hidden
     VISIBILITY_INLINES_HIDDEN ON
     POSITION_INDEPENDENT_CODE ON
 )
 
-target_link_libraries(test 
+target_link_libraries(tests 
 PRIVATE
     ptl::ptl
     fmt::fmt
@@ -56,12 +56,12 @@ PRIVATE
     $<$<PLATFORM_ID:SunOS>:socket>
 )
 
-target_include_directories(test
+target_include_directories(tests
 PRIVATE
     ${doctest_SOURCE_DIR}
 )
 
-target_compile_options(test
+target_compile_options(tests
 PRIVATE
     $<$<CXX_COMPILER_ID:AppleClang,Clang>:-Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion> 
     $<${CLANG_NORMAL}:-Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion> 
@@ -76,17 +76,17 @@ PRIVATE
     $<$<BOOL:${EMSCRIPTEN}>:-sNO_DISABLE_EXCEPTION_CATCHING>
 )
 
-target_link_options(test 
+target_link_options(tests 
 PRIVATE
     $<$<BOOL:${EMSCRIPTEN}>:-sNO_DISABLE_EXCEPTION_CATCHING>
 )
 
-target_compile_definitions(test
+target_compile_definitions(tests
 PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>:_CRT_SECURE_NO_WARNINGS>
 )
 
-target_sources(test
+target_sources(tests
 PRIVATE
     common.cpp
     test.cpp
@@ -100,11 +100,7 @@ PRIVATE
     test_system.cpp
 )
 
-set(TEST_COMMAND "")
-set(TEST_DEPS "")
-
 if (${CMAKE_SYSTEM_NAME} STREQUAL Android)
-
     set(ANDROID_TEST_DIR /data/local/tmp/ptl_test)
     set(ANDROID_SDK_DIR ${CMAKE_ANDROID_NDK}/../..)
     set(ADB ${ANDROID_SDK_DIR}/platform-tools/adb)
@@ -114,27 +110,57 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL Android)
     else()
         set(ANDROID_LD_LIBRARY_PATH /apex/com.android.art/lib64:/apex/com.android.runtime/lib64)
     endif()
-
-    list(APPEND TEST_COMMAND COMMAND ${ADB} shell mkdir -p ${ANDROID_TEST_DIR}/data)
-    list(APPEND TEST_COMMAND COMMAND ${ADB} push "$<TARGET_FILE:test>" ${ANDROID_TEST_DIR})
-    list(APPEND TEST_COMMAND COMMAND ${ADB} shell \"cd ${ANDROID_TEST_DIR} && LD_LIBRARY_PATH=${ANDROID_LD_LIBRARY_PATH} ./test -ni\")
-
-elseif (DEFINED EMSCRIPTEN)
-
-    list(APPEND TEST_COMMAND COMMAND node $<TARGET_FILE:test> -ni)
-
-else()
-
-    list(APPEND TEST_COMMAND COMMAND test -ni)
-    
 endif()
 
-list(APPEND TEST_DEPS test)
+set(TEST_SRCIPT 
+"
+cmake_path(GET EXECUTABLE FILENAME exefilename)
 
-add_custom_target(run-test 
-    DEPENDS ${TEST_DEPS}
-    ${TEST_COMMAND}
+macro(run)
+    execute_process(COMMAND \${ARGV} COMMAND_ERROR_IS_FATAL ANY)
+endmacro()
+")
+
+if (${CMAKE_SYSTEM_NAME} STREQUAL Android)
+    string(APPEND TEST_SRCIPT "
+${ADB} shell mkdir -p ${ANDROID_TEST_DIR}/data
+${ADB} push \"\${EXECUTABLE}\" ${ANDROID_TEST_DIR}
+${ADB} shell \"cd ${ANDROID_TEST_DIR} && LD_LIBRARY_PATH=${ANDROID_LD_LIBRARY_PATH} ./test -ni -fc
+")
+elseif (DEFINED EMSCRIPTEN)
+    string(APPEND TEST_SRCIPT "
+run(${NODE_JS_EXECUTABLE} \${EXECUTABLE} -ni -fc)
+")
+
+else()
+    string(APPEND TEST_SRCIPT "
+run(\${EXECUTABLE} -ni -fc)
+")  
+endif()
+
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/run-test.cmake ${TEST_SRCIPT})
+
+add_test(
+    NAME "test"
+    COMMAND ${CMAKE_COMMAND} 
+        -DEXECUTABLE=$<TARGET_FILE:tests>
+        -P ${CMAKE_CURRENT_BINARY_DIR}/run-test.cmake
 )
 
-
-
+get_directory_property(KNOWN_SUBDIRECTORIES SUBDIRECTORIES)
+foreach(dir ${KNOWN_SUBDIRECTORIES})
+    if (IS_DIRECTORY ${dir})
+        foreach(dep ${DECLARED_DEPENDENCIES})
+            string(TOLOWER ${dep} ldep)
+            if (DEFINED ${ldep}_SOURCE_DIR)
+                #check if the subdirectory is "under" the dependency source dir
+                string(FIND ${dir} ${${ldep}_SOURCE_DIR} match_pos)
+                if (match_pos EQUAL 0)
+                    #and, if so, exclude it from all to prevent installation
+                    set_property(DIRECTORY ${dir} PROPERTY EXCLUDE_FROM_ALL YES)
+                    break()
+                endif()
+            endif()
+        endforeach()
+    endif()
+endforeach()

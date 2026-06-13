@@ -72,6 +72,7 @@ PRIVATE
     >
     $<$<CXX_COMPILER_ID:MSVC>:/utf-8 /Zc:preprocessor /W4 /WX /EHsc
         /wd5030 #attribute 'x' is not recognized
+        /wd5285 #cannot declare a specialization for 'std::tuple' (in doctest)
     >
     $<$<BOOL:${EMSCRIPTEN}>:-sNO_DISABLE_EXCEPTION_CATCHING>
 )
@@ -123,9 +124,9 @@ endmacro()
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL Android)
     string(APPEND TEST_SRCIPT "
-${ADB} shell mkdir -p ${ANDROID_TEST_DIR}/data
-${ADB} push \"\${EXECUTABLE}\" ${ANDROID_TEST_DIR}
-${ADB} shell \"cd ${ANDROID_TEST_DIR} && LD_LIBRARY_PATH=${ANDROID_LD_LIBRARY_PATH} ./test -ni -fc
+run(${ADB} shell mkdir -p ${ANDROID_TEST_DIR}/data)
+run(${ADB} push \"\${EXECUTABLE}\" ${ANDROID_TEST_DIR})
+run(${ADB} shell \"cd ${ANDROID_TEST_DIR} && LD_LIBRARY_PATH=${ANDROID_LD_LIBRARY_PATH} ./test -ni -fc)
 ")
 elseif (DEFINED EMSCRIPTEN)
     string(APPEND TEST_SRCIPT "

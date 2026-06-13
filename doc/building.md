@@ -47,9 +47,9 @@ You can also build and install PTL on your system using CMake.
 ```bash
 cd SOME_PATH
 cmake -S . -B build 
-cmake --build build
 
 #Optional
+#cmake --build build
 #cmake --build build --target run-tests
 
 #install to /usr/local

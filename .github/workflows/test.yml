@@ -408,7 +408,7 @@ jobs:
 
     - name: Build
       shell: bash
-      run: cmake --build --config Release out --target tests
+      run: cmake --build out --config Release --target tests
 
     - name: Test
       run: ctest --test-dir out -C Release --output-on-failure -VV 

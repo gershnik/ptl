@@ -194,7 +194,7 @@ jobs:
           cmake -S . -B out $EXTRA_FLAGS -DCMAKE_BUILD_TYPE=RelWithDebInfo 
 
     - name: Build
-      run: cmake --build out --target tests
+      run: cmake --build out --config RelWithDebInfo --target tests
 
     - name: Test
       run: ctest --test-dir out -C RelWithDebInfo --output-on-failure -VV 
@@ -227,7 +227,7 @@ jobs:
   
     - name: Build
       shell: bash
-      run: cmake --build out --target tests
+      run: cmake --build out --config RelWithDebInfo --target tests
 
     - name: Test
       shell: bash
@@ -255,7 +255,7 @@ jobs:
     - name: Build
       run: |
         export QEMU_LD_PREFIX=/usr/powerpc-linux-gnu/
-        cmake --build out --target tests
+        cmake --build out --config RelWithDebInfo --target tests
 
     - name: Test
       run: |
@@ -279,7 +279,7 @@ jobs:
       shell: cmd
       run: |
           PATH=C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin;%PATH%
-          cmake --build out --target tests
+          cmake --build out --config RelWithDebInfo --target tests
 
     - name: Test
       shell: cmd
@@ -309,7 +309,7 @@ jobs:
       shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
       run: |
           cd ${GITHUB_WORKSPACE}
-          cmake --build out --target tests
+          cmake --build out --config RelWithDebInfo --target tests
 
     - name: Test
       shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
@@ -369,7 +369,7 @@ jobs:
         disable-animations: true
         script: |
             cmake -S . -B out -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_TOOLCHAIN_FILE:FILEPATH=$ANDROID_SDK_ROOT/ndk/${{ matrix.version }}/build/cmake/android.toolchain.cmake -DANDROID_ABI:STRING=${{ matrix.arch }} -DANDROID_PLATFORM:STRING=${{ matrix.api }} -DANDROID_STL:STRING=c++_static
-            cmake --build out --target tests
+            cmake --build out --config RelWithDebInfo --target tests
             ctest --test-dir out -C RelWithDebInfo --output-on-failure -VV 
             killall -INT crashpad_handler || true
 
@@ -408,7 +408,7 @@ jobs:
 
     - name: Build
       shell: bash
-      run: cmake --build out --target tests
+      run: cmake --build --config Release out --target tests
 
     - name: Test
       run: ctest --test-dir out -C Release --output-on-failure -VV 

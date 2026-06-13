@@ -126,13 +126,12 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL Android)
     string(APPEND TEST_SRCIPT "
 run(${ADB} shell mkdir -p ${ANDROID_TEST_DIR}/data)
 run(${ADB} push \"\${EXECUTABLE}\" ${ANDROID_TEST_DIR})
-run(${ADB} shell \"cd ${ANDROID_TEST_DIR} && LD_LIBRARY_PATH=${ANDROID_LD_LIBRARY_PATH} ./test -ni -fc)
+run(${ADB} shell LD_LIBRARY_PATH=${ANDROID_LD_LIBRARY_PATH} ${ANDROID_TEST_DIR}/\${exefilename} -ni -fc)
 ")
 elseif (DEFINED EMSCRIPTEN)
     string(APPEND TEST_SRCIPT "
 run(${NODE_JS_EXECUTABLE} \${EXECUTABLE} -ni -fc)
 ")
-
 else()
     string(APPEND TEST_SRCIPT "
 run(\${EXECUTABLE} -ni -fc)

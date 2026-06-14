@@ -20,6 +20,8 @@ FetchContent_Declare(doctest
 
 list(APPEND DECLARED_DEPENDENCIES doctest)
 
+set(FMT_INSTALL OFF)
+
 FetchContent_Declare(fmt
     GIT_REPOSITORY  https://github.com/fmtlib/fmt
     GIT_TAG         12.1.0
@@ -128,9 +130,9 @@ run(${ADB} shell mkdir -p ${ANDROID_TEST_DIR}/data)
 run(${ADB} push \"\${EXECUTABLE}\" ${ANDROID_TEST_DIR})
 run(${ADB} shell \"cd ${ANDROID_TEST_DIR} && LD_LIBRARY_PATH=${ANDROID_LD_LIBRARY_PATH} ./\${exefilename} -ni -fc\")
 ")
-elseif (DEFINED EMSCRIPTEN)
+elseif (CMAKE_CROSSCOMPILING)
     string(APPEND TEST_SRCIPT "
-run(${NODE_JS_EXECUTABLE} \${EXECUTABLE} -ni -fc)
+run(${CMAKE_CROSSCOMPILING_EMULATOR} \${EXECUTABLE} -ni -fc)
 ")
 else()
     string(APPEND TEST_SRCIPT "
@@ -147,20 +149,3 @@ add_test(
         -P ${CMAKE_CURRENT_BINARY_DIR}/run-test.cmake
 )
 
-get_directory_property(KNOWN_SUBDIRECTORIES SUBDIRECTORIES)
-foreach(dir ${KNOWN_SUBDIRECTORIES})
-    if (IS_DIRECTORY ${dir})
-        foreach(dep ${DECLARED_DEPENDENCIES})
-            string(TOLOWER ${dep} ldep)
-            if (DEFINED ${ldep}_SOURCE_DIR)
-                #check if the subdirectory is "under" the dependency source dir
-                string(FIND ${dir} ${${ldep}_SOURCE_DIR} match_pos)
-                if (match_pos EQUAL 0)
-                    #and, if so, exclude it from all to prevent installation
-                    set_property(DIRECTORY ${dir} PROPERTY EXCLUDE_FROM_ALL YES)
-                    break()
-                endif()
-            endif()
-        endforeach()
-    endif()
-endforeach()

@@ -462,6 +462,7 @@ namespace ptl::inline v0 {
             clearError(PTL_ERROR_REF(err));
     }
 
+    #if PTL_HAVE_MKDIRAT
     inline void makeDirectoryAt(FileDescriptorLike auto && desc, PathLike auto && path, mode_t mode,
                                 PTL_ERROR_REF_ARG(err)) 
     requires(PTL_ERROR_REQ(err)) {
@@ -472,6 +473,7 @@ namespace ptl::inline v0 {
         else
             clearError(PTL_ERROR_REF(err));
     }
+    #endif
 
     inline void truncateFile(FileDescriptorLike auto && desc, off_t length,
                              PTL_ERROR_REF_ARG(err)) 

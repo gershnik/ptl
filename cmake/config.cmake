@@ -70,6 +70,9 @@ string(APPEND CONFIG_CONTENT "#cmakedefine01 PTL_HAVE_MKOSTEMPS\n")
 check_cxx_symbol_exists(lchmod sys/stat.h PTL_HAVE_LCHMOD)
 string(APPEND CONFIG_CONTENT "#cmakedefine01 PTL_HAVE_LCHMOD\n")
 
+check_cxx_symbol_exists(mkdirat sys/stat.h PTL_HAVE_MKDIRAT)
+string(APPEND CONFIG_CONTENT "#cmakedefine01 PTL_HAVE_MKDIRAT\n")
+
 check_cxx_source_compiles("
     #ifndef _WIN32
         #include <netinet/in.h>

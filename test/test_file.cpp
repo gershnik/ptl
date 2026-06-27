@@ -221,12 +221,14 @@ TEST_CASE("makeDirectory and changeDirectory") {
     std::filesystem::remove_all("ptl_test_dir");
 }
 
+#if PTL_HAVE_MKDIRAT
 TEST_CASE("makeDirectoryAt") {
     auto cwdFd = FileDescriptor::open(".", O_RDONLY | O_DIRECTORY);
     makeDirectoryAt(cwdFd, "ptl_test_subdir", S_IRWXU);
     CHECK(std::filesystem::is_directory("ptl_test_subdir"));
     std::filesystem::remove_all("ptl_test_subdir");
 }
+#endif
 
 #if !defined(__EMSCRIPTEN__)
 TEST_CASE("flock") {

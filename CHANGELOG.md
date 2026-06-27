@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Fixed
+- `mkdirat` presence is now detected during configuration rather than assumed. 
+
 ## [1.9] - 2026-06-19
 
 ### Changed
